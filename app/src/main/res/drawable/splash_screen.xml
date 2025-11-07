@@ -1,0 +1,8 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- App logo centered -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/voyagerbuds_nobg" />
+    </item>
+</layer-list>
