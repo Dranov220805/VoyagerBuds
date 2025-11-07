@@ -2,4 +2,42 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="main_color_voyager">#39CABF</color>
+<!--    <color name="sub_color_voyager"></color>-->
+
+    <!-- Base Colors -->
+    <color name="musebox_green">#121212</color>
+    <color name="colorPrimaryDark">#121212</color>
+    <color name="colorAccent">#1DB954</color>
+    <color name="darker_gray">#A0A0A0</color>
+    <color name="dark_gray">#282828</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="light_gray">#BDBDBD</color>
+
+    <!-- Dark Theme Colors -->
+    <color name="light_background">#121212</color>
+    <color name="light_surface">#181818</color>
+    <color name="light_card">#282828</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+    <color name="text_tertiary">#6A6A6A</color>
+    <color name="divider">#282828</color>
+
+    <!-- Status Colors -->
+    <color name="error">#F44336</color>
+    <color name="error_light">#FFEBEE</color>
+    <color name="warning">#FF9800</color>
+    <color name="warning_light">#FFF3E0</color>
+    <color name="success">#1DB954</color>
+    <color name="success_light">#E8F5E8</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_blue">#2196F3</color>
+    <color name="accent_green">#1DB954</color>
+    <color name="accent_orange">#FF9800</color>
+
+    <!-- Progress Bar / SeekBar Colors -->
+    <color name="progress_active">#1DB954</color>
+    <color name="progress_inactive">#3E3E3E</color>
+    <color name="favorite_red">#E53935</color>
 </resources>
