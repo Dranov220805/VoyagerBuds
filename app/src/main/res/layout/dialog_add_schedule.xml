@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/et_schedule_day"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Date (tap to pick)"
+        android:focusable="false"
+        android:clickable="true"
+        android:inputType="none" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/et_schedule_start_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Start time"
+            android:focusable="false"
+            android:clickable="true"
+            android:inputType="none" />
+
+        <EditText
+            android:id="@+id/et_schedule_end_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="End time"
+            android:layout_marginStart="8dp"
+            android:focusable="false"
+            android:clickable="true"
+            android:inputType="none" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/et_schedule_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title (do something)"
+        android:inputType="text"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/et_schedule_notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Notes (optional)"
+        android:inputType="textMultiLine"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

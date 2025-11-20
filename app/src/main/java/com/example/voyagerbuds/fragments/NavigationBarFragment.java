@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -65,9 +66,9 @@ public class NavigationBarFragment extends Fragment {
                 listener.onNavigationItemSelected("home");
         });
         navSchedule.setOnClickListener(v -> {
-            setSelected("trip");
+            setSelected("schedule");
             if (listener != null)
-                listener.onNavigationItemSelected("trip");
+                listener.onNavigationItemSelected("schedule");
         });
         navCapture.setOnClickListener(v -> {
             setSelected("capture");
@@ -91,6 +92,10 @@ public class NavigationBarFragment extends Fragment {
         return view;
     }
 
+    public void updateSelection(String item) {
+        setSelected(item);
+    }
+
     private void setSelected(String item) {
         currentSelection = item;
 
@@ -106,7 +111,7 @@ public class NavigationBarFragment extends Fragment {
             case "home":
                 setNavItemSelected(navHome, true);
                 break;
-            case "trip":
+            case "schedule":
                 setNavItemSelected(navSchedule, true);
                 break;
             case "capture":
@@ -121,15 +126,31 @@ public class NavigationBarFragment extends Fragment {
         }
     }
 
-    private void setNavItemSelected(LinearLayout navItem, boolean selected) {
+    private void setNavItemSelected(ViewGroup navItem, boolean selected) {
         if (navItem == null)
             return;
 
-        // Get the ImageView and TextView children
+        // Get the ImageView and TextView children (works for both LinearLayout and
+        // FrameLayout)
         for (int i = 0; i < navItem.getChildCount(); i++) {
             View child = navItem.getChildAt(i);
-            if (child instanceof ImageView || child instanceof TextView) {
-                child.setSelected(selected);
+            if (child instanceof ImageView) {
+                ImageView icon = (ImageView) child;
+                if (selected) {
+                    icon.setColorFilter(getResources().getColor(R.color.teal_primary, null));
+                } else {
+                    icon.setColorFilter(getResources().getColor(R.color.text_medium, null));
+                }
+            } else if (child instanceof TextView) {
+                TextView text = (TextView) child;
+                if (selected) {
+                    text.setTextColor(getResources().getColor(R.color.teal_primary, null));
+                } else {
+                    text.setTextColor(getResources().getColor(R.color.text_medium, null));
+                }
+            } else if (child instanceof ViewGroup) {
+                // Recursively check nested layouts (for FrameLayout > LinearLayout structure)
+                setNavItemSelected((ViewGroup) child, selected);
             }
         }
     }

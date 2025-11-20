@@ -1,3 +1,12 @@
 <resources>
 
+	<!-- App widget/button styles -->
+	<style name="Widget.VoyagerBuds.Button" parent="Widget.MaterialComponents.Button">
+		<!-- Use the app primary color for button background tint -->
+		<item name="backgroundTint">@color/main_color_voyager</item>
+		<item name="android:textColor">@color/white</item>
+		<!-- Ensure ripple uses an on-primary color for contrast -->
+		<item name="android:foreground">?attr/selectableItemBackgroundBorderless</item>
+	</style>
+
 </resources>

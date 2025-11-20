@@ -3,28 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_bar"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@color/white"
-    android:elevation="6dp">
+    android:elevation="6dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <!-- Home -->
     <LinearLayout
         android:id="@+id/nav_home"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon_home"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_home"
-            app:tint="@color/nav_icon_color" />
+            app:tint="@color/teal_primary" />
 
         <TextView
             android:id="@+id/text_home"
@@ -32,120 +36,128 @@
             android:layout_height="wrap_content"
             android:text="@string/home"
             android:textSize="12sp"
-            android:textColor="@color/nav_text_color"
-            android:paddingTop="2dp" />
+            android:textColor="@color/teal_primary"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
-    <!-- Search -->
+    <!-- Schedule -->
     <LinearLayout
         android:id="@+id/nav_schedule"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon_search"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_schedule"
-            app:tint="@color/nav_icon_color" />
+            app:tint="@color/text_medium" />
 
         <TextView
-            android:id="@+id/text_search"
+            android:id="@+id/text_schedule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/schedule"
             android:textSize="12sp"
-            android:textColor="@color/nav_text_color"
-            android:paddingTop="2dp" />
+            android:textColor="@color/text_medium"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
-    <!-- Search -->
+    <!-- Capture -->
     <LinearLayout
         android:id="@+id/nav_capture"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon_create"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_camera"
-            app:tint="@color/nav_icon_color" />
+            app:tint="@color/text_medium" />
 
         <TextView
-            android:id="@+id/text_create"
+            android:id="@+id/text_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/capture"
             android:textSize="12sp"
-            android:textColor="@color/nav_text_color"
-            android:paddingTop="2dp" />
+            android:textColor="@color/text_medium"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
-    <!-- Playlist -->
+    <!-- Map -->
     <LinearLayout
         android:id="@+id/nav_map"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon_playlist"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_map"
-            app:tint="@color/nav_icon_color" />
+            app:tint="@color/text_medium" />
 
         <TextView
-            android:id="@+id/text_playlist"
+            android:id="@+id/text_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/map"
             android:textSize="12sp"
-            android:textColor="@color/nav_text_color"
-            android:paddingTop="2dp" />
+            android:textColor="@color/text_medium"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
-    <!-- Profile -->
+    <!-- Dashboard -->
     <LinearLayout
         android:id="@+id/nav_dashboard"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground">
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="4dp">
 
         <ImageView
             android:id="@+id/icon_dashboard"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_dashboard"
-            app:tint="@color/nav_icon_color" />
+            app:tint="@color/text_medium" />
 
         <TextView
-            android:id="@+id/text_dashboard"
+            android:id="@+id/text_profile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dashboard"
             android:textSize="12sp"
-            android:textColor="@color/nav_text_color"
-            android:paddingTop="2dp" />
+            android:textColor="@color/text_medium"
+            android:layout_marginTop="4dp" />
     </LinearLayout>
 
 </LinearLayout>

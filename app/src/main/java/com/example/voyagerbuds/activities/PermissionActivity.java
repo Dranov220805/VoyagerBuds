@@ -21,7 +21,7 @@ import com.example.voyagerbuds.utils.PermissionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermissionActivity extends AppCompatActivity {
+public class PermissionActivity extends BaseActivity {
 
     private static final String PREFS_NAME = "VoyagerBudsPrefs";
     private static final String KEY_PERMISSIONS_REQUESTED = "permissions_requested";
@@ -45,7 +45,8 @@ public class PermissionActivity extends AppCompatActivity {
             getWindow().getDecorView().setSystemUiVisibility(
                     android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Dark icons
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // For Android 5.0-5.1, use a slightly darker status bar since we can't change icon color
+            // For Android 5.0-5.1, use a slightly darker status bar since we can't change
+            // icon color
             getWindow().setStatusBarColor(0xFFE0E0E0); // Light gray
         }
 

@@ -12,10 +12,10 @@ import com.example.voyagerbuds.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TripFragment#newInstance} factory method to
+ * Use the {@link TripReportFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TripFragment extends Fragment {
+public class TripReportFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +26,7 @@ public class TripFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public TripFragment() {
+    public TripReportFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +36,11 @@ public class TripFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment TripFragment.
+     * @return A new instance of fragment TripReportFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TripFragment newInstance(String param1, String param2) {
-        TripFragment fragment = new TripFragment();
+    public static TripReportFragment newInstance(String param1, String param2) {
+        TripReportFragment fragment = new TripReportFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -61,6 +61,6 @@ public class TripFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_trip, container, false);
+        return inflater.inflate(R.layout.fragment_trip_report, container, false);
     }
 }

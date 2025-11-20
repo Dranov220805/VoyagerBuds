@@ -4,11 +4,162 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="profile">Profile</string>
     <string name="home">Home</string>
-    <string name="search">New Capture</string>
+    <string name="search">Search</string>
     <string name="create">Create</string>
     <string name="dashboard">Dashboard</string>
     <string name="map">Map</string>
     <string name="trip">Trip</string>
     <string name="capture">Capture</string>
     <string name="schedule">Schedule</string>
+    <string name="loading_map">Loading Map</string>
+    <string name="destination">Destination</string>
+    <string name="location">Location</string>
+    <string name="getting_location">Getting location...</string>
+    <string name="location_unavailable">Location unavailable</string>
+    <string name="location_permission_denied">Location permission denied</string>
+    <string name="filter">Filter</string>
+    <string name="popular_destinations">Popular Destinations</string>
+    <string name="see_all">See All</string>
+    <string name="trip_budget_tracker">Trip Budget Tracker</string>
+    <string name="total_budget">Total Budget</string>
+    <string name="spent">Spent</string>
+    <string name="remaining">Remaining</string>
+    
+    <!-- Profile Screen -->
+    <string name="edit_profile">Edit Profile</string>
+    <string name="settings">Settings</string>
+    <string name="notifications">Notifications</string>
+    <string name="privacy_security">Privacy &amp; Security</string>
+    <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="vietnamese">Vietnamese</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="logout">Logout</string>
+    <string name="select_language">Select Language</string>
+    <string name="select_theme">Select Theme</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="theme">Theme</string>
+    
+    <!-- Trip Management -->
+    <string name="my_trips">My Trips</string>
+    <string name="create_trip">Create Trip</string>
+    <string name="trip_name">Trip Name</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="notes">Notes</string>
+    <string name="total_spent">Total Spent</string>
+    <string name="no_trips">No trips yet</string>
+    <string name="create_first_trip">Create your first trip by tapping the + button</string>
+    <string name="trip_created">Trip created successfully!</string>
+    <string name="trip_creation_failed">Failed to create trip</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="finish">Finish</string>
+    <string name="discard_trip_title">Discard Trip Creation?</string>
+    <string name="discard_trip_message">You have unsaved changes. Are you sure you want to leave? Your progress will be lost.</string>
+    <string name="discard">Discard</string>
+    <string name="cancel">Cancel</string>
+    <string name="step_progress">Step %1$d of %2$d</string>
+    <string name="add_schedule_title">Add Schedule</string>
+    <string name="add_schedule_prompt">Would you like to add a schedule for each day of your trip now?</string>
+    <string name="add_schedule_now">Add Schedule Now</string>
+    <string name="add_schedule_later">Maybe Later</string>
+
+    <!-- Schedule -->
+    <string name="schedule_timeline_title">Trip Timeline</string>
+    <string name="schedule_timeline_subtitle">Pick a trip to view its day-by-day schedule</string>
+    <string name="schedule_trip_picker_label">Trip</string>
+    <string name="schedule_no_trips_prompt">You dont have any trips yet. Create one to start planning.</string>
+    <string name="schedule_no_trip_selected">No trip selected</string>
+    <string name="schedule_no_current_trip">No current schedule. You re not on a running trip right now.</string>
+    <string name="schedule_no_events_for_trip">No schedule for %1$s yet. Tap the button below to add one.</string>
+    <string name="schedule_no_events_running">%1$s is running but has no schedule items yet.</string>
+    <string name="schedule_trip_summary">%1$s • %2$s</string>
+    <string name="schedule_trip_status_running">Currently running</string>
+    <string name="schedule_trip_status_upcoming">Upcoming trip</string>
+    <string name="schedule_trip_status_past">Past trip</string>
+    <string name="schedule_add_event">Add event</string>
+    <string name="schedule_deleted">Schedule deleted</string>
+    <string name="schedule_edit_title">Edit Schedule</string>
+    <string name="schedule_title_required">Please enter a title</string>
+    <string name="schedule_added">Schedule added</string>
+    <string name="schedule_updated">Schedule updated</string>
+    <string name="schedule_flexible_subtitle">Flexible • %1$s</string>
+    <string name="schedule_event_count_one">%1$d event</string>
+    <string name="schedule_event_count_other">%1$d events</string>
+
+    <!-- Common -->
+    <string name="save">Save</string>
+    
+    <!-- Login Screen -->
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="log_in_to_account">Log in to your account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="log_in">Log In</string>
+    <string name="or">OR</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign up</string>
+    
+    <!-- Registration Screen -->
+    <string name="create_account">Create Account</string>
+    <string name="lets_get_started">Let\'s get you started!</string>
+    <string name="full_name">Full Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="sign_up_with_google">Sign Up with Google</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="sign_in">Sign In</string>
+    
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Forgot Password?</string>
+    <string name="forgot_password_message">Don\'t worry! It happens. Please enter the email address associated with your account.</string>
+    <string name="enter_email_address">Enter your email address</string>
+    <string name="send_code">Send Code</string>
+    
+    <!-- Home Screen -->
+    <string name="hello">Hello, %1$s!</string>
+    <string name="current_trip">Current Trip</string>
+    <string name="upcoming_trips">Upcoming Trips</string>
+    <string name="past_trips">Past Trips</string>
+    <string name="in_progress">In Progress</string>
+    
+    <!-- Trip Details Screen -->
+    <string name="trip_details">Trip Details</string>
+    <string name="expenses">Expenses</string>
+    <string name="trip_gallery">Trip Gallery</string>
+    <string name="view_all">View All</string>
+    <string name="edit">Edit</string>
+    
+    <!-- Add Trip Screens -->
+    <string name="trip_details_title">Trip Details</string>
+    <string name="when_traveling">When are you traveling?</string>
+    <string name="select_date">Select date</string>
+    <string name="who_traveling_with">Who are you traveling with?</string>
+    <string name="invite_friends">Invite Friends</string>
+    <string name="estimated_budget">What\'s your estimated budget?</string>
+    <string name="confirm_your_trip">Confirm Your Trip</string>
+    <string name="lets_go">Let\'s Go!</string>
+    <string name="set_trip_schedule">Set Trip Schedule</string>
+    <string name="ready_to_plan_days">Ready to plan your days?</string>
+    <string name="build_itinerary_message">You can build a detailed itinerary now, or save this step for later.</string>
+    <string name="set_up_schedule_now">Set Up Schedule Now</string>
+    <string name="ill_do_it_later">I\'ll Do It Later</string>
+    <string name="whats_travel_budget">What\'s your travel budget?</string>
+    <string name="set_max_spending_limit">Set a maximum spending limit for your trip. You can always change this later.</string>
+    <string name="currency">Currency</string>
+    <string name="amount">Amount</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="set_your_budget">Set Your Budget</string>
+    <string name="total_trip_budget">Total trip budget</string>
+    <string name="budget_breakdown">Budget Breakdown</string>
+    <string name="flights">Flights</string>
+    <string name="lodging">Lodging</string>
+    <string name="food_drink">Food &amp; Drink</string>
+    <string name="activities">Activities</string>
+    <string name="adjust_budget_later">You can always adjust your budget later.</string>
+    <string name="continue_text">Continue</string>
 </resources>
