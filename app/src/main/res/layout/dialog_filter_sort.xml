@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bottom_sheet_bg">
+
+    <!-- Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filter &amp; Sort"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Sort By Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sort By"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/radio_group_sort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <RadioButton
+            android:id="@+id/radio_date_newest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date (Newest First)"
+            android:textColor="@color/black"
+            android:checked="true"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_date_oldest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date (Oldest First)"
+            android:textColor="@color/black"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_duration_longest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Duration (Longest First)"
+            android:textColor="@color/black"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_duration_shortest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Duration (Shortest First)"
+            android:textColor="@color/black"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_name_az"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Name (A-Z)"
+            android:textColor="@color/black"
+            android:padding="8dp" />
+
+        <RadioButton
+            android:id="@+id/radio_name_za"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Name (Z-A)"
+            android:textColor="@color/black"
+            android:padding="8dp" />
+
+    </RadioGroup>
+
+    <!-- Filter By Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Filter By Date Range"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/btn_filter_start_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Start Date"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:background="@drawable/button_outline"
+            android:textColor="@color/main_color_voyager"
+            android:layout_marginEnd="8dp"
+            android:padding="12dp" />
+
+        <Button
+            android:id="@+id/btn_filter_end_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="End Date"
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:background="@drawable/button_outline"
+            android:textColor="@color/main_color_voyager"
+            android:layout_marginStart="8dp"
+            android:padding="12dp" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_clear_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clear"
+            android:textAllCaps="false"
+            android:background="@drawable/button_outline"
+            android:textColor="@color/gray"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_apply_filter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Apply"
+            android:textAllCaps="false"
+            android:background="@drawable/button_primary"
+            android:textColor="@color/white"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

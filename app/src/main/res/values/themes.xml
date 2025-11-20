@@ -4,11 +4,20 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="fontFamily">@font/quicksand_bold</item>
+        <!-- App colors -->
+        <item name="colorPrimary">@color/main_color_voyager</item>
+        <item name="colorPrimaryVariant">@color/main_color_voyager</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/main_color_voyager</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Make MaterialButtons and regular Buttons use our app button style by default -->
+        <item name="materialButtonStyle">@style/Widget.VoyagerBuds.Button</item>
+        <item name="buttonStyle">@style/Widget.VoyagerBuds.Button</item>
     </style>
 
     <style name="Theme.VoyagerBuds" parent="Base.Theme.VoyagerBuds" />
 
-    <style name="Theme.VoyagerBuds.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.VoyagerBuds.NoActionBar" parent="Base.Theme.VoyagerBuds">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="fontFamily">@font/quicksand_bold</item>

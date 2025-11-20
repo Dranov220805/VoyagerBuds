@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Progress Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@color/white"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Step 1 of 3"
+            android:textSize="14sp"
+            android:textColor="@color/gray"
+            android:layout_marginBottom="8dp" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:max="3"
+            android:progress="1"
+            android:progressTint="@color/main_color_voyager"
+            android:progressBackgroundTint="@color/secondary_gray" />
+
+    </LinearLayout>
+
+    <!-- Child Fragment Container -->
+    <FrameLayout
+        android:id="@+id/create_trip_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

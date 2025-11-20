@@ -1,14 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_light"
     tools:context=".fragments.HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/home" />
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="0dp">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <!-- Current Trip Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_hero_trip"
+                android:layout_width="match_parent"
+                android:layout_height="280dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:visibility="gone">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <!-- Background Image -->
+                    <ImageView
+                        android:id="@+id/img_hero_trip"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_dialog_map"
+                        android:contentDescription="Trip image" />
+
+                    <!-- Gradient Overlay -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/gradient_overlay" />
+
+                    <!-- In Progress Badge -->
+                    <TextView
+                        android:id="@+id/tv_current_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/in_progress"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/badge_in_progress"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="20dp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <!-- Trip Info Container -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <!-- Trip Name -->
+                        <TextView
+                            android:id="@+id/tv_hero_trip_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Tokyo Adventure"
+                            android:textColor="@color/white"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Trip Dates -->
+                        <TextView
+                            android:id="@+id/tv_hero_trip_dates"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Oct 20 - Nov 5"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Upcoming Trips Section -->
+            <TextView
+                android:id="@+id/tv_upcoming_trips_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/upcoming_trips"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
+            <!-- RecyclerView for Upcoming Trips -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_upcoming_trips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
+
+            <!-- Past Trips Section -->
+            <TextView
+                android:id="@+id/tv_past_trips_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_trips"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
+            <!-- RecyclerView for Past Trips -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_past_trips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="16dp"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
+
+            <!-- RecyclerView for all trips (fallback) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_trips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="220dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Floating Action Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_trip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        android:contentDescription="Add Trip"
+        app:backgroundTint="@color/teal_primary"
+        app:tint="@color/white"
+        app:elevation="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Empty state -->
+    <LinearLayout
+        android:id="@+id/tv_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:src="@android:drawable/ic_dialog_map"
+            android:alpha="0.2"
+            android:contentDescription="No trips"
+            app:tint="@color/teal_primary" />
+
+        <TextView
+            android:id="@+id/tv_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Discover\nAmazing Places"
+            android:textSize="28sp"
+            android:textColor="@color/text_dark"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tv_empty_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adventure New Places"
+            android:textSize="16sp"
+            android:textColor="@color/text_medium"
+            android:textAlignment="center"
+            android:layout_marginTop="8dp"
+            android:paddingStart="40dp"
+            android:paddingEnd="40dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

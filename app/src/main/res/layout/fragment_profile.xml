@@ -1,14 +1,459 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".fragments.ProfileFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/profile" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <!-- Header with Profile -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/main_color_voyager"
+            android:padding="24dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/img_profile"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/circular_bg"
+                android:contentDescription="Profile picture"/>
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="John Traveler"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_user_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="john.traveler@email.com"
+                android:textColor="#E0FFFFFF"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+
+            <Button
+                android:id="@+id/btn_edit_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="@string/edit_profile"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:background="@drawable/chip_bg_white"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:layout_marginTop="16dp"/>
+
+        </LinearLayout>
+
+        <!-- Content Section -->
+        <LinearLayout
+            android:background="@color/secondary_gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Trip Budget Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/trip_budget_tracker"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/total_budget"
+                                android:textColor="#666666"
+                                android:textSize="12sp"/>
+
+                            <TextView
+                                android:id="@+id/tv_total_budget"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$15,000"
+                                android:textColor="#000000"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="4dp"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/spent"
+                                android:textColor="#666666"
+                                android:textSize="12sp"/>
+
+                            <TextView
+                                android:id="@+id/tv_spent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$12,450"
+                                android:textColor="@color/main_color_voyager"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="4dp"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/remaining"
+                                android:textColor="#666666"
+                                android:textSize="12sp"/>
+
+                            <TextView
+                                android:id="@+id/tv_remaining"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$2,550"
+                                android:textColor="#81C784"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="4dp"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <ProgressBar
+                        android:id="@+id/progress_budget"
+                        android:layout_width="match_parent"
+                        android:layout_height="12dp"
+                        android:max="100"
+                        android:progress="83"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:progressTint="@color/main_color_voyager"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Settings Section -->
+            <TextView
+                android:id="@+id/tv_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Settings Options -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Notifications -->
+                    <LinearLayout
+                        android:id="@+id/btn_notifications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_notification"
+                            android:contentDescription="Notifications"
+                            app:tint="@color/main_color_voyager" />
+
+                        <TextView
+                            android:id="@+id/tv_notifications"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/notifications"
+                            android:textColor="#000000"
+                            android:textSize="14sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            android:rotation="270"
+                            android:contentDescription="Arrow"
+                            app:tint="#999999" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F0F0F0"/>
+
+                    <!-- Privacy -->
+                    <LinearLayout
+                        android:id="@+id/btn_privacy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_lock_lock"
+                            android:contentDescription="Privacy"
+                            app:tint="@color/main_color_voyager" />
+
+                        <TextView
+                            android:id="@+id/tv_privacy"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/privacy_security"
+                            android:textColor="#000000"
+                            android:textSize="14sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            android:rotation="270"
+                            android:contentDescription="Arrow"
+                            app:tint="#999999" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F0F0F0"/>
+
+                    <!-- Theme -->
+                    <LinearLayout
+                        android:id="@+id/btn_theme"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_theme"
+                            android:contentDescription="@string/theme"
+                            app:tint="@color/main_color_voyager" />
+
+                        <TextView
+                            android:id="@+id/tv_theme"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/theme"
+                            android:textColor="#000000"
+                            android:textSize="14sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_current_theme"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/light_mode"
+                            android:textColor="#999999"
+                            android:textSize="13sp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            android:rotation="270"
+                            android:contentDescription="Arrow"
+                            app:tint="#999999" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F0F0F0"/>
+
+                    <!-- Language -->
+                    <LinearLayout
+                        android:id="@+id/btn_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_language"
+                            android:contentDescription="Language"
+                            app:tint="@color/main_color_voyager" />
+
+                        <TextView
+                            android:id="@+id/tv_language"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/language"
+                            android:textColor="#000000"
+                            android:textSize="14sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_current_language"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/english"
+                            android:textColor="#999999"
+                            android:textSize="13sp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            android:rotation="270"
+                            android:contentDescription="Arrow"
+                            app:tint="#999999" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#F0F0F0"/>
+
+                    <!-- Help & Support -->
+                    <LinearLayout
+                        android:id="@+id/btn_help"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_help_support"
+                            android:contentDescription="Help"
+                            app:tint="@color/main_color_voyager" />
+
+                        <TextView
+                            android:id="@+id/tv_help"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/help_support"
+                            android:textColor="#000000"
+                            android:textSize="14sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            android:rotation="0"
+                            android:contentDescription="Arrow"
+                            app:tint="#999999" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Logout Button -->
+            <Button
+                android:id="@+id/btn_logout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/logout"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:background="@drawable/button_primary"
+                android:layout_marginBottom="24dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

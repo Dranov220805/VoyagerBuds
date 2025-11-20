@@ -1,14 +1,210 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.MapFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <org.osmdroid.views.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Loading Indicator -->
+    <FrameLayout
+        android:id="@+id/loading_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/map" />
+        android:background="#80FFFFFF"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:id="@+id/loading_progress"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/main_color_voyager"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
+            android:text="@string/loading_map"
+            android:textColor="@color/main_color_voyager"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+    </FrameLayout>
+
+    <!-- Top Info Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Location"
+                android:textColor="#666666"
+                android:textSize="12sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tv_current_location"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Manhattan, NY"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/btn_search_map"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:tint="@color/main_color_voyager"
+                    android:contentDescription="Search"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Bottom Trip Details Card (Initially Hidden) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_trip_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <!-- Trip Image -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:cardCornerRadius="12dp"
+                android:layout_marginEnd="12dp">
+
+                <ImageView
+                    android:id="@+id/img_trip_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="#4DD4F1"
+                    android:contentDescription="Trip image"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Trip Info -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_trip_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dubai, United Arab Emirates"
+                    android:textColor="#000000"
+                    android:textSize="14sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_trip_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Explore Dubai's modern architecture &amp; vibrant culture..."
+                    android:textColor="#666666"
+                    android:textSize="12sp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:layout_marginTop="4dp"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_trip_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📅 5 Days"
+                        android:textColor="@color/main_color_voyager"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="12dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_trip_hotel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏨 4 Star Hotel"
+                        android:textColor="@color/main_color_voyager"
+                        android:textSize="11sp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Close Button -->
+            <ImageView
+                android:id="@+id/btn_close_trip_detail"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="#999999"
+                android:layout_gravity="top"
+                android:contentDescription="Close"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Floating Action Button for My Location -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_my_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_location"
+        android:contentDescription="My Location"
+        app:tint="@color/white"
+        app:backgroundTint="@color/main_color_voyager"
+        app:elevation="6dp" />
 
 </FrameLayout>

@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_back"
+            app:title="Trip Details"
+            app:titleCentered="true"
+            app:menu="@menu/menu_trip_details" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Hero Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/img_trip_cover"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/voyagerbuds"
+                        tools:ignore="ContentDescription" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#40000000" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/tv_trip_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Summer Trip to Bali"
+                            android:textColor="@color/white"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_trip_dates"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="August 15 - August 25"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Tabs -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:tabIndicatorColor="@color/main_color_voyager"
+                app:tabSelectedTextColor="@color/black"
+                app:tabTextColor="@color/gray">
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Schedule" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Expenses" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes" />
+            </com.google.android.material.tabs.TabLayout>
+
+            <!-- Schedule Content -->
+            <LinearLayout
+                android:id="@+id/layout_schedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Day 1 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Day 1: Arrival &amp; Settle In"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp"/>
+
+                        <!-- Activity 1 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/circular_bg"
+                                android:backgroundTint="#E0F7FA"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_airplane"
+                                app:tint="@color/main_color_voyager" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Flight to Bali"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="08:00 AM - SFO"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Activity 2 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/circular_bg"
+                                android:backgroundTint="#E8F5E9"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_hotel"
+                                app:tint="@color/main_color_voyager" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Hotel Check-in"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="03:00 PM - The Anvaya Beach Resort"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Day 2 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Day 2: Beach Exploration"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp"/>
+
+                        <!-- Activity 1 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/circular_bg"
+                                android:backgroundTint="#E0F7FA"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_surf"
+                                app:tint="@color/main_color_voyager" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Surfing Lessons"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="10:00 AM - Kuta Beach"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Activity 2 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/circular_bg"
+                                android:backgroundTint="#E8F5E9"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_dinner"
+                                app:tint="@color/main_color_voyager" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Sunset Dinner"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="06:30 PM - Jimbaran Bay"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/gray"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Trip Gallery -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Trip Gallery"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="View All"
+                        android:textColor="@color/main_color_voyager"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
+                    
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="160dp"
+                            android:src="@drawable/ic_photo"
+                            android:scaleType="centerCrop"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/rounded_corner_bg"/>
+                            
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="160dp"
+                            android:src="@drawable/ic_photo"
+                            android:scaleType="centerCrop"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/rounded_corner_bg"/>
+                            
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="160dp"
+                            android:src="@drawable/ic_photo"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/rounded_corner_bg"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

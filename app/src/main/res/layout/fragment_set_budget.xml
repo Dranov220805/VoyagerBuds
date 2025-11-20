@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Back Arrow and Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/btn_back_arrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="4dp"
+                app:tint="@color/text_dark" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/set_your_budget"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:gravity="center"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Step 6 of 6 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Step 6 of 6"
+            android:textSize="14sp"
+            android:textColor="@color/text_medium"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:max="6"
+            android:progress="6"
+            android:progressTint="@color/teal_primary"
+            android:progressBackgroundTint="@color/input_border"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Budget Summary Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/card_background"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <!-- Total trip budget -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_trip_budget"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_medium"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Budget Amount -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_currency"
+                        android:background="@drawable/circular_bg"
+                        android:padding="12dp"
+                        app:tint="@color/teal_primary"
+                        android:layout_marginEnd="16dp" />
+
+                    <TextView
+                        android:id="@+id/tv_total_budget"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="$2,500 USD"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_dark" />
+                </LinearLayout>
+
+                <!-- Budget Breakdown Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/budget_breakdown"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_dark" />
+
+                    <TextView
+                        android:id="@+id/tv_edit_budget"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textSize="14sp"
+                        android:textColor="@color/teal_primary"
+                        android:drawableStart="@drawable/ic_edit"
+                        android:drawablePadding="4dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp" />
+                </LinearLayout>
+
+                <!-- Budget Categories -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Flights -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/flights"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+
+                        <TextView
+                            android:id="@+id/tv_flights"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$800"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+                    </LinearLayout>
+
+                    <!-- Lodging -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/lodging"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+
+                        <TextView
+                            android:id="@+id/tv_lodging"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$1,200"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+                    </LinearLayout>
+
+                    <!-- Food & Drink -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/food_drink"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+
+                        <TextView
+                            android:id="@+id/tv_food_drink"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$350"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+                    </LinearLayout>
+
+                    <!-- Activities -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/activities"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+
+                        <TextView
+                            android:id="@+id/tv_activities"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="$150"
+                            android:textSize="16sp"
+                            android:textColor="@color/text_dark" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Informational Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/adjust_budget_later"
+            android:textSize="14sp"
+            android:textColor="@color/text_medium"
+            android:textAlignment="center"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Finish Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_finish"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/finish"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/teal_primary"
+            app:cornerRadius="8dp"
+            android:layout_marginBottom="16dp" />
+
+    </LinearLayout>
+
+</ScrollView>

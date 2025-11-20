@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <!-- Day Header -->
+    <LinearLayout
+        android:id="@+id/layout_content_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="44dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/tv_day_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="Monday, Jun 12" />
+
+        <TextView
+            android:id="@+id/tv_day_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="3 events"
+            android:textColor="#777777"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <!-- Timeline Container -->
+    <FrameLayout
+        android:id="@+id/container_timeline"
+        android:layout_width="match_parent"
+        android:layout_height="720dp"
+        android:minHeight="720dp">
+
+        <!-- Timeline Line -->
+        <View
+            android:id="@+id/view_timeline_line"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="15dp"
+            android:background="#E0E0E0" />
+
+        <!-- Timeline Center Dot -->
+        <View
+            android:id="@+id/view_timeline_dot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_gravity="start|center_vertical"
+            android:layout_marginStart="11dp"
+            android:background="@drawable/bg_timeline_dot" />
+
+        <!-- Current Time Indicator Dot -->
+        <View
+            android:id="@+id/view_current_time_dot"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="start|top"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_timeline_dot"
+            android:visibility="gone" />
+
+        <!-- Current Time Horizontal Line -->
+        <View
+            android:id="@+id/view_current_time_line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_gravity="top"
+            android:layout_marginStart="32dp"
+            android:background="@color/main_color_voyager"
+            android:visibility="gone" />
+
+        <!-- Events Container - Events will be positioned here absolutely -->
+        <FrameLayout
+            android:id="@+id/container_events"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="44dp"
+            android:layout_marginEnd="16dp"
+            android:clipToPadding="false" />
+
+    </FrameLayout>
+
+</LinearLayout>
+

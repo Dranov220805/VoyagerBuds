@@ -13,9 +13,11 @@
     <color name="dark_gray">#282828</color>
     <color name="gray">#9E9E9E</color>
     <color name="light_gray">#BDBDBD</color>
+    <color name="secondary_gray">#F1F1F1</color>
+
 
     <!-- Dark Theme Colors -->
-    <color name="light_background">#121212</color>
+    <color name="light_background">#F5F5F5</color>
     <color name="light_surface">#181818</color>
     <color name="light_card">#282828</color>
     <color name="text_primary">#FFFFFF</color>
@@ -40,4 +42,14 @@
     <color name="progress_active">#1DB954</color>
     <color name="progress_inactive">#3E3E3E</color>
     <color name="favorite_red">#E53935</color>
+    
+    <!-- Figma Design Colors -->
+    <color name="teal_primary">#39CABF</color>
+    <color name="text_dark">#212121</color>
+    <color name="text_medium">#757575</color>
+    <color name="text_light">#9E9E9E</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="input_border">#E0E0E0</color>
+    <color name="in_progress_green">#4CAF50</color>
 </resources>

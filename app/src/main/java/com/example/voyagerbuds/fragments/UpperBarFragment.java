@@ -62,6 +62,7 @@ public class UpperBarFragment extends Fragment {
     public void setAppName(String name) {
         if (appName != null) {
             appName.setText(name);
+            appName.setVisibility(View.VISIBLE);
         }
     }
 
