@@ -31,6 +31,8 @@ import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.ScheduleDayGroup;
 import com.example.voyagerbuds.models.ScheduleItem;
 import com.example.voyagerbuds.models.Trip;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,6 +70,7 @@ public class ScheduleFragment extends Fragment {
 
     private ScheduleDayAdapter dayAdapter;
     private DatabaseHelper databaseHelper;
+    private FirebaseAuth mAuth;
     private final List<Trip> trips = new ArrayList<>();
     private Trip selectedTrip;
     private boolean suppressTripSelection = false;
@@ -98,6 +101,7 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -174,8 +178,21 @@ public class ScheduleFragment extends Fragment {
     private void loadTrips() {
         long previouslySelectedId = selectedTrip != null ? selectedTrip.getTripId() : -1;
         trips.clear();
-        // TODO replace with logged-in user id when authentication is ready
-        trips.addAll(databaseHelper.getAllTrips(1));
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // The database expects a 'long' user ID, but Firebase provides a String UID.
+            // As a temporary solution, we are using the hashcode of the UID.
+            // This is NOT guaranteed to be unique and should be replaced with a proper user ID mapping system.
+            int userId = currentUser.getUid().hashCode();
+            List<Trip> userTrips = databaseHelper.getAllTrips(userId);
+            if (userTrips != null) {
+                trips.addAll(userTrips);
+            }
+        } else {
+            // User is not logged in, do nothing.
+            // The UI will show an empty state because the trips list is empty.
+        }
 
         List<String> labels = new ArrayList<>();
         for (Trip trip : trips) {
