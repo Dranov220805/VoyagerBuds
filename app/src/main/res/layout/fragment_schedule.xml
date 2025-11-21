@@ -87,45 +87,6 @@
 
                 </LinearLayout>
 
-                <!-- Trip Selector -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/search_box_bg"
-                    android:padding="12dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/schedule_trip_picker_label"
-                        android:textColor="@color/gray"
-                        android:textSize="14sp" />
-
-                    <Spinner
-                        android:id="@+id/spinner_trip_picker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:spinnerMode="dropdown"
-                        android:minWidth="120dp" />
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@android:drawable/arrow_down_float"
-                        android:contentDescription="Select trip"
-                        android:layout_marginStart="4dp"
-                        app:tint="@color/gray" />
-
-                </LinearLayout>
-
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -137,8 +98,7 @@
             android:layout_height="wrap_content"
             android:scrollbars="none"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:id="@+id/layout_date_chips"
@@ -190,14 +150,6 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="16dp" />
-
-            <Button
-                android:id="@+id/btn_add_schedule_item"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/schedule_add_event"
-                android:backgroundTint="@color/main_color_voyager"
-                android:textColor="@android:color/white" />
 
         </LinearLayout>
 
