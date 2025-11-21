@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "956230191946",
+    "project_id": "voyagerbuds-login",
+    "storage_bucket": "voyagerbuds-login.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956230191946:android:da8ca5f819e4e110e40fb3",
+        "android_client_info": {
+          "package_name": "com.example.voyagerbuds"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgenXidESHty3z_9IUuoAuBHv5rFIbUss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
