@@ -2,6 +2,7 @@ package com.example.voyagerbuds.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,8 +17,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.voyagerbuds.R;
+import com.example.voyagerbuds.activities.LoginActivity;
 import com.example.voyagerbuds.utils.LocaleHelper;
 import com.example.voyagerbuds.utils.ThemeHelper;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,6 +41,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvLanguageLabel;
     private TextView tvThemeLabel;
     private TextView tvHelp;
+    private FirebaseAuth mAuth;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -50,6 +54,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -88,6 +93,16 @@ public class ProfileFragment extends Fragment {
 
         // Set up theme selector
         btnTheme.setOnClickListener(v -> showThemeDialog());
+
+        // Set up logout button
+        btnLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            // Clear the back stack and start a new task
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            getActivity().finish();
+        });
     }
 
     private void updateLanguageDisplay() {

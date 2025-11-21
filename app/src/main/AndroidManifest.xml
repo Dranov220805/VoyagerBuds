@@ -56,19 +56,8 @@
             </intent-filter>
         </activity>
 
-        <!--noinspection LockedOrientationActivity-->
-        <activity
-            android:name=".activities.RegisterActivity"
-            android:theme="@style/Base.Theme.VoyagerBuds"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
         <activity
             android:name=".activities.LoginActivity"
-            android:theme="@style/Theme.VoyagerBuds.NoActionBar"
-            android:screenOrientation="portrait"
-            android:exported="false" />
-        <activity
-            android:name=".activities.ForgotPasswordActivity"
             android:theme="@style/Theme.VoyagerBuds.NoActionBar"
             android:screenOrientation="portrait"
             android:exported="false" />
