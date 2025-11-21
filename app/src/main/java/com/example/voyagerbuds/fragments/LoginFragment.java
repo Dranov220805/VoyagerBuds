@@ -2,91 +2,142 @@ package com.example.voyagerbuds.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.activities.HomeActivity;
+import com.example.voyagerbuds.databinding.FragmentLoginBinding;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginFragment extends Fragment {
 
-    private EditText emailEditText;
-    private EditText passwordEditText;
-    private Button loginButton;
-    private TextView goToRegisterTextView;
-    private FirebaseAuth mAuth;
+    private static final String TAG = "LoginFragment";
+    private FragmentLoginBinding binding;
 
-    public LoginFragment() {
-        // Required empty public constructor
-    }
+    private FirebaseAuth mAuth;
+    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
+
+        // Initialize the ActivityResultLauncher
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == getActivity().RESULT_OK) {
+                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        try {
+                            GoogleSignInAccount account = task.getResult(ApiException.class);
+                            firebaseAuthWithGoogle(account.getIdToken());
+                        } catch (ApiException e) {
+                            Log.w(TAG, "Google sign in failed", e);
+                            Toast.makeText(getContext(), "Google sign in failed.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentLoginBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAuth = FirebaseAuth.getInstance();
-
-        emailEditText = view.findViewById(R.id.emailEditText);
-        passwordEditText = view.findViewById(R.id.passwordEditText);
-        loginButton = view.findViewById(R.id.loginButton);
-        goToRegisterTextView = view.findViewById(R.id.goToRegisterTextView);
-
-        loginButton.setOnClickListener(v -> {
-            String email = emailEditText.getText().toString().trim();
-            String password = passwordEditText.getText().toString().trim();
-
-            if (TextUtils.isEmpty(email)) {
-                emailEditText.setError("Email is required.");
-                return;
+        binding.btnLogin.setOnClickListener(v -> {
+            String email = binding.tilEmail.getEditText().getText().toString().trim();
+            String password = binding.tilPassword.getEditText().getText().toString().trim();
+            if (!email.isEmpty() && !password.isEmpty()) {
+                signInWithEmailPassword(email, password);
+            } else {
+                Toast.makeText(getContext(), "Please enter email and password.", Toast.LENGTH_SHORT).show();
             }
-
-            if (TextUtils.isEmpty(password)) {
-                passwordEditText.setError("Password is required.");
-                return;
-            }
-
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(getActivity(), task -> {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(getContext(), "Authentication successful.",
-                                    Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(getActivity(), HomeActivity.class);
-                            startActivity(intent);
-                            getActivity().finish();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Toast.makeText(getContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
         });
 
-        goToRegisterTextView.setOnClickListener(v -> {
+        binding.btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+
+        binding.tvGoToRegister.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
             navController.navigate(R.id.action_loginFragment_to_registerFragment);
         });
+
+        binding.tvForgotPassword.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void signInWithEmailPassword(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(requireActivity(), task -> {
+                    if (task.isSuccessful()) {
+                        navigateToHome();
+                    } else {
+                        Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void signInWithGoogle() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        googleSignInLauncher.launch(signInIntent);
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(requireActivity(), task -> {
+                    if (task.isSuccessful()) {
+                        navigateToHome();
+                    } else {
+                        Toast.makeText(getContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void navigateToHome() {
+        Toast.makeText(getContext(), "Authentication Successful.", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getActivity(), HomeActivity.class);
+        startActivity(intent);
+        requireActivity().finish();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
