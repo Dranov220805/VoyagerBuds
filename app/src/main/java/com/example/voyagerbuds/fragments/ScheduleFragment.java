@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -23,8 +22,6 @@ import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.ScheduleDayGroup;
 import com.example.voyagerbuds.models.ScheduleItem;
 import com.example.voyagerbuds.models.Trip;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,14 +50,13 @@ public class ScheduleFragment extends Fragment {
     private TextView tvTripSummary;
     private TextView tvTripDates;
     private TextView tvTripStatusHint;
-    private LinearLayout layoutEmptyState;
-    private TextView tvEmptyStateText;
+    private TextView tvEmptyState;
+    private RecyclerView recyclerView;
     private HorizontalScrollView scrollDateChips;
     private LinearLayout layoutDateChips;
-    private RelativeLayout layoutTimelineContainer;
 
+    private ScheduleDayAdapter dayAdapter;
     private DatabaseHelper databaseHelper;
-    private FirebaseAuth mAuth;
     private final List<Trip> trips = new ArrayList<>();
     private Trip selectedTrip;
     private String selectedDate = null;
@@ -90,7 +86,6 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -109,11 +104,25 @@ public class ScheduleFragment extends Fragment {
         tvTripSummary = view.findViewById(R.id.tv_trip_summary);
         tvTripDates = view.findViewById(R.id.tv_trip_dates);
         tvTripStatusHint = view.findViewById(R.id.tv_trip_status_hint);
-        layoutEmptyState = view.findViewById(R.id.tv_schedule_empty_state);
-        tvEmptyStateText = view.findViewById(R.id.tv_empty_state_text);
+        tvEmptyState = view.findViewById(R.id.tv_schedule_empty_state);
+        recyclerView = view.findViewById(R.id.recycler_view_schedule);
         scrollDateChips = view.findViewById(R.id.scroll_date_chips);
         layoutDateChips = view.findViewById(R.id.layout_date_chips);
-        layoutTimelineContainer = view.findViewById(R.id.layout_timeline_container);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        dayAdapter = new ScheduleDayAdapter(requireContext(), new ArrayList<>(),
+                new ScheduleAdapter.OnScheduleActionListener() {
+                    @Override
+                    public void onEdit(ScheduleItem item) {
+                        // Edit handled in Trip Detail Fragment
+                    }
+
+                    @Override
+                    public void onDelete(ScheduleItem item) {
+                        // Delete handled in Trip Detail Fragment
+                    }
+                });
+        recyclerView.setAdapter(dayAdapter);
 
         // Fade-in animation for Schedule fragment root view
         view.setAlpha(0f);
@@ -126,23 +135,19 @@ public class ScheduleFragment extends Fragment {
 
     private void loadCurrentTrip() {
         trips.clear();
-
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            int userId = currentUser.getUid().hashCode();
-            List<Trip> userTrips = databaseHelper.getAllTrips(userId);
-            if (userTrips != null) {
-                trips.addAll(userTrips);
-            }
-        }
+        // TODO replace with logged-in user id when authentication is ready
+        trips.addAll(databaseHelper.getAllTrips(1));
 
         if (trips.isEmpty()) {
             selectedTrip = null;
             updateTripSummary(null);
-            showEmptyState("No current trip");
+            dayAdapter.updateGroups(new ArrayList<>());
+            showEmptyState(getString(R.string.schedule_no_trips_prompt));
             return;
         }
 
+        // Priority: 1. Running trip, 2. Trip from args (if valid), 3. Upcoming trip?
+        // Requirement: "Always show... from the current trip if have"
         long runningTripId = detectRunningTripId();
 
         if (runningTripId != -1) {
@@ -152,6 +157,16 @@ public class ScheduleFragment extends Fragment {
                     break;
                 }
             }
+        } else if (tripId > 0) {
+            // Fallback to argument trip if no running trip?
+            // Or strictly "current trip"?
+            // "if there is no current trip, say that there is no current trip"
+            // I will interpret "current trip" as "running trip".
+            // But if user navigated from "Add Schedule" for a specific trip, maybe we
+            // should show it?
+            // The prompt says "Always show... from the current trip".
+            // I will prioritize running trip. If no running trip, show empty state.
+            selectedTrip = null;
         } else {
             selectedTrip = null;
         }
@@ -164,30 +179,49 @@ public class ScheduleFragment extends Fragment {
             loadSchedulesForSelectedTrip();
         } else {
             updateTripSummary(null);
-            showEmptyState("No current trip");
+            dayAdapter.updateGroups(new ArrayList<>());
+            // "if there is no current trip, say that there is no current trip with icon"
+            // I'll use a generic message for now, user can add icon in XML if needed or I
+            // can add drawable here
+            showEmptyState("No current trip happening now.");
+            scrollDateChips.setVisibility(View.GONE);
         }
     }
 
     private void loadSchedulesForSelectedTrip() {
         if (selectedTrip == null) {
-            showEmptyState("No current trip");
+            showEmptyState(getString(R.string.schedule_no_trips_prompt));
+            dayAdapter.updateGroups(new ArrayList<>());
             scrollDateChips.setVisibility(View.GONE);
             return;
         }
 
+        // Generate date chips for trip dates (only if not already generated)
         if (tripDates.isEmpty()) {
             generateDateChips();
         }
 
         List<ScheduleItem> scheduleItems = databaseHelper.getSchedulesForTrip(selectedTrip.getTripId());
-        
-        if (selectedDate != null) {
-            scheduleItems = filterByDate(scheduleItems, selectedDate);
-        } else {
-            scheduleItems = new ArrayList<>();
+        if (scheduleItems.isEmpty()) {
+            if (isTripRunning(selectedTrip)) {
+                showEmptyState(getString(R.string.schedule_no_events_running, selectedTrip.getTripName()));
+            } else {
+                showEmptyState(getString(R.string.schedule_no_events_for_trip, selectedTrip.getTripName()));
+            }
+            dayAdapter.updateGroups(new ArrayList<>());
+            scrollDateChips.setVisibility(View.GONE);
+            return;
         }
 
-        showTimeline(scheduleItems);
+        // Filter by selected date if one is selected
+        if (selectedDate != null) {
+            scheduleItems = filterByDate(scheduleItems, selectedDate);
+        }
+
+        List<ScheduleDayGroup> groups = groupSchedulesByDay(scheduleItems);
+        dayAdapter.updateGroups(groups);
+        dayAdapter.setSelectedDateKey(selectedDate);
+        showScheduleList();
     }
 
     private void generateDateChips() {
@@ -228,6 +262,8 @@ public class ScheduleFragment extends Fragment {
 
             scrollDateChips.setVisibility(View.VISIBLE);
 
+            // Auto-select current date if it's within trip range, otherwise select first
+            // date
             if (selectedDate == null && !tripDates.isEmpty()) {
                 String currentDateKey = getCurrentDateKey();
                 if (tripDates.contains(currentDateKey)) {
@@ -236,6 +272,7 @@ public class ScheduleFragment extends Fragment {
                     selectDate(tripDates.get(0));
                 }
             } else if (selectedDate != null) {
+                // Re-select the previously selected date
                 selectDate(selectedDate);
             }
 
@@ -253,6 +290,7 @@ public class ScheduleFragment extends Fragment {
         chip.setClickable(true);
         chip.setFocusable(true);
 
+        // Set initial style (unselected)
         chip.setBackgroundResource(R.drawable.chip_bg_white);
         chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
 
@@ -270,21 +308,25 @@ public class ScheduleFragment extends Fragment {
     private void selectDate(String dateKey) {
         selectedDate = dateKey;
 
+        // Update chip styles
         for (int i = 0; i < layoutDateChips.getChildCount(); i++) {
             View child = layoutDateChips.getChildAt(i);
             if (child instanceof TextView) {
                 TextView chip = (TextView) child;
                 String chipDateKey = tripDates.get(i);
                 if (chipDateKey.equals(dateKey)) {
+                    // Selected style
                     chip.setBackgroundResource(R.drawable.chip_bg);
                     chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                 } else {
+                    // Unselected style
                     chip.setBackgroundResource(R.drawable.chip_bg_white);
                     chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
                 }
             }
         }
 
+        // Reload schedules for selected date
         loadSchedulesForSelectedTrip();
     }
 
@@ -304,106 +346,15 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void showEmptyState(String message) {
-        tvEmptyStateText.setText(message);
-        layoutEmptyState.setVisibility(View.VISIBLE);
-        layoutTimelineContainer.setVisibility(View.GONE);
-        if (selectedTrip == null) {
-            scrollDateChips.setVisibility(View.GONE);
-        }
+        tvEmptyState.setText(message);
+        tvEmptyState.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
     }
 
-    private void showTimeline(List<ScheduleItem> items) {
-        layoutEmptyState.setVisibility(View.GONE);
-        layoutTimelineContainer.setVisibility(View.VISIBLE);
-        layoutTimelineContainer.removeAllViews();
-
-        int hourHeight = dpToPx(60);
-        int timeWidth = dpToPx(50);
-        
-        for (int i = 0; i < 24; i++) {
-            TextView timeLabel = new TextView(requireContext());
-            timeLabel.setText(String.format(Locale.getDefault(), "%02d:00", i));
-            timeLabel.setTextSize(12);
-            timeLabel.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
-            RelativeLayout.LayoutParams lpLabel = new RelativeLayout.LayoutParams(timeWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
-            lpLabel.topMargin = i * hourHeight;
-            lpLabel.leftMargin = dpToPx(8);
-            timeLabel.setLayoutParams(lpLabel);
-            layoutTimelineContainer.addView(timeLabel);
-
-            View line = new View(requireContext());
-            line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.light_gray));
-            RelativeLayout.LayoutParams lpLine = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dpToPx(1));
-            lpLine.topMargin = i * hourHeight + dpToPx(10);
-            lpLine.leftMargin = timeWidth + dpToPx(8);
-            line.setLayoutParams(lpLine);
-            layoutTimelineContainer.addView(line);
-        }
-
-        for (ScheduleItem item : items) {
-            drawEvent(item, hourHeight, timeWidth);
-        }
-    }
-
-    private void drawEvent(ScheduleItem item, int hourHeight, int timeWidth) {
-        int startMinutes = parseTime(item.getStartTime());
-        int endMinutes = parseTime(item.getEndTime());
-        
-        if (startMinutes == -1) return;
-        if (endMinutes == -1 || endMinutes <= startMinutes) endMinutes = startMinutes + 60;
-
-        int topMargin = (startMinutes * hourHeight) / 60;
-        int height = ((endMinutes - startMinutes) * hourHeight) / 60;
-
-        androidx.cardview.widget.CardView card = new androidx.cardview.widget.CardView(requireContext());
-        card.setCardBackgroundColor(ContextCompat.getColor(requireContext(), R.color.secondary_gray));
-        card.setRadius(dpToPx(8));
-        card.setCardElevation(dpToPx(2));
-        
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
-        lp.topMargin = topMargin + dpToPx(10);
-        lp.leftMargin = timeWidth + dpToPx(16);
-        lp.rightMargin = dpToPx(16);
-        card.setLayoutParams(lp);
-
-        LinearLayout content = new LinearLayout(requireContext());
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
-        
-        TextView title = new TextView(requireContext());
-        title.setText(item.getTitle());
-        title.setTextSize(14);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
-        content.addView(title);
-
-        if (item.getNotes() != null && !item.getNotes().isEmpty()) {
-            TextView notes = new TextView(requireContext());
-            notes.setText(item.getNotes());
-            notes.setTextSize(12);
-            notes.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
-            content.addView(notes);
-        }
-
-        card.addView(content);
-        layoutTimelineContainer.addView(card);
-    }
-
-    private int parseTime(String timeStr) {
-        if (timeStr == null) return -1;
-        try {
-            String[] parts = timeStr.split(":");
-            if (parts.length >= 2) {
-                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
-            }
-        } catch (Exception e) {
-            return -1;
-        }
-        return -1;
-    }
-
-    private int dpToPx(int dp) {
-        return (int) (dp * getResources().getDisplayMetrics().density);
+    private void showScheduleList() {
+        tvEmptyState.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        // No RecyclerView fade-in animation, static UI loading
     }
 
     private void updateTripSummary(@Nullable Trip trip) {
@@ -453,7 +404,53 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
+    private List<ScheduleDayGroup> groupSchedulesByDay(List<ScheduleItem> items) {
+        List<ScheduleItem> sorted = new ArrayList<>(items);
+        Collections.sort(sorted, new Comparator<ScheduleItem>() {
+            @Override
+            public int compare(ScheduleItem o1, ScheduleItem o2) {
+                String day1 = normalizeDayKey(o1.getDay());
+                String day2 = normalizeDayKey(o2.getDay());
+                if (!day1.equals(day2)) {
+                    if (FLEXIBLE_DAY_KEY.equals(day1))
+                        return 1;
+                    if (FLEXIBLE_DAY_KEY.equals(day2))
+                        return -1;
+                    return day1.compareTo(day2);
+                }
+                String time1 = safeValue(o1.getStartTime());
+                String time2 = safeValue(o2.getStartTime());
+                return time1.compareTo(time2);
+            }
+        });
 
+        Map<String, ScheduleDayGroup> grouped = new LinkedHashMap<>();
+        for (ScheduleItem item : sorted) {
+            String key = normalizeDayKey(item.getDay());
+            boolean flexible = FLEXIBLE_DAY_KEY.equals(key);
+            String storedKey = flexible ? null : key;
+            String mapKey = flexible ? FLEXIBLE_DAY_KEY : key;
+            ScheduleDayGroup group = grouped.get(mapKey);
+            if (group == null) {
+                group = new ScheduleDayGroup(storedKey, flexible);
+                grouped.put(mapKey, group);
+            }
+            group.addEvent(item);
+        }
+
+        return new ArrayList<>(grouped.values());
+    }
+
+    private String normalizeDayKey(@Nullable String day) {
+        if (day == null || day.trim().isEmpty()) {
+            return FLEXIBLE_DAY_KEY;
+        }
+        return day.trim();
+    }
+
+    private String safeValue(@Nullable String value) {
+        return value == null ? "" : value;
+    }
 
     private long detectRunningTripId() {
         Date now = new Date();
@@ -499,12 +496,5 @@ public class ScheduleFragment extends Fragment {
         } catch (ParseException e) {
             return false;
         }
-    }
-
-    private String normalizeDayKey(@Nullable String day) {
-        if (day == null || day.trim().isEmpty()) {
-            return FLEXIBLE_DAY_KEY;
-        }
-        return day.trim();
     }
 }
