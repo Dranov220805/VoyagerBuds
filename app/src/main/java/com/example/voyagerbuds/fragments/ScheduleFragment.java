@@ -1,22 +1,13 @@
 package com.example.voyagerbuds.fragments;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -58,12 +49,10 @@ public class ScheduleFragment extends Fragment {
     private String mParam2;
     private long tripId = -1;
 
-    private Spinner tripPicker;
     private TextView tvTripSummary;
     private TextView tvTripDates;
     private TextView tvTripStatusHint;
     private TextView tvEmptyState;
-    private Button btnAdd;
     private RecyclerView recyclerView;
     private HorizontalScrollView scrollDateChips;
     private LinearLayout layoutDateChips;
@@ -73,7 +62,6 @@ public class ScheduleFragment extends Fragment {
     private FirebaseAuth mAuth;
     private final List<Trip> trips = new ArrayList<>();
     private Trip selectedTrip;
-    private boolean suppressTripSelection = false;
     private String selectedDate = null;
     private List<String> tripDates = new ArrayList<>();
 
@@ -117,12 +105,10 @@ public class ScheduleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
         databaseHelper = new DatabaseHelper(requireContext());
 
-        tripPicker = view.findViewById(R.id.spinner_trip_picker);
         tvTripSummary = view.findViewById(R.id.tv_trip_summary);
         tvTripDates = view.findViewById(R.id.tv_trip_dates);
         tvTripStatusHint = view.findViewById(R.id.tv_trip_status_hint);
         tvEmptyState = view.findViewById(R.id.tv_schedule_empty_state);
-        btnAdd = view.findViewById(R.id.btn_add_schedule_item);
         recyclerView = view.findViewById(R.id.recycler_view_schedule);
         scrollDateChips = view.findViewById(R.id.scroll_date_chips);
         layoutDateChips = view.findViewById(R.id.layout_date_chips);
@@ -132,14 +118,12 @@ public class ScheduleFragment extends Fragment {
                 new ScheduleAdapter.OnScheduleActionListener() {
                     @Override
                     public void onEdit(ScheduleItem item) {
-                        showAddEditDialog(item);
+                        // Edit handled in Trip Detail Fragment
                     }
 
                     @Override
                     public void onDelete(ScheduleItem item) {
-                        databaseHelper.deleteSchedule(item.getId());
-                        loadSchedulesForSelectedTrip();
-                        Toast.makeText(getContext(), R.string.schedule_deleted, Toast.LENGTH_SHORT).show();
+                        // Delete handled in Trip Detail Fragment
                     }
                 });
         recyclerView.setAdapter(dayAdapter);
@@ -148,35 +132,12 @@ public class ScheduleFragment extends Fragment {
         view.setAlpha(0f);
         view.animate().alpha(1f).setDuration(400).start();
 
-        tripPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (suppressTripSelection)
-                    return;
-                applyTripSelection(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // no-op
-            }
-        });
-
-        btnAdd.setOnClickListener(v -> {
-            if (selectedTrip == null) {
-                Toast.makeText(getContext(), R.string.schedule_no_trip_selected, Toast.LENGTH_SHORT).show();
-            } else {
-                showAddEditDialog(null);
-            }
-        });
-
-        loadTrips();
+        loadCurrentTrip();
 
         return view;
     }
 
-    private void loadTrips() {
-        long previouslySelectedId = selectedTrip != null ? selectedTrip.getTripId() : -1;
+    private void loadCurrentTrip() {
         trips.clear();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -194,68 +155,54 @@ public class ScheduleFragment extends Fragment {
             // The UI will show an empty state because the trips list is empty.
         }
 
-        List<String> labels = new ArrayList<>();
-        for (Trip trip : trips) {
-            labels.add(formatTripLabel(trip));
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, labels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        tripPicker.setAdapter(adapter);
-        tripPicker.setEnabled(!trips.isEmpty());
-
         if (trips.isEmpty()) {
             selectedTrip = null;
             updateTripSummary(null);
             dayAdapter.updateGroups(new ArrayList<>());
             showEmptyState(getString(R.string.schedule_no_trips_prompt));
-            toggleAddButtonState(false);
             return;
         }
 
-        int targetIndex = findTripIndexById(previouslySelectedId);
-        if (targetIndex < 0) {
-            // Priority: 1. Running trip, 2. Trip from args, 3. First trip
-            long runningTripId = detectRunningTripId();
-            if (runningTripId != -1) {
-                targetIndex = findTripIndexById(runningTripId);
-            } else if (tripId > 0) {
-                targetIndex = findTripIndexById(tripId);
+        // Priority: 1. Running trip, 2. Trip from args (if valid), 3. Upcoming trip?
+        // Requirement: "Always show... from the current trip if have"
+        long runningTripId = detectRunningTripId();
+
+        if (runningTripId != -1) {
+            for (Trip trip : trips) {
+                if (trip.getTripId() == runningTripId) {
+                    selectedTrip = trip;
+                    break;
+                }
             }
-        }
-        if (targetIndex < 0) {
-            targetIndex = 0;
-        }
-        selectTripAtIndex(targetIndex);
-    }
-
-    private void selectTripAtIndex(int index) {
-        if (index < 0 || index >= trips.size()) {
+        } else if (tripId > 0) {
+            // Fallback to argument trip if no running trip?
+            // Or strictly "current trip"?
+            // "if there is no current trip, say that there is no current trip"
+            // I will interpret "current trip" as "running trip".
+            // But if user navigated from "Add Schedule" for a specific trip, maybe we
+            // should show it?
+            // The prompt says "Always show... from the current trip".
+            // I will prioritize running trip. If no running trip, show empty state.
             selectedTrip = null;
-            updateTripSummary(null);
-            showEmptyState(getString(R.string.schedule_no_current_trip));
-            dayAdapter.updateGroups(new ArrayList<>());
-            toggleAddButtonState(false);
-            return;
+        } else {
+            selectedTrip = null;
         }
-        suppressTripSelection = true;
-        tripPicker.setSelection(index, false);
-        suppressTripSelection = false;
-        applyTripSelection(index);
-    }
 
-    private void applyTripSelection(int position) {
-        if (position < 0 || position >= trips.size()) {
-            return;
+        if (selectedTrip != null) {
+            tripId = selectedTrip.getTripId();
+            selectedDate = null;
+            tripDates.clear();
+            updateTripSummary(selectedTrip);
+            loadSchedulesForSelectedTrip();
+        } else {
+            updateTripSummary(null);
+            dayAdapter.updateGroups(new ArrayList<>());
+            // "if there is no current trip, say that there is no current trip with icon"
+            // I'll use a generic message for now, user can add icon in XML if needed or I
+            // can add drawable here
+            showEmptyState("No current trip happening now.");
+            scrollDateChips.setVisibility(View.GONE);
         }
-        selectedTrip = trips.get(position);
-        tripId = selectedTrip.getTripId();
-        selectedDate = null; // Reset selected date when trip changes
-        tripDates.clear(); // Clear trip dates to regenerate
-        updateTripSummary(selectedTrip);
-        toggleAddButtonState(true);
-        loadSchedulesForSelectedTrip();
     }
 
     private void loadSchedulesForSelectedTrip() {
@@ -474,29 +421,6 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
-    private void toggleAddButtonState(boolean enabled) {
-        btnAdd.setEnabled(enabled);
-        btnAdd.setAlpha(enabled ? 1f : 0.5f);
-    }
-
-    private String formatTripLabel(Trip trip) {
-        String destination = !TextUtils.isEmpty(trip.getDestination()) ? trip.getDestination() : trip.getTripName();
-        String dates = formatTripDates(trip.getStartDate(), trip.getEndDate());
-        return destination + " • " + dates;
-    }
-
-    private String formatTripDates(String start, String end) {
-        try {
-            Date startDate = DB_DATE_FORMAT.parse(start);
-            Date endDate = DB_DATE_FORMAT.parse(end);
-            if (startDate != null && endDate != null) {
-                return DISPLAY_DATE_FORMAT.format(startDate) + " - " + DISPLAY_DATE_FORMAT.format(endDate);
-            }
-        } catch (Exception ignored) {
-        }
-        return (start != null ? start : "?") + " - " + (end != null ? end : "?");
-    }
-
     private List<ScheduleDayGroup> groupSchedulesByDay(List<ScheduleItem> items) {
         List<ScheduleItem> sorted = new ArrayList<>(items);
         Collections.sort(sorted, new Comparator<ScheduleItem>() {
@@ -589,116 +513,5 @@ public class ScheduleFragment extends Fragment {
         } catch (ParseException e) {
             return false;
         }
-    }
-
-    private int findTripIndexById(long id) {
-        if (id <= 0)
-            return -1;
-        for (int i = 0; i < trips.size(); i++) {
-            if (trips.get(i).getTripId() == id) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private void showAddEditDialog(@Nullable ScheduleItem editing) {
-        if (selectedTrip == null && editing == null) {
-            Toast.makeText(getContext(), R.string.schedule_no_trip_selected, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_schedule, null);
-        EditText etDay = dialogView.findViewById(R.id.et_schedule_day);
-        EditText etStartTime = dialogView.findViewById(R.id.et_schedule_start_time);
-        EditText etEndTime = dialogView.findViewById(R.id.et_schedule_end_time);
-        EditText etTitle = dialogView.findViewById(R.id.et_schedule_title);
-        EditText etNotes = dialogView.findViewById(R.id.et_schedule_notes);
-
-        if (editing != null) {
-            etDay.setText(editing.getDay());
-            etStartTime.setText(editing.getStartTime());
-            etEndTime.setText(editing.getEndTime());
-            etTitle.setText(editing.getTitle());
-            etNotes.setText(editing.getNotes());
-            builder.setTitle(R.string.schedule_edit_title);
-        } else {
-            builder.setTitle(R.string.schedule_add_event);
-        }
-
-        etDay.setOnClickListener(v -> {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int year = cal.get(java.util.Calendar.YEAR);
-            int month = cal.get(java.util.Calendar.MONTH);
-            int day = cal.get(java.util.Calendar.DAY_OF_MONTH);
-            DatePickerDialog dp = new DatePickerDialog(requireContext(), (view1, y, m, d) -> {
-                java.util.Calendar picked = java.util.Calendar.getInstance();
-                picked.set(y, m, d);
-                etDay.setText(DB_DATE_FORMAT.format(picked.getTime()));
-            }, year, month, day);
-            dp.show();
-        });
-
-        etStartTime.setOnClickListener(v -> {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
-            int minute = cal.get(java.util.Calendar.MINUTE);
-            TimePickerDialog tp = new TimePickerDialog(requireContext(),
-                    (view12, h, m) -> etStartTime.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m)),
-                    hour, minute, true);
-            tp.show();
-        });
-
-        etEndTime.setOnClickListener(v -> {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int hour = cal.get(java.util.Calendar.HOUR_OF_DAY);
-            int minute = cal.get(java.util.Calendar.MINUTE);
-            TimePickerDialog tp = new TimePickerDialog(requireContext(),
-                    (view13, h, m) -> etEndTime.setText(String.format(Locale.getDefault(), "%02d:%02d", h, m)),
-                    hour, minute, true);
-            tp.show();
-        });
-
-        builder.setView(dialogView)
-                .setPositiveButton(R.string.save, (dialog, which) -> {
-                    String day = etDay.getText().toString().trim();
-                    String start = etStartTime.getText().toString().trim();
-                    String end = etEndTime.getText().toString().trim();
-                    String title = etTitle.getText().toString().trim();
-                    String notes = etNotes.getText().toString().trim();
-
-                    if (title.isEmpty()) {
-                        Toast.makeText(getContext(), R.string.schedule_title_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    if (editing == null) {
-                        ScheduleItem newItem = new ScheduleItem();
-                        newItem.setTripId(selectedTrip != null ? selectedTrip.getTripId() : (int) tripId);
-                        newItem.setDay(day);
-                        newItem.setStartTime(start);
-                        newItem.setEndTime(end);
-                        newItem.setTitle(title);
-                        newItem.setNotes(notes);
-                        newItem.setCreatedAt(System.currentTimeMillis());
-                        newItem.setUpdatedAt(System.currentTimeMillis());
-                        databaseHelper.addSchedule(newItem);
-                        Toast.makeText(getContext(), R.string.schedule_added, Toast.LENGTH_SHORT).show();
-                    } else {
-                        editing.setDay(day);
-                        editing.setStartTime(start);
-                        editing.setEndTime(end);
-                        editing.setTitle(title);
-                        editing.setNotes(notes);
-                        editing.setUpdatedAt(System.currentTimeMillis());
-                        databaseHelper.updateSchedule(editing);
-                        Toast.makeText(getContext(), R.string.schedule_updated, Toast.LENGTH_SHORT).show();
-                    }
-
-                    loadSchedulesForSelectedTrip();
-                })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .show();
     }
 }

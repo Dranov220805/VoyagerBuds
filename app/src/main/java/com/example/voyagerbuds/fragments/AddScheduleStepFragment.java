@@ -71,16 +71,18 @@ public class AddScheduleStepFragment extends Fragment {
         TextView btnLater = view.findViewById(R.id.btn_add_schedule_later);
 
         btnNow.setOnClickListener(v -> {
-            // Navigate to schedule fragment for this trip so user can add schedule items
-            ScheduleFragment scheduleFragment = ScheduleFragment.newInstanceForTrip(tripId);
+            // Navigate to TripDetailFragment for this trip so user can add schedule items
+            TripDetailFragment tripDetailFragment = TripDetailFragment.newInstance(tripId);
             getActivity().getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                    .replace(R.id.content_container, scheduleFragment)
+                    .replace(R.id.content_container, tripDetailFragment)
+                    .addToBackStack(null)
                     .commit();
 
             // Update upper bar title if present
             if (getActivity() instanceof HomeActivity) {
-                ((HomeActivity) getActivity()).setCurrentFragmentKey("schedule");
+                // Assuming "trip_detail" is the key or just keep it generic
+                // ((HomeActivity) getActivity()).setCurrentFragmentKey("trip_detail");
             }
         });
 

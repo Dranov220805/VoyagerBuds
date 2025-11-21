@@ -91,6 +91,9 @@
 
     <!-- Common -->
     <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="schedule_delete_title">Delete Schedule</string>
+    <string name="schedule_delete_confirm">Are you sure you want to delete this schedule?</string>
     
     <!-- Login Screen -->
     <string name="welcome_back">Welcome Back!</string>
