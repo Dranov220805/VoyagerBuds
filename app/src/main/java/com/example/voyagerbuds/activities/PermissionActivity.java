@@ -11,17 +11,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.utils.PermissionUtils;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermissionActivity extends BaseActivity {
+public class PermissionActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "VoyagerBudsPrefs";
     private static final String KEY_PERMISSIONS_REQUESTED = "permissions_requested";
@@ -29,26 +32,32 @@ public class PermissionActivity extends BaseActivity {
     private Button btnContinue;
     private TextView btnSkip;
     private boolean permissionsRequested = false;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        // Handle the back button press using the recommended OnBackPressedDispatcher
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Prevent back press on permission screen, show dialog instead
+                showSkipDialog();
+            }
+        });
 
         // Hide action bar if it exists
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
-        // Make status bar icons dark/black for contrast on light background
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(0xFFFFFFFF); // White status bar
-            getWindow().getDecorView().setSystemUiVisibility(
-                    android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Dark icons
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // For Android 5.0-5.1, use a slightly darker status bar since we can't change
-            // icon color
-            getWindow().setStatusBarColor(0xFFE0E0E0); // Light gray
-        }
+        // Make status bar icons dark/black. Unnecessary SDK check removed as minSdk is 26.
+        getWindow().setStatusBarColor(0xFFFFFFFF); // White status bar
+        getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Dark icons
 
         // Check if permissions are already granted
         if (checkIfShouldProceed()) {
@@ -124,12 +133,10 @@ public class PermissionActivity extends BaseActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Permissions Required")
                 .setMessage(message.toString())
-                .setPositiveButton("Grant Permissions", (dialog, which) -> {
-                    PermissionUtils.requestPermissions(
-                            this,
-                            deniedPermissions.toArray(new String[0]),
-                            PermissionUtils.PERMISSION_REQUEST_CODE);
-                })
+                .setPositiveButton("Grant Permissions", (dialog, which) -> PermissionUtils.requestPermissions(
+                        this,
+                        deniedPermissions.toArray(new String[0]),
+                        PermissionUtils.PERMISSION_REQUEST_CODE))
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .setCancelable(false)
                 .show();
@@ -217,11 +224,15 @@ public class PermissionActivity extends BaseActivity {
     }
 
     private void proceedToNextActivity() {
-        // TODO: Check if user is logged in, then navigate accordingly
-        // For now, go to HomeActivity
-        Intent intent = new Intent(this, HomeActivity.class);
-        startActivity(intent);
-        finish();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // User is signed in
+            startActivity(new Intent(this, HomeActivity.class));
+        } else {
+            // No user is signed in
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+        finish(); // Finish PermissionActivity so user can't go back to it
     }
 
     @Override
@@ -231,11 +242,5 @@ public class PermissionActivity extends BaseActivity {
         if (permissionsRequested && PermissionUtils.areAllRequiredPermissionsGranted(this)) {
             onAllPermissionsGranted();
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Prevent back press on permission screen
-        showSkipDialog();
     }
 }
