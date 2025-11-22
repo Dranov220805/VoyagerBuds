@@ -26,11 +26,20 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.voyagerbuds.database.DatabaseHelper;
+import com.example.voyagerbuds.models.Trip;
+import android.widget.TextView;
+import android.widget.LinearLayout;
+
+import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 
 public class MapFragment extends Fragment {
 
@@ -41,6 +50,7 @@ public class MapFragment extends Fragment {
     private Marker currentLocationMarker;
     private FloatingActionButton fabMyLocation;
     private View loadingContainer;
+    private DatabaseHelper databaseHelper;
 
     public MapFragment() {
         // Required empty public constructor
@@ -57,6 +67,9 @@ public class MapFragment extends Fragment {
 
         // Initialize Vietnam locations
         initializeVietnamLocations();
+
+        // Initialize database helper
+        databaseHelper = new DatabaseHelper(requireContext());
 
         // Initialize location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
@@ -104,8 +117,11 @@ public class MapFragment extends Fragment {
         // Add my location overlay
         setupMyLocationOverlay();
 
-        // Add markers for Vietnam locations
-        addMarkersToMap();
+        // Add map events overlay to handle clicks on map background
+        setupMapEventsOverlay();
+
+        // Add markers for user trips
+        loadUserTrips();
 
         // Hide loading indicator once map is ready
         // Use a small delay to ensure tiles start loading
@@ -118,6 +134,24 @@ public class MapFragment extends Fragment {
 
         // Don't automatically get location - let user click the button
         // getCurrentLocation();
+    }
+
+    private void setupMapEventsOverlay() {
+        MapEventsReceiver mReceive = new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                // Close all info windows when map is clicked
+                InfoWindow.closeAllInfoWindowsOn(mapView);
+                return true;
+            }
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return false;
+            }
+        };
+        MapEventsOverlay OverlayEvents = new MapEventsOverlay(mReceive);
+        mapView.getOverlays().add(0, OverlayEvents); // Add at index 0 to be below other overlays
     }
 
     private void setupMyLocationOverlay() {
@@ -285,6 +319,74 @@ public class MapFragment extends Fragment {
     private void hideLoading() {
         if (loadingContainer != null) {
             loadingContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadUserTrips() {
+        // Use userId = 1 as in HomeFragment
+        int userId = 1;
+        List<Trip> trips = databaseHelper.getAllTrips(userId);
+
+        for (Trip trip : trips) {
+            if (trip.getMapLatitude() != 0.0 && trip.getMapLongitude() != 0.0) {
+                Marker marker = new Marker(mapView);
+                marker.setPosition(new GeoPoint(trip.getMapLatitude(), trip.getMapLongitude()));
+                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                marker.setTitle(trip.getTripName());
+                marker.setSnippet(trip.getStartDate() + " - " + trip.getEndDate());
+
+                // Set custom info window
+                marker.setInfoWindow(new TripInfoWindow(R.layout.info_window_trip, mapView, trip));
+
+                mapView.getOverlays().add(marker);
+            }
+        }
+        mapView.invalidate();
+    }
+
+    private void navigateToTripDetail(int tripId) {
+        TripDetailFragment fragment = TripDetailFragment.newInstance(tripId);
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right)
+                .replace(R.id.content_container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private class TripInfoWindow extends InfoWindow {
+        private Trip trip;
+
+        public TripInfoWindow(int layoutResId, MapView mapView, Trip trip) {
+            super(layoutResId, mapView);
+            this.trip = trip;
+        }
+
+        @Override
+        public void onOpen(Object item) {
+            Marker marker = (Marker) item;
+
+            TextView tvTitle = (TextView) mView.findViewById(R.id.tv_trip_title);
+            TextView tvDate = (TextView) mView.findViewById(R.id.tv_trip_date);
+
+            if (tvTitle != null)
+                tvTitle.setText(trip.getTripName());
+            if (tvDate != null)
+                tvDate.setText(trip.getStartDate() + " - " + trip.getEndDate());
+
+            // Set click listener on the whole view to navigate
+            mView.setOnClickListener(v -> {
+                navigateToTripDetail(trip.getTripId());
+                close();
+            });
+        }
+
+        @Override
+        public void onClose() {
+            // nothing to do
         }
     }
 
