@@ -6,15 +6,15 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@color/white"
-    android:elevation="6dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:elevation="0dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp">
 
     <!-- Home -->
     <LinearLayout
         android:id="@+id/nav_home"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
@@ -25,26 +25,19 @@
 
         <ImageView
             android:id="@+id/icon_home"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_home"
+            android:contentDescription="@string/home"
+            android:scaleType="centerInside"
             app:tint="@color/teal_primary" />
-
-        <TextView
-            android:id="@+id/text_home"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/home"
-            android:textSize="12sp"
-            android:textColor="@color/teal_primary"
-            android:layout_marginTop="4dp" />
     </LinearLayout>
 
     <!-- Schedule -->
     <LinearLayout
         android:id="@+id/nav_schedule"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
@@ -55,26 +48,19 @@
 
         <ImageView
             android:id="@+id/icon_search"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_schedule"
+            android:contentDescription="@string/schedule"
+            android:scaleType="centerInside"
             app:tint="@color/text_medium" />
-
-        <TextView
-            android:id="@+id/text_schedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/schedule"
-            android:textSize="12sp"
-            android:textColor="@color/text_medium"
-            android:layout_marginTop="4dp" />
     </LinearLayout>
 
     <!-- Capture -->
     <LinearLayout
         android:id="@+id/nav_capture"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
@@ -85,26 +71,19 @@
 
         <ImageView
             android:id="@+id/icon_create"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_camera"
+            android:contentDescription="@string/capture"
+            android:scaleType="centerInside"
             app:tint="@color/text_medium" />
-
-        <TextView
-            android:id="@+id/text_capture"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/capture"
-            android:textSize="12sp"
-            android:textColor="@color/text_medium"
-            android:layout_marginTop="4dp" />
     </LinearLayout>
 
     <!-- Map -->
     <LinearLayout
         android:id="@+id/nav_map"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
@@ -115,26 +94,19 @@
 
         <ImageView
             android:id="@+id/icon_playlist"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_map"
+            android:contentDescription="@string/map"
+            android:scaleType="centerInside"
             app:tint="@color/text_medium" />
-
-        <TextView
-            android:id="@+id/text_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/map"
-            android:textSize="12sp"
-            android:textColor="@color/text_medium"
-            android:layout_marginTop="4dp" />
     </LinearLayout>
 
     <!-- Dashboard -->
     <LinearLayout
         android:id="@+id/nav_dashboard"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
@@ -145,19 +117,12 @@
 
         <ImageView
             android:id="@+id/icon_dashboard"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_dashboard"
+            android:contentDescription="@string/dashboard"
+            android:scaleType="centerInside"
             app:tint="@color/text_medium" />
-
-        <TextView
-            android:id="@+id/text_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/dashboard"
-            android:textSize="12sp"
-            android:textColor="@color/text_medium"
-            android:layout_marginTop="4dp" />
     </LinearLayout>
 
 </LinearLayout>

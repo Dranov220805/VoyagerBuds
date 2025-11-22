@@ -208,6 +208,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
+            android:id="@+id/iv_empty_logo"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:src="@android:drawable/ic_dialog_map"

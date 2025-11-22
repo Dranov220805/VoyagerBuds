@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.voyagerbuds" />
+                  <option name="mobileSdkAppId" value="1:956230191946:android:da8ca5f819e4e110e40fb3" />
+                  <option name="projectId" value="voyagerbuds-login" />
+                  <option name="projectNumber" value="956230191946" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

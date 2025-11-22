@@ -12,7 +12,20 @@
           "package_name": "com.example.voyagerbuds"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "956230191946-r6nknbsboqbaqhg30ol4i4dib3ou7m08.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.voyagerbuds",
+            "certificate_hash": "a03cc5b36c0c18112db060768eb808bff3073ca2"
+          }
+        },
+        {
+          "client_id": "956230191946-pf36t5lhlnchulntiiaspgokv4pbigd2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBgenXidESHty3z_9IUuoAuBHv5rFIbUss"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956230191946-pf36t5lhlnchulntiiaspgokv4pbigd2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

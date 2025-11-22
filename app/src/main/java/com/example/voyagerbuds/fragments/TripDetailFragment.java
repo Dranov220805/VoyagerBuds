@@ -74,7 +74,7 @@ public class TripDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trip_detail, container, false);
 
         // Initialize Views
@@ -100,10 +100,10 @@ public class TripDetailFragment extends Fragment {
         toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.action_edit) {
-                // TODO: Implement edit trip
+                editTrip();
                 return true;
             } else if (id == R.id.action_delete) {
-                // TODO: Implement delete trip
+                showDeleteConfirmationDialog();
                 return true;
             }
             return false;
@@ -156,12 +156,14 @@ public class TripDetailFragment extends Fragment {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
-        
+
         return view;
     }
 

@@ -165,4 +165,7 @@
     <string name="activities">Activities</string>
     <string name="adjust_budget_later">You can always adjust your budget later.</string>
     <string name="continue_text">Continue</string>
+    <string name="guest">Guest</string>
+    <string name="unknown_user">Unknown user</string>
+    <string name="email_not_available">Email not available</string>
 </resources>
