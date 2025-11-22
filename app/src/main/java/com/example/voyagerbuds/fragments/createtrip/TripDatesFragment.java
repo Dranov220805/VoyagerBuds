@@ -21,6 +21,8 @@ import com.example.voyagerbuds.models.Trip;
 import com.example.voyagerbuds.utils.BookedDateDecorator;
 import com.example.voyagerbuds.utils.DateValidatorBlockTrips;
 import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.CompositeDateValidator;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 
 import java.text.ParseException;
@@ -92,14 +94,19 @@ public class TripDatesFragment extends Fragment {
         builder.setTitleText(isStartDate ? "Select Start Date" : "Select End Date");
 
         CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
-        
+
         // Block past dates
         long today = MaterialDatePicker.todayInUtcMilliseconds();
         constraintsBuilder.setStart(today);
-        
+
+        List<CalendarConstraints.DateValidator> validators = new ArrayList<>();
+        validators.add(DateValidatorPointForward.now());
+
         // We still block the dates so they are unselectable
         List<Long> blockedRanges = getBlockedDateRanges();
-        constraintsBuilder.setValidator(new DateValidatorBlockTrips(blockedRanges));
+        validators.add(new DateValidatorBlockTrips(blockedRanges));
+
+        constraintsBuilder.setValidator(CompositeDateValidator.allOf(validators));
         builder.setCalendarConstraints(constraintsBuilder.build());
 
         // Add decorator to show red strikethrough on booked dates
@@ -110,12 +117,12 @@ public class TripDatesFragment extends Fragment {
             // MaterialDatePicker returns time in UTC
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             calendar.setTimeInMillis(selection);
-            
+
             // Format for display (local time representation of the date)
             SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             String formattedDate = utcFormat.format(calendar.getTime());
-            
+
             // Format for UI display
             SimpleDateFormat displayUtcFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
             displayUtcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -174,7 +181,8 @@ public class TripDatesFragment extends Fragment {
 
             // Check for overlapping trips
             if (!databaseHelper.isDateRangeAvailable(startDate, endDate)) {
-                Toast.makeText(getContext(), "You already have a trip scheduled during these dates.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "You already have a trip scheduled during these dates.", Toast.LENGTH_LONG)
+                        .show();
                 return false;
             }
         } catch (ParseException e) {
