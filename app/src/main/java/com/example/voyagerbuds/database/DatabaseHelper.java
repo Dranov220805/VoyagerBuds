@@ -365,4 +365,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return isAvailable;
     }
+
+    public boolean isDateRangeAvailable(String startDate, String endDate, int excludeTripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
+        String[] selectionArgs = new String[] { endDate, startDate, String.valueOf(excludeTripId) };
+
+        Cursor cursor = db.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
+        boolean isAvailable = cursor.getCount() == 0;
+        cursor.close();
+        db.close();
+        return isAvailable;
+    }
 }
