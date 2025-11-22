@@ -23,6 +23,11 @@ public class TripDestinationFragment extends Fragment {
     private Button btnFinish, btnBack;
     private OnTripDestinationEnteredListener listener;
 
+    private String initialDestination;
+    private String initialNotes;
+    private String initialFriends;
+    private String initialBudget;
+
     public interface OnTripDestinationEnteredListener {
         void onTripDestinationEntered(String destination, String notes, String friends, String budget);
 
@@ -51,7 +56,7 @@ public class TripDestinationFragment extends Fragment {
             String notes = etNotes.getText().toString().trim();
             String friends = etFriends.getText().toString().trim();
             String budget = etBudget.getText().toString().trim();
-            
+
             if (validateInput(destination)) {
                 if (listener != null) {
                     listener.onTripDestinationEntered(destination, notes, friends, budget);
@@ -64,6 +69,15 @@ public class TripDestinationFragment extends Fragment {
                 listener.onBack();
             }
         });
+
+        if (initialDestination != null)
+            etDestination.setText(initialDestination);
+        if (initialNotes != null)
+            etNotes.setText(initialNotes);
+        if (initialFriends != null)
+            etFriends.setText(initialFriends);
+        if (initialBudget != null)
+            etBudget.setText(initialBudget);
 
         return view;
     }
@@ -78,9 +92,18 @@ public class TripDestinationFragment extends Fragment {
     }
 
     public void setDestination(String destination, String notes, String friends, String budget) {
-        if (etDestination != null) etDestination.setText(destination);
-        if (etNotes != null) etNotes.setText(notes);
-        if (etFriends != null) etFriends.setText(friends);
-        if (etBudget != null) etBudget.setText(budget);
+        this.initialDestination = destination;
+        this.initialNotes = notes;
+        this.initialFriends = friends;
+        this.initialBudget = budget;
+
+        if (etDestination != null)
+            etDestination.setText(destination);
+        if (etNotes != null)
+            etNotes.setText(notes);
+        if (etFriends != null)
+            etFriends.setText(friends);
+        if (etBudget != null)
+            etBudget.setText(budget);
     }
 }

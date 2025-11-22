@@ -1,47 +1,45 @@
 package com.example.voyagerbuds.fragments;
 
+import android.app.DatePickerDialog;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.database.DatabaseHelper;
-import com.example.voyagerbuds.fragments.createtrip.TripDatesFragment;
-import com.example.voyagerbuds.fragments.createtrip.TripDestinationFragment;
-import com.example.voyagerbuds.fragments.createtrip.TripNameFragment;
 import com.example.voyagerbuds.models.Trip;
+import com.google.android.material.textfield.TextInputEditText;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EditTripFragment extends Fragment {
 
     private static final String ARG_TRIP_ID = "trip_id";
     private long tripId;
     private Trip trip;
-
     private DatabaseHelper databaseHelper;
-    private ProgressBar progressBar;
-    private TextView tvProgress;
 
-    // Trip data
-    private String tripName;
-    private String startDate;
-    private String endDate;
-    private String destination;
-    private String notes;
-    private String friends;
-    private String budget;
+    private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etParticipants, etNotes;
+    private Button btnSave;
 
-    private int currentStep = 1;
-    private static final int TOTAL_STEPS = 3;
-    private boolean isUpdateComplete = false;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     public static EditTripFragment newInstance(long tripId) {
         EditTripFragment fragment = new EditTripFragment();
@@ -58,211 +56,181 @@ public class EditTripFragment extends Fragment {
             tripId = getArguments().getLong(ARG_TRIP_ID);
         }
         databaseHelper = new DatabaseHelper(getContext());
-
-        // Load existing trip data
-        trip = databaseHelper.getTripById((int) tripId);
-        if (trip != null) {
-            tripName = trip.getTripName();
-            startDate = trip.getStartDate();
-            endDate = trip.getEndDate();
-            destination = trip.getDestination();
-            notes = trip.getNotes();
-            friends = trip.getParticipants();
-            budget = trip.getBudget() > 0 ? String.valueOf(trip.getBudget()) : "";
-        }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_create_trip, container, false);
+        View view = inflater.inflate(R.layout.fragment_edit_trip, container, false);
 
-        progressBar = view.findViewById(R.id.progress_bar);
-        tvProgress = view.findViewById(R.id.tv_progress);
+        // Initialize Views
+        etTripName = view.findViewById(R.id.et_trip_name);
+        etStartDate = view.findViewById(R.id.et_start_date);
+        etEndDate = view.findViewById(R.id.et_end_date);
+        etDestination = view.findViewById(R.id.et_destination);
+        etBudget = view.findViewById(R.id.et_budget);
+        etParticipants = view.findViewById(R.id.et_participants);
+        etNotes = view.findViewById(R.id.et_notes);
+        btnSave = view.findViewById(R.id.btn_save);
 
-        progressBar.setMax(TOTAL_STEPS);
-        updateProgress();
+        // Load Trip Data
+        loadTripData();
 
-        // Show first fragment with existing data
-        showTripNameFragment();
+        // Setup Listeners
+        etStartDate.setOnClickListener(v -> showDatePicker(etStartDate));
+        etEndDate.setOnClickListener(v -> showDatePicker(etEndDate));
+        btnSave.setOnClickListener(v -> saveTrip());
 
         return view;
     }
 
-    private void showTripNameFragment() {
-        currentStep = 1;
-        updateProgress();
-
-        TripNameFragment fragment = new TripNameFragment();
-        fragment.setListener(name -> {
-            tripName = name;
-            showTripDatesFragment();
-        });
-
-        if (tripName != null) {
-            fragment.setTripName(tripName);
+    private void loadTripData() {
+        trip = databaseHelper.getTripById((int) tripId);
+        if (trip != null) {
+            etTripName.setText(trip.getTripName());
+            etStartDate.setText(trip.getStartDate());
+            etEndDate.setText(trip.getEndDate());
+            etDestination.setText(trip.getDestination());
+            etBudget.setText(String.valueOf(trip.getBudget()));
+            etParticipants.setText(trip.getParticipants());
+            etNotes.setText(trip.getNotes());
+        } else {
+            Toast.makeText(getContext(), "Error loading trip", Toast.LENGTH_SHORT).show();
+            getParentFragmentManager().popBackStack();
         }
-
-        replaceChildFragment(fragment);
     }
 
-    private void showTripDatesFragment() {
-        currentStep = 2;
-        updateProgress();
-
-        TripDatesFragment fragment = new TripDatesFragment();
-        fragment.setListener(new TripDatesFragment.OnTripDatesEnteredListener() {
-            @Override
-            public void onTripDatesEntered(String start, String end) {
-                startDate = start;
-                endDate = end;
-                showTripDestinationFragment();
+    private void showDatePicker(TextInputEditText editText) {
+        Calendar calendar = Calendar.getInstance();
+        // Try to parse existing date
+        try {
+            String dateStr = editText.getText().toString();
+            if (!TextUtils.isEmpty(dateStr)) {
+                calendar.setTime(dateFormat.parse(dateStr));
             }
-
-            @Override
-            public void onBack() {
-                showTripNameFragment();
-            }
-        });
-
-        if (startDate != null && endDate != null) {
-            fragment.setDates(startDate, endDate);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        replaceChildFragment(fragment);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(year, month, dayOfMonth);
+                    editText.setText(dateFormat.format(calendar.getTime()));
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
     }
 
-    private void showTripDestinationFragment() {
-        currentStep = 3;
-        updateProgress();
+    private void saveTrip() {
+        String name = etTripName.getText().toString().trim();
+        String start = etStartDate.getText().toString().trim();
+        String end = etEndDate.getText().toString().trim();
+        String dest = etDestination.getText().toString().trim();
+        String budgetStr = etBudget.getText().toString().trim();
+        String participants = etParticipants.getText().toString().trim();
+        String notes = etNotes.getText().toString().trim();
 
-        TripDestinationFragment fragment = new TripDestinationFragment();
-        fragment.setListener(new TripDestinationFragment.OnTripDestinationEnteredListener() {
-            @Override
-            public void onTripDestinationEntered(String dest, String tripNotes, String friendList,
-                    String budgetAmount) {
-                destination = dest;
-                notes = tripNotes;
-                friends = friendList;
-                budget = budgetAmount;
-                updateTrip();
-            }
-
-            @Override
-            public void onBack() {
-                showTripDatesFragment();
-            }
-        });
-
-        if (destination != null) {
-            fragment.setDestination(destination, notes, friends, budget);
+        // Validation
+        if (TextUtils.isEmpty(name)) {
+            etTripName.setError("Trip name is required");
+            return;
         }
-
-        replaceChildFragment(fragment);
-    }
-
-    private void updateTrip() {
-        if (trip == null) {
-            Toast.makeText(getContext(), "Trip not found", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(start)) {
+            etStartDate.setError("Start date is required");
+            return;
+        }
+        if (TextUtils.isEmpty(end)) {
+            etEndDate.setError("End date is required");
+            return;
+        }
+        if (TextUtils.isEmpty(dest)) {
+            etDestination.setError("Destination is required");
             return;
         }
 
-        // Update trip object with new values
-        trip.setTripName(tripName);
-        trip.setStartDate(startDate);
-        trip.setEndDate(endDate);
-        trip.setDestination(destination);
-        trip.setNotes(notes);
-
-        if (friends != null && !friends.isEmpty()) {
-            trip.setParticipants(friends);
-            trip.setIsGroupTrip(1);
-        } else {
-            trip.setParticipants(null);
-            trip.setIsGroupTrip(0);
+        // Check date validity
+        if (start.compareTo(end) > 0) {
+            etEndDate.setError("End date cannot be before start date");
+            return;
         }
 
-        if (budget != null && !budget.isEmpty()) {
-            try {
-                trip.setBudget(Double.parseDouble(budget));
-            } catch (NumberFormatException e) {
-                trip.setBudget(0.0);
-            }
-        } else {
+        // Check for overlapping trips (excluding current trip)
+        if (!databaseHelper.isDateRangeAvailable(start, end, (int) tripId)) {
+            Toast.makeText(getContext(), "You already have a trip during these dates", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Update Trip Object
+        trip.setTripName(name);
+        trip.setStartDate(start);
+        trip.setEndDate(end);
+        trip.setDestination(dest);
+        trip.setNotes(notes);
+        trip.setParticipants(participants);
+        trip.setIsGroupTrip(!TextUtils.isEmpty(participants) ? 1 : 0);
+
+        try {
+            trip.setBudget(Double.parseDouble(budgetStr));
+        } catch (NumberFormatException e) {
             trip.setBudget(0.0);
         }
 
-        trip.setUpdatedAt(System.currentTimeMillis());
+        // Update Geolocation in background
+        btnSave.setEnabled(false);
+        btnSave.setText("Saving...");
 
-        int result = databaseHelper.updateTrip(trip);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
 
-        if (result > 0) {
-            isUpdateComplete = true;
-            Toast.makeText(getContext(), "Trip updated successfully", Toast.LENGTH_SHORT).show();
+        executor.execute(() -> {
+            double lat = trip.getMapLatitude();
+            double lon = trip.getMapLongitude();
 
-            // Navigate back to trip detail
-            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                getParentFragmentManager().popBackStack();
-            }
-        } else {
-            Toast.makeText(getContext(), "Failed to update trip", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void replaceChildFragment(Fragment fragment) {
-        getChildFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-                .replace(R.id.create_trip_content_container, fragment)
-                .commit();
-    }
-
-    private void updateProgress() {
-        if (progressBar != null && tvProgress != null) {
-            progressBar.setProgress(currentStep);
-            tvProgress.setText(getString(R.string.step_progress, currentStep, TOTAL_STEPS));
-        }
-    }
-
-    public boolean handleBackPress() {
-        if (isUpdateComplete) {
-            return false; // Allow normal back behavior
-        }
-
-        if (currentStep > 1) {
-            if (currentStep == 2) {
-                showTripNameFragment();
-            } else if (currentStep == 3) {
-                showTripDatesFragment();
-            }
-            return true; // Back press handled
-        } else {
-            // Show confirmation dialog when trying to exit from first step
-            showConfirmationDialog();
-            return true; // Back press handled
-        }
-    }
-
-    private void showConfirmationDialog() {
-        if (isUpdateComplete) {
-            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                getParentFragmentManager().popBackStack();
-            }
-            return;
-        }
-
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Discard Changes?")
-                .setMessage("Are you sure you want to discard your changes?")
-                .setPositiveButton("Discard", (dialog, which) -> {
-                    if (getParentFragmentManager().getBackStackEntryCount() > 0) {
-                        getParentFragmentManager().popBackStack();
+            // Only re-geocode if destination changed or no coords exist
+            // Simple check: if destination string changed (we don't have old dest here
+            // easily unless we stored it,
+            // but re-fetching is safer to ensure accuracy)
+            if (dest != null && !dest.isEmpty()) {
+                Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(dest, 1);
+                    if ((addresses == null || addresses.isEmpty()) && !dest.toLowerCase().contains("vietnam")) {
+                        addresses = geocoder.getFromLocationName(dest + ", Vietnam", 1);
                     }
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Address address = addresses.get(0);
+                        lat = address.getLatitude();
+                        lon = address.getLongitude();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            double finalLat = lat;
+            double finalLon = lon;
+
+            handler.post(() -> {
+                trip.setMapLatitude(finalLat);
+                trip.setMapLongitude(finalLon);
+                trip.setUpdatedAt(System.currentTimeMillis());
+
+                int result = databaseHelper.updateTrip(trip);
+
+                if (result > 0) {
+                    Toast.makeText(getContext(), "Trip updated successfully", Toast.LENGTH_SHORT).show();
+                    getParentFragmentManager().popBackStack();
+                } else {
+                    Toast.makeText(getContext(), "Failed to update trip", Toast.LENGTH_SHORT).show();
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Save Changes");
+                }
+            });
+        });
     }
 }

@@ -86,6 +86,10 @@ public class TripDatesFragment extends Fragment {
             }
         });
 
+        if (initialStartDate != null && initialEndDate != null) {
+            setDates(initialStartDate, initialEndDate);
+        }
+
         return view;
     }
 
@@ -193,22 +197,23 @@ public class TripDatesFragment extends Fragment {
         return true;
     }
 
+    private String initialStartDate;
+    private String initialEndDate;
+
     public void setDates(String startDate, String endDate) {
+        this.initialStartDate = startDate;
+        this.initialEndDate = endDate;
         if (etStartDate != null && etEndDate != null) {
             try {
-                if (startDate != null && !startDate.isEmpty()) {
-                    Date start = dateFormat.parse(startDate);
-                    if (start != null) {
-                        etStartDate.setText(displayFormat.format(start));
-                        etStartDate.setTag(startDate);
-                    }
+                Date start = dateFormat.parse(startDate);
+                Date end = dateFormat.parse(endDate);
+                if (start != null) {
+                    etStartDate.setText(displayFormat.format(start));
+                    etStartDate.setTag(startDate);
                 }
-                if (endDate != null && !endDate.isEmpty()) {
-                    Date end = dateFormat.parse(endDate);
-                    if (end != null) {
-                        etEndDate.setText(displayFormat.format(end));
-                        etEndDate.setTag(endDate);
-                    }
+                if (end != null) {
+                    etEndDate.setText(displayFormat.format(end));
+                    etEndDate.setTag(endDate);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
