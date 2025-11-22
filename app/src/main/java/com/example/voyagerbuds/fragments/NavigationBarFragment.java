@@ -138,8 +138,12 @@ public class NavigationBarFragment extends Fragment {
                 ImageView icon = (ImageView) child;
                 if (selected) {
                     icon.setColorFilter(getResources().getColor(R.color.teal_primary, null));
+                    // Slightly scale up selected icon for emphasis
+                    icon.animate().scaleX(1.15f).scaleY(1.15f).setDuration(120).start();
                 } else {
                     icon.setColorFilter(getResources().getColor(R.color.text_medium, null));
+                    // Reset scale for non-selected
+                    icon.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
                 }
             } else if (child instanceof TextView) {
                 TextView text = (TextView) child;

@@ -21,6 +21,7 @@ import com.example.voyagerbuds.activities.LoginActivity;
 import com.example.voyagerbuds.utils.LocaleHelper;
 import com.example.voyagerbuds.utils.ThemeHelper;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +42,8 @@ public class ProfileFragment extends Fragment {
     private TextView tvLanguageLabel;
     private TextView tvThemeLabel;
     private TextView tvHelp;
+    private TextView tvUserName;
+    private TextView tvUserEmail;
     private FirebaseAuth mAuth;
 
     public ProfileFragment() {
@@ -73,6 +76,8 @@ public class ProfileFragment extends Fragment {
         tvCurrentLanguage = view.findViewById(R.id.tv_current_language);
         btnTheme = view.findViewById(R.id.btn_theme);
         tvCurrentTheme = view.findViewById(R.id.tv_current_theme);
+        tvUserName = view.findViewById(R.id.tv_user_name);
+        tvUserEmail = view.findViewById(R.id.tv_user_email);
         btnEditProfile = view.findViewById(R.id.btn_edit_profile);
         btnLogout = view.findViewById(R.id.btn_logout);
         tvSettings = view.findViewById(R.id.tv_settings);
@@ -103,6 +108,9 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
             getActivity().finish();
         });
+
+        // Update user name and email display
+        updateUserDisplay();
     }
 
     private void updateLanguageDisplay() {
@@ -173,5 +181,36 @@ public class ProfileFragment extends Fragment {
         // Refresh UI with current language and theme
         updateLanguageDisplay();
         updateThemeDisplay();
+        updateUserDisplay();
+    }
+
+    private void updateUserDisplay() {
+        if (mAuth == null) {
+            mAuth = FirebaseAuth.getInstance();
+        }
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String displayName = currentUser.getDisplayName();
+            String email = currentUser.getEmail();
+            if (displayName != null && !displayName.isEmpty()) {
+                tvUserName.setText(displayName);
+            } else if (email != null && !email.isEmpty()) {
+                // If there's no display name, use the email's local part as a fallback
+                int atIndex = email.indexOf('@');
+                String fallback = atIndex > 0 ? email.substring(0, atIndex) : email;
+                tvUserName.setText(fallback);
+            } else {
+                tvUserName.setText(R.string.unknown_user);
+            }
+            if (email != null && !email.isEmpty()) {
+                tvUserEmail.setText(email);
+            } else {
+                tvUserEmail.setText(R.string.email_not_available);
+            }
+        } else {
+            // No logged-in user
+            tvUserName.setText(R.string.guest);
+            tvUserEmail.setText(R.string.email_not_available);
+        }
     }
 }
