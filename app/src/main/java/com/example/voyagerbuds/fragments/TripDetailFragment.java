@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.voyagerbuds.R;
+import com.example.voyagerbuds.activities.HomeActivity;
 import com.example.voyagerbuds.adapters.ScheduleAdapter;
 import com.example.voyagerbuds.adapters.ScheduleDayAdapter;
 import com.example.voyagerbuds.database.DatabaseHelper;
@@ -287,6 +288,69 @@ public class TripDetailFragment extends Fragment {
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
+    }
+
+    private void editTrip() {
+        if (trip == null) {
+            Toast.makeText(getContext(), "Trip not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Navigate to EditTripFragment with trip data
+        EditTripFragment editFragment = EditTripFragment.newInstance(tripId);
+        
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left,
+                    R.anim.slide_in_left,
+                    R.anim.slide_out_right
+                )
+                .replace(R.id.content_container, editFragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        if (trip == null) {
+            return;
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Trip")
+                .setMessage("Are you sure you want to delete \"" + trip.getTripName() + "\"? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteTrip();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    private void deleteTrip() {
+        if (trip == null) {
+            return;
+        }
+
+        try {
+            databaseHelper.deleteTrip((int) tripId);
+            Toast.makeText(getContext(), "Trip deleted successfully", Toast.LENGTH_SHORT).show();
+            
+            // Navigate back to home fragment
+            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                getParentFragmentManager().popBackStack();
+            } else if (getActivity() instanceof HomeActivity) {
+                // If no back stack, manually show home fragment
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.content_container, new HomeFragment())
+                        .commit();
+            }
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Failed to delete trip", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     private List<ScheduleDayGroup> groupSchedulesByDay(List<ScheduleItem> items) {
