@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
     private List<Trip> tripList;
     private List<Trip> filteredTripList;
     private View emptyStateView;
+    private ImageView emptyLogo;
 
     // Hero card views
     private CardView cardHeroTrip;
@@ -61,7 +62,7 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
 
     // Location UI elements (removed - geocoding & visibility removed)
     // Executor for background geocoding (avoid blocking UI thread)
-    // Geocoding executor removed
+    // Geocoding executor removedy
 
     // Filter options
     private String sortBy = "date_oldest";
@@ -87,6 +88,7 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
         // Initialize views
         recyclerViewTrips = view.findViewById(R.id.recycler_view_trips);
         emptyStateView = view.findViewById(R.id.tv_empty_state);
+        emptyLogo = view.findViewById(R.id.iv_empty_logo);
 
         // Initialize hero card views
         cardHeroTrip = view.findViewById(R.id.card_hero_trip);
@@ -170,7 +172,8 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
         // Load image from photoUrl if available, otherwise use app icon as placeholder
         if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
             // TODO: Load image using Glide or Picasso
-            // For now, use app icon as placeholder even if URL exists (until image loading is implemented)
+            // For now, use app icon as placeholder even if URL exists (until image loading
+            // is implemented)
             imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
         } else {
             imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
@@ -228,11 +231,11 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
             if (startDate != null && endDate != null) {
                 SimpleDateFormat monthDay = new SimpleDateFormat("MMM dd", Locale.getDefault());
                 SimpleDateFormat year = new SimpleDateFormat("yyyy", Locale.getDefault());
-                
+
                 String start = monthDay.format(startDate);
                 String end = monthDay.format(endDate);
                 String yearStr = year.format(endDate);
-                
+
                 return start + " - " + end + ", " + yearStr;
             }
         } catch (ParseException e) {
@@ -265,21 +268,22 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
         TripDetailFragment fragment = TripDetailFragment.newInstance(trip.getTripId());
         getParentFragmentManager().beginTransaction()
                 .setCustomAnimations(
-                    R.anim.slide_in_right,
-                    R.anim.slide_out_left,
-                    R.anim.slide_in_left,
-                    R.anim.slide_out_right
-                )
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right)
                 .replace(R.id.content_container, fragment)
                 .addToBackStack(null)
                 .commit();
     }
 
-    // getCurrentLocation removed from HomeFragment to avoid background location work and permissions
+    // getCurrentLocation removed from HomeFragment to avoid background location
+    // work and permissions
 
     // getAddressFromLocation removed
 
-    // onRequestPermissionsResult intentionally removed; HomeFragment no longer requests location
+    // onRequestPermissionsResult intentionally removed; HomeFragment no longer
+    // requests location
 
     private void setCurrentSortSelection(RadioGroup radioGroup) {
         switch (sortBy) {
@@ -469,6 +473,11 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
             if (tripList.isEmpty()) {
                 // No trips at all - show empty state
                 emptyStateView.setVisibility(View.VISIBLE);
+                // Set the empty state image to undraw_trip when there are no trips
+                if (emptyLogo != null) {
+                    emptyLogo.setImageResource(R.drawable.undraw_trip);
+                    emptyLogo.setAlpha(1.0f); // keep it fully opaque for the illustration
+                }
             } else {
                 // Trips exist but filtered out - show "No results" message
                 emptyStateView.setVisibility(View.VISIBLE);
@@ -493,6 +502,11 @@ public class HomeFragment extends Fragment implements TripAdapter.OnTripClickLis
                 emptyTitle.setText("Discover\nAmazing Places");
             if (emptySubtitle != null)
                 emptySubtitle.setText("Adventure New Places");
+            // Ensure default icon for non-empty states
+            if (emptyLogo != null) {
+                emptyLogo.setImageResource(android.R.drawable.ic_dialog_map);
+                emptyLogo.setAlpha(0.2f);
+            }
 
             // Get the first trip for hero card
             Trip heroTrip = filteredTripList.get(0);
