@@ -5,202 +5,83 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".fragments.ScheduleFragment">
 
-    <!-- Fixed Header Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="20dp">
+        android:padding="16dp">
 
-        <!-- Trip Picker Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_trip_picker"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_trip_summary"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/white"
-            android:padding="0dp">
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            tools:text="Trip to Paris" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- Trip Info Section -->
-                <LinearLayout
-                    android:id="@+id/group_trip_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:id="@+id/tv_trip_summary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        tools:text="Dubai, United Arab Emirates" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:id="@+id/tv_trip_dates"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/gray"
-                            android:textSize="14sp"
-                            tools:text="Mon - Jan 22 - 4 Days" />
-
-                        <View
-                            android:layout_width="4dp"
-                            android:layout_height="4dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/circular_bg"
-                            android:backgroundTint="@color/gray" />
-
-                        <TextView
-                            android:id="@+id/tv_trip_status_hint"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/main_color_voyager"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            tools:text="Currently running" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <!-- Trip Selector -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/search_box_bg"
-                    android:padding="12dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/schedule_trip_picker_label"
-                        android:textColor="@color/gray"
-                        android:textSize="14sp" />
-
-                    <Spinner
-                        android:id="@+id/spinner_trip_picker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:spinnerMode="dropdown"
-                        android:minWidth="120dp" />
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@android:drawable/arrow_down_float"
-                        android:contentDescription="Select trip"
-                        android:layout_marginStart="4dp"
-                        app:tint="@color/gray" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Date Chips Selector -->
-        <HorizontalScrollView
-            android:id="@+id/scroll_date_chips"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_trip_dates"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone">
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/gray"
+            tools:text="Mon, Jan 01 - 5 Days" />
 
-            <LinearLayout
-                android:id="@+id/layout_date_chips"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
-
-                <!-- Date chips will be added dynamically -->
-
-            </LinearLayout>
-
-        </HorizontalScrollView>
+        <TextView
+            android:id="@+id/tv_trip_status_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            android:textColor="@color/main_color_voyager"
+            tools:text="Running" />
 
     </LinearLayout>
 
-    <!-- Scrollable Timeline Section -->
-    <androidx.core.widget.NestedScrollView
+    <HorizontalScrollView
+        android:id="@+id/scroll_date_chips"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/layout_date_chips"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="20dp">
+            android:orientation="horizontal" />
 
-            <TextView
-                android:id="@+id/tv_schedule_empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="@string/schedule_no_current_trip"
-                android:textAlignment="center"
-                android:textColor="#777777"
-                android:textSize="14sp"
-                android:visibility="gone" />
+    </HorizontalScrollView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_schedule"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-            <Button
-                android:id="@+id/btn_add_schedule_item"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/schedule_add_event"
-                android:backgroundTint="@color/main_color_voyager"
-                android:textColor="@android:color/white" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp" />
 
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_schedule_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/schedule_no_trips_prompt"
+            android:textSize="16sp"
+            android:textColor="@color/gray"
+            android:visibility="gone" />
 
-    </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
 
 </LinearLayout>
