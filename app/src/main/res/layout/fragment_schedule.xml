@@ -5,43 +5,66 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@color/background_light"
     tools:context=".fragments.ScheduleFragment">
 
-    <LinearLayout
+    <!-- Header with title and menu -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/tv_schedule_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/trip_schedule_title"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/iv_schedule_menu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="@string/menu" />
+
+    </RelativeLayout>
+
+    <!-- Trip selector dropdown with custom background -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/spinner_dropdown_bg">
 
-        <TextView
-            android:id="@+id/tv_trip_summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            tools:text="Trip to Paris" />
+        <Spinner
+            android:id="@+id/spinner_trip_selector"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:paddingStart="12dp"
+            android:paddingEnd="32dp"
+            android:prompt="@string/select_trip_hint" />
 
-        <TextView
-            android:id="@+id/tv_trip_dates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
-            android:textColor="@color/gray"
-            tools:text="Mon, Jan 01 - 5 Days" />
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_arrow_down"
+            android:contentDescription="@string/select_trip_hint" />
 
-        <TextView
-            android:id="@+id/tv_trip_status_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp"
-            android:textColor="@color/main_color_voyager"
-            tools:text="Running" />
-
-    </LinearLayout>
+    </FrameLayout>
 
     <HorizontalScrollView
         android:id="@+id/scroll_date_chips"

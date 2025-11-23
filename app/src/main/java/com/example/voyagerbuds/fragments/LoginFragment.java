@@ -64,7 +64,8 @@ public class LoginFragment extends Fragment {
                             firebaseAuthWithGoogle(account.getIdToken(), account.getEmail());
                         } catch (ApiException e) {
                             Log.w(TAG, "Google sign in failed", e);
-                            Toast.makeText(getContext(), "Google sign in failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), getString(R.string.toast_google_sign_in_failed),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -72,7 +73,8 @@ public class LoginFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -87,7 +89,7 @@ public class LoginFragment extends Fragment {
             if (!email.isEmpty() && !password.isEmpty()) {
                 signInWithEmailPassword(email, password);
             } else {
-                Toast.makeText(getContext(), "Please enter email and password.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_enter_email_password), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -99,7 +101,7 @@ public class LoginFragment extends Fragment {
         });
 
         binding.tvForgotPassword.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.coming_soon), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -109,7 +111,7 @@ public class LoginFragment extends Fragment {
                     if (task.isSuccessful()) {
                         navigateToHome();
                     } else {
-                        Toast.makeText(getContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.toast_auth_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -129,7 +131,9 @@ public class LoginFragment extends Fragment {
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             promptForPasswordAndLink(email, credential);
                         } else {
-                            Toast.makeText(getContext(), "Authentication Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(),
+                                    getString(R.string.toast_auth_failed_detailed, task.getException().getMessage()),
+                                    Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -137,17 +141,17 @@ public class LoginFragment extends Fragment {
 
     private void promptForPasswordAndLink(String email, AuthCredential credentialToLink) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Link Account");
-        builder.setMessage("An account with this email already exists. Please enter your password to link your Google account.");
+        builder.setTitle(R.string.link_account_title);
+        builder.setMessage(R.string.link_account_message);
 
         final EditText input = new EditText(requireContext());
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("Link", (dialog, which) -> {
+        builder.setPositiveButton(R.string.link, (dialog, which) -> {
             String password = input.getText().toString();
             if (password.isEmpty()) {
-                Toast.makeText(getContext(), "Password is required.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_password_required), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -159,15 +163,21 @@ public class LoginFragment extends Fragment {
                                 user.linkWithCredential(credentialToLink)
                                         .addOnCompleteListener(linkTask -> {
                                             if (linkTask.isSuccessful()) {
-                                                Toast.makeText(getContext(), "Accounts linked successfully!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getContext(),
+                                                        getString(R.string.toast_accounts_linked_successful),
+                                                        Toast.LENGTH_SHORT).show();
                                                 navigateToHome();
                                             } else {
-                                                Toast.makeText(getContext(), "Failed to link accounts.", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getContext(),
+                                                        getString(R.string.toast_failed_to_link_accounts),
+                                                        Toast.LENGTH_SHORT).show();
                                             }
                                         });
                             }
                         } else {
-                            Toast.makeText(getContext(), "Incorrect password. Accounts not linked.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(),
+                                    getString(R.string.toast_incorrect_password_accounts_not_linked),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     });
         });
@@ -175,9 +185,8 @@ public class LoginFragment extends Fragment {
         builder.show();
     }
 
-
     private void navigateToHome() {
-        Toast.makeText(getContext(), "Authentication Successful.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), getString(R.string.toast_auth_successful), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getActivity(), HomeActivity.class);
         startActivity(intent);
         requireActivity().finish();

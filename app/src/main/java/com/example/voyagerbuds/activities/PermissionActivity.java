@@ -54,7 +54,8 @@ public class PermissionActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        // Make status bar icons dark/black. Unnecessary SDK check removed as minSdk is 26.
+        // Make status bar icons dark/black. Unnecessary SDK check removed as minSdk is
+        // 26.
         getWindow().setStatusBarColor(0xFFFFFFFF); // White status bar
         getWindow().getDecorView().setSystemUiVisibility(
                 android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Dark icons
@@ -131,37 +132,35 @@ public class PermissionActivity extends AppCompatActivity {
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("Permissions Required")
+                .setTitle(R.string.permissions_required_title)
                 .setMessage(message.toString())
-                .setPositiveButton("Grant Permissions", (dialog, which) -> PermissionUtils.requestPermissions(
+                .setPositiveButton(R.string.grant_permissions, (dialog, which) -> PermissionUtils.requestPermissions(
                         this,
                         deniedPermissions.toArray(new String[0]),
                         PermissionUtils.PERMISSION_REQUEST_CODE))
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setCancelable(false)
                 .show();
     }
 
     private void showSkipDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Skip Permissions?")
-                .setMessage(
-                        "Some features may not work properly without these permissions. You can grant them later in Settings.\n\nAre you sure you want to skip?")
-                .setPositiveButton("Skip Anyway", (dialog, which) -> {
+                .setTitle(R.string.skip_permissions_title)
+                .setMessage(R.string.skip_permissions_message)
+                .setPositiveButton(R.string.skip_anyway, (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
-                .setNegativeButton("Go Back", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.go_back, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
     private void showSettingsDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Permissions Required")
-                .setMessage(
-                        "Some permissions have been permanently denied. Please enable them in Settings to use all features of the app.")
-                .setPositiveButton("Open Settings", (dialog, which) -> openAppSettings())
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setTitle(R.string.permissions_required_title)
+                .setMessage(R.string.permissions_denied_settings_message)
+                .setPositiveButton(R.string.open_settings, (dialog, which) -> openAppSettings())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
@@ -205,7 +204,7 @@ public class PermissionActivity extends AppCompatActivity {
             } else {
                 // Some permissions denied but not permanently
                 Toast.makeText(this,
-                        "Some permissions were denied. You can continue but some features may be limited.",
+                        getString(R.string.some_permissions_denied_message),
                         Toast.LENGTH_LONG).show();
                 savePermissionsRequested();
             }
@@ -213,7 +212,7 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
     private void onAllPermissionsGranted() {
-        Toast.makeText(this, "All permissions granted! Thank you.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.permission_all_granted_thanks), Toast.LENGTH_SHORT).show();
         savePermissionsRequested();
         proceedToNextActivity();
     }

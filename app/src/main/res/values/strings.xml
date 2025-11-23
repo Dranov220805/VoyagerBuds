@@ -24,8 +24,14 @@
     <string name="total_budget">Total Budget</string>
     <string name="spent">Spent</string>
     <string name="remaining">Remaining</string>
-    
+
     <!-- Profile Screen -->
+    <string name="account">Account</string>
+    <string name="preferences">Preferences</string>
+    <string name="support">Support</string>
+    <string name="emergency_contacts">Emergency Contacts</string>
+    <string name="theme_subtitle">Light / Dark</string>
+    <string name="language_subtitle">English / Vietnamese</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="settings">Settings</string>
     <string name="notifications">Notifications</string>
@@ -40,7 +46,7 @@
     <string name="light_mode">Light Mode</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="theme">Theme</string>
-    
+
     <!-- Trip Management -->
     <string name="my_trips">My Trips</string>
     <string name="create_trip">Create Trip</string>
@@ -65,6 +71,18 @@
     <string name="add_schedule_prompt">Would you like to add a schedule for each day of your trip now?</string>
     <string name="add_schedule_now">Add Schedule Now</string>
     <string name="add_schedule_later">Maybe Later</string>
+    <string name="error_trip_name_required">Trip name is required</string>
+    <string name="error_trip_name_too_short">Trip name must be at least 3 characters</string>
+    <string name="error_start_date_required">Start date is required</string>
+    <string name="error_end_date_required">End date is required</string>
+    <string name="error_destination_required">Destination is required</string>
+    <string name="error_end_before_start">End date cannot be before start date</string>
+    <string name="hint_budget">Budget</string>
+    <string name="error_full_name_required">Full name is required</string>
+    <string name="error_email_required">Email is required</string>
+    <string name="error_password_required">Password is required</string>
+    <string name="error_password_too_short">Password must be at least 6 characters</string>
+    <string name="error_valid_email">Please enter a valid email address</string>
 
     <!-- Schedule -->
     <string name="schedule_timeline_title">Trip Timeline</string>
@@ -77,6 +95,33 @@
     <string name="schedule_no_events_running">%1$s is running but has no schedule items yet.</string>
     <string name="schedule_trip_summary">%1$s • %2$s</string>
     <string name="schedule_trip_status_running">Currently running</string>
+    <string name="day_title_example">Monday, Jun 12</string>
+    <string name="day_events_example">3 events</string>
+    <!-- Hour labels for timeline (localized in resources) -->
+    <string name="time_00">00:00</string>
+    <string name="time_01">01:00</string>
+    <string name="time_02">02:00</string>
+    <string name="time_03">03:00</string>
+    <string name="time_04">04:00</string>
+    <string name="time_05">05:00</string>
+    <string name="time_06">06:00</string>
+    <string name="time_07">07:00</string>
+    <string name="time_08">08:00</string>
+    <string name="time_09">09:00</string>
+    <string name="time_10">10:00</string>
+    <string name="time_11">11:00</string>
+    <string name="time_12">12:00</string>
+    <string name="time_13">13:00</string>
+    <string name="time_14">14:00</string>
+    <string name="time_15">15:00</string>
+    <string name="time_16">16:00</string>
+    <string name="time_17">17:00</string>
+    <string name="time_18">18:00</string>
+    <string name="time_19">19:00</string>
+    <string name="time_20">20:00</string>
+    <string name="time_21">21:00</string>
+    <string name="time_22">22:00</string>
+    <string name="time_23">23:00</string>
     <string name="schedule_trip_status_upcoming">Upcoming trip</string>
     <string name="schedule_trip_status_past">Past trip</string>
     <string name="schedule_add_event">Add event</string>
@@ -89,12 +134,22 @@
     <string name="schedule_event_count_one">%1$d event</string>
     <string name="schedule_event_count_other">%1$d events</string>
 
+    <!-- Weekday abbreviations -->
+    <string name="weekday_mon_short">Mon</string>
+    <string name="weekday_tue_short">Tue</string>
+    <string name="weekday_wed_short">Wed</string>
+    <string name="weekday_thu_short">Thu</string>
+    <string name="weekday_fri_short">Fri</string>
+    <string name="weekday_sat_short">Sat</string>
+    <string name="weekday_sun_short">Sun</string>
+
     <!-- Common -->
     <string name="save">Save</string>
     <string name="delete">Delete</string>
+    <string name="menu">Menu</string>
     <string name="schedule_delete_title">Delete Schedule</string>
     <string name="schedule_delete_confirm">Are you sure you want to delete this schedule?</string>
-    
+
     <!-- Login Screen -->
     <string name="welcome_back">Welcome Back!</string>
     <string name="log_in_to_account">Log in to your account</string>
@@ -104,57 +159,82 @@
     <string name="log_in">Log In</string>
     <string name="or">OR</string>
     <string name="continue_with_google">Continue with Google</string>
-    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="dont_have_account">Don t have an account?</string>
     <string name="sign_up">Sign up</string>
-    
+    <string name="register">Register</string>
+    <string name="already_have_account_login">Already have an account? Login</string>
+
     <!-- Registration Screen -->
     <string name="create_account">Create Account</string>
-    <string name="lets_get_started">Let\'s get you started!</string>
+    <string name="lets_get_started">Let s get you started!</string>
     <string name="full_name">Full Name</string>
     <string name="email_address">Email Address</string>
     <string name="sign_up_with_google">Sign Up with Google</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="sign_in">Sign In</string>
-    
+
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Forgot Password?</string>
-    <string name="forgot_password_message">Don\'t worry! It happens. Please enter the email address associated with your account.</string>
+    <string name="forgot_password_message">Don t worry! It happens. Please enter the email address associated with your account.</string>
     <string name="enter_email_address">Enter your email address</string>
     <string name="send_code">Send Code</string>
-    
+
     <!-- Home Screen -->
     <string name="hello">Hello, %1$s!</string>
     <string name="current_trip">Current Trip</string>
     <string name="upcoming_trips">Upcoming Trips</string>
     <string name="past_trips">Past Trips</string>
     <string name="in_progress">In Progress</string>
-    
+
     <!-- Trip Details Screen -->
     <string name="trip_details">Trip Details</string>
     <string name="expenses">Expenses</string>
     <string name="trip_gallery">Trip Gallery</string>
     <string name="view_all">View All</string>
     <string name="edit">Edit</string>
-    
+
     <!-- Add Trip Screens -->
     <string name="trip_details_title">Trip Details</string>
     <string name="when_traveling">When are you traveling?</string>
     <string name="select_date">Select date</string>
     <string name="who_traveling_with">Who are you traveling with?</string>
     <string name="invite_friends">Invite Friends</string>
-    <string name="estimated_budget">What\'s your estimated budget?</string>
+    <string name="estimated_budget">What s your estimated budget?</string>
     <string name="confirm_your_trip">Confirm Your Trip</string>
-    <string name="lets_go">Let\'s Go!</string>
+    <string name="lets_go">Let s Go!</string>
     <string name="set_trip_schedule">Set Trip Schedule</string>
     <string name="ready_to_plan_days">Ready to plan your days?</string>
     <string name="build_itinerary_message">You can build a detailed itinerary now, or save this step for later.</string>
     <string name="set_up_schedule_now">Set Up Schedule Now</string>
-    <string name="ill_do_it_later">I\'ll Do It Later</string>
-    <string name="whats_travel_budget">What\'s your travel budget?</string>
+    <string name="ill_do_it_later">I ll Do It Later</string>
+    <string name="whats_travel_budget">What s your travel budget?</string>
     <string name="set_max_spending_limit">Set a maximum spending limit for your trip. You can always change this later.</string>
     <string name="currency">Currency</string>
     <string name="amount">Amount</string>
     <string name="enter_amount">Enter amount</string>
+    <string name="hint_participants">Participants (comma separated)</string>
+    <string name="hint_icon_emoji">Icon/Emoji (e.g., 🍴 ✈️ 📷)</string>
+    <string name="hint_location_optional">Location (optional)</string>
+    <string name="capture_experience_hint">Write your travel experiences here...</string>
+    <string name="hint_date_tap_to_pick">Date (tap to pick)</string>
+    <string name="hint_start_time">Start time</string>
+    <string name="hint_end_time">End time</string>
+    <string name="hint_title_do_something">Title (do something)</string>
+    <string name="hint_notes_optional_small">Notes (optional)</string>
+    <!-- Added missing keys used in layouts -->
+    <string name="step_5_of_6">Step 5 of 6</string>
+    <string name="ask_destination">Where are you going?</string>
+    <string name="destination_description">Enter the city or location for your trip.</string>
+    <string name="hint_notes_optional">Notes (optional)</string>
+    <string name="hint_invite_friends_optional">Invite friends (optional)</string>
+    <string name="hint_budget_optional">Budget (optional)</string>
+    <string name="ask_trip_name">What would you like to name your trip?</string>
+    <string name="trip_name_description">Give your trip a short, descriptive name.</string>
+    <string name="schedule_time_example">09:00</string>
+    <string name="travel_notes">Travel Notes</string>
+    <string name="edit_note">Edit note</string>
+    <string name="save_note">Save Note</string>
+    <string name="recent_photos">Recent Photos</string>
     <string name="skip_for_now">Skip for now</string>
     <string name="set_your_budget">Set Your Budget</string>
     <string name="total_trip_budget">Total trip budget</string>
@@ -168,4 +248,208 @@
     <string name="guest">Guest</string>
     <string name="unknown_user">Unknown user</string>
     <string name="email_not_available">Email not available</string>
+
+    <!-- Permission screen, dialog and misc additions -->
+    <string name="permission_welcome_title">Welcome to VoyagerBuds</string>
+    <string name="permission_welcome_description">To provide you the best experience, we need access to the following:</string>
+    <string name="permission_camera">Camera</string>
+    <string name="permission_camera_description">Take photos of your travel destinations</string>
+    <string name="permission_location">Location</string>
+    <string name="permission_location_description">Track your travel locations and show them on the map</string>
+    <string name="permission_photos_videos">Photos &amp; Videos</string>
+    <string name="permission_photos_videos_description">Save and access your travel photos and videos</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_notifications_description">Receive emergency alerts and trip reminders</string>
+
+    <!-- Filter and Sort dialog -->
+    <string name="filter_sort_title">Filter &amp; Sort</string>
+    <string name="sort_by_label">Sort By</string>
+    <string name="sort_date_newest">Date (Newest First)</string>
+    <string name="sort_date_oldest">Date (Oldest First)</string>
+    <string name="sort_duration_longest">Duration (Longest First)</string>
+    <string name="sort_duration_shortest">Duration (Shortest First)</string>
+    <string name="sort_name_az">Name (A-Z)</string>
+    <string name="sort_name_za">Name (Z-A)</string>
+    <string name="apply_filter">Apply</string>
+    <string name="clear_filter">Clear</string>
+
+    <!-- Placeholders and labels used in item layouts -->
+    <string name="trip_destination_date_range">%1$s • %2$s</string>
+    <string name="date_range_example">Jan 1 - Jan 10</string>
+    <string name="money_placeholder">$0.00</string>
+    <string name="visit_museum">Visit Museum</string>
+    <string name="short_notes">Short notes</string>
+    <string name="memory_title">Memory Title</string>
+    <string name="more">More</string>
+
+    <!-- Content descriptions -->
+    <string name="desc_trip_icon">Trip icon</string>
+    <string name="desc_add_schedule">Add Schedule</string>
+    <string name="desc_destination_icon">Destination icon</string>
+    <string name="desc_back">Back</string>
+    <string name="desc_profile_picture">Profile picture</string>
+    <string name="desc_notifications">Notifications</string>
+    <string name="desc_arrow">Arrow</string>
+    <string name="desc_privacy">Privacy</string>
+    <string name="desc_language">Language</string>
+    <string name="desc_help">Help</string>
+    <string name="desc_search">Search</string>
+    <string name="desc_trip_image">Trip image</string>
+    <string name="desc_camera">Camera</string>
+    <string name="desc_video">Video</string>
+    <string name="desc_photo_1">Photo 1</string>
+    <string name="desc_photo_2">Photo 2</string>
+    <string name="desc_photo_3">Photo 3</string>
+    <string name="desc_photo_4">Photo 4</string>
+    <string name="desc_photo_5">Photo 5</string>
+    <string name="desc_photo_6">Photo 6</string>
+
+    <!-- Capture screen -->
+    <string name="capture_header_title">Travel Diary &amp; Media</string>
+    <string name="capture_header_subtitle">Capture your memories and experiences</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="add_video">Add Video</string>
+    <string name="desc_close">Close</string>
+    <string name="desc_my_location">My Location</string>
+
+    <!-- Menu -->
+    <string name="edit_trip">Edit Trip</string>
+    <string name="delete_trip">Delete Trip</string>
+
+    <!-- General UI / toasts -->
+    <string name="saving">Saving...</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="coming_soon">Coming soon!</string>
+    <string name="currency_usd">USD</string>
+
+    <!-- Toast messages (new) -->
+    <string name="toast_trip_not_found">Trip not found</string>
+    <string name="toast_trip_deleted_success">Trip deleted successfully</string>
+    <string name="toast_failed_delete_trip">Failed to delete trip</string>
+    <string name="toast_password_too_short">Password must be at least 6 characters.</string>
+    <string name="toast_fill_all_fields">Please fill all fields.</string>
+    <string name="toast_registration_successful">Registration successful.</string>
+    <string name="toast_registration_failed">Registration failed: %1$s</string>
+    <string name="toast_auth_failed_detailed">Authentication Failed: %1$s</string>
+    <string name="link_account_title">Link Account</string>
+    <string name="link_account_message">An account with this email already exists. Please enter your password to link your Google account.</string>
+    <string name="link">Link</string>
+    <string name="toast_google_sign_in_failed">Google sign in failed.</string>
+    <string name="toast_enter_email_password">Please enter email and password.</string>
+    <string name="toast_auth_failed">Authentication failed.</string>
+    <string name="toast_password_required">Password is required.</string>
+    <string name="toast_accounts_linked_successful">Accounts linked successfully!</string>
+    <string name="toast_failed_to_link_accounts">Failed to link accounts.</string>
+    <string name="toast_incorrect_password_accounts_not_linked">Incorrect password. Accounts not linked.</string>
+    <string name="toast_auth_successful">Authentication Successful.</string>
+    <string name="toast_error_loading_trip">Error loading trip</string>
+    <string name="toast_trip_date_conflict">You already have a trip during these dates</string>
+    <string name="toast_trip_updated_success">Trip updated successfully</string>
+    <string name="toast_failed_update_trip">Failed to update trip</string>
+    <string name="delete_trip_title">Delete Trip</string>
+    <string name="delete_trip_confirm_message">Are you sure you want to delete "%1$s"? This action cannot be undone.</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="dont_have_account_sign_up">Don t have an account? Sign Up</string>
+    <string name="desc_calendar_icon">Calendar icon</string>
+    <string name="desc_money_icon">Money icon</string>
+    <string name="filter_by_date_range">Filter By Date Range</string>
+    <string name="permission_all_granted_thanks">All permissions granted! Thank you.</string>
+    <string name="your_current_location">Your Current Location</string>
+    <string name="permissions_required_title">Permissions Required</string>
+    <string name="grant_permissions">Grant Permissions</string>
+    <string name="some_permissions_denied_message">Some permissions were denied. You can continue but some features may be limited.</string>
+    <string name="skip_permissions_title">Skip Permissions?</string>
+    <string name="skip_permissions_message">Some features may not work properly without these permissions. You can grant them later in Settings. Are you sure you want to skip?</string>
+    <string name="skip_anyway">Skip Anyway</string>
+    <string name="go_back">Go Back</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="permissions_denied_settings_message">Some permissions have been permanently denied. Please enable them in Settings to use all features of the app.</string>
+    <string name="label_date">Date</string>
+    <string name="tap_to_view_details">Tap to view details</string>
+    <string name="step_6_of_6">Step 6 of 6</string>
+    <string name="example_total_budget_2500_usd">$2,500 USD</string>
+    <string name="example_budget_800">$800</string>
+    <string name="example_lodging">$1,200</string>
+    <string name="example_food">$350</string>
+    <string name="example_activities">$150</string>
+    <string name="label_my_location">My Location</string>
+    <string name="example_location_manhattan">Manhattan, NY</string>
+    <string name="example_trip_dubai">Dubai, United Arab Emirates</string>
+    <string name="example_trip_description">Explore Dubai s modern architecture &amp; vibrant culture...</string>
+    <string name="example_trip_duration">📅 5 Days</string>
+    <string name="example_trip_hotel">🏨 4 Star Hotel</string>
+    <string name="code_sent_to">Code sent to %1$s</string>
+    <string name="next_trip">Next Trip</string>
+    <string name="default_trip_name">Trip</string>
+    <string name="unknown">Unknown</string>
+    <string name="unknown_location">Unknown Location</string>
+    <string name="no_schedule_items_yet">No schedule items yet.</string>
+    <string name="no_dates_set">No dates set</string>
+    <!-- Dashboard strings -->
+    <string name="dashboard_subtitle">Track your travel statistics</string>
+    <string name="emoji_plane">✈️</string>
+    <string name="example_dashboard_trips_count">24</string>
+    <string name="total_trips_label">Total Trips</string>
+    <string name="emoji_pin">📍</string>
+    <string name="example_places_visited_count">87</string>
+    <string name="places_visited_label">Places Visited</string>
+    <string name="total_expenses_label">Total Expenses</string>
+    <string name="example_total_expenses_count">$12,450</string>
+    <string name="transport_label">🚗 Transport</string>
+    <string name="example_transport_cost">$4,200</string>
+    <string name="hotel_label">🏨 Hotel</string>
+    <string name="example_hotel_cost">$5,800</string>
+    <string name="food_label">🍴 Food</string>
+    <string name="example_food_cost">$2,450</string>
+    <string name="emergency_alert">Emergency Alert</string>
+    <string name="emergency_alert_description">Auto-send alert to relatives if inactive for 24h</string>
+    <string name="last_activity">Last Activity: 2 hours ago</string>
+    <string name="group_trips">Group Trips</string>
+    <string name="see_all_groups">See All</string>
+    <string name="example_group_title">Europe Adventure</string>
+    <string name="example_group_members_days">5 members • 12 days</string>
+    <string name="view_label">View</string>
+    <string name="create_group_button">+ Create Group</string>
+    <string name="join_group_button">Join Group</string>
+    <string name="step_1_of_3">Step 1 of 3</string>
+    <string name="photo_extra_count">+12</string>
+    <!-- Profile examples -->
+    <string name="example_user_name">John Traveler</string>
+    <string name="example_user_email">john.traveler@email.com</string>
+    <string name="example_total_budget_15000">$15,000</string>
+    <string name="example_spent_12450">$12,450</string>
+    <string name="example_remaining_2550">$2,550</string>
+    <!-- Date picker and validation messages -->
+    <string name="prompt_select_start_date">Please select start date</string>
+    <string name="prompt_select_end_date">Please select end date</string>
+    <string name="error_end_date_after_start">End date must be after start date</string>
+    <string name="example_trip_name_bali">Summer Trip to Bali</string>
+    <string name="example_dates_bali">August 15 - August 25</string>
+    <string name="no_schedules_yet_add_one">No schedules yet. Add one!</string>
+    <string name="expenses_coming_soon">Expenses Feature Coming Soon</string>
+    <string name="notes_coming_soon">Notes Feature Coming Soon</string>
+    <string name="no_notes_added">No notes added.</string>
+    <string name="home_discover">Discover Amazing Places</string>
+    <string name="home_adventure">Adventure New Places</string>
+    <string name="example_hero_trip_name">Tokyo Adventure</string>
+    <string name="example_hero_dates">Oct 20 - Nov 5</string>
+    <string name="example_location_tokyo">Tokyo, Japan</string>
+    <string name="label_notes_colon">Notes: </string>
+    <string name="example_trip_notes">Exciting trip...</string>
+    <string name="label_schedule_colon">Schedule: </string>
+    <string name="example_schedule_arrival_tokyo">Arrival in Tokyo...</string>
+    <string name="label_total_expenses">Total Expenses: </string>
+    <string name="example_money_2500">$2500</string>
+    <string name="captured_memories">Captured Memories</string>
+    <string name="desc_add_trip">Add Trip</string>
+    <string name="example_trip_name_kyoto">Summer in Kyoto</string>
+    <string name="example_trip_subtitle_kyoto">A 10-day adventure to Kyoto.</string>
+    <string name="example_location_kyoto">Kyoto, Japan</string>
+    <string name="example_dates_kyoto">July 15 - July 25, 2024</string>
+    <string name="example_companions_you_2">You + 2 others</string>
+    <string name="trip_schedule_title">Trip Schedule Name</string>
+    <string name="select_trip_hint">Select Trip</string>
+
+
+    <!-- <string name="app_name">My App</string> -->
 </resources>

@@ -27,7 +27,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                android:contentDescription="Back"
+                    android:contentDescription="@string/desc_back"
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="4dp"

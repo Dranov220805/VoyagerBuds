@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter &amp; Sort"
+        android:text="@string/filter_sort_title"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -21,7 +21,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sort By"
+        android:text="@string/sort_by_label"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -37,7 +37,7 @@
             android:id="@+id/radio_date_newest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Date (Newest First)"
+            android:text="@string/sort_date_newest"
             android:textColor="@color/black"
             android:checked="true"
             android:padding="8dp" />
@@ -46,7 +46,7 @@
             android:id="@+id/radio_date_oldest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Date (Oldest First)"
+            android:text="@string/sort_date_oldest"
             android:textColor="@color/black"
             android:padding="8dp" />
 
@@ -54,7 +54,7 @@
             android:id="@+id/radio_duration_longest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Duration (Longest First)"
+            android:text="@string/sort_duration_longest"
             android:textColor="@color/black"
             android:padding="8dp" />
 
@@ -62,7 +62,7 @@
             android:id="@+id/radio_duration_shortest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Duration (Shortest First)"
+            android:text="@string/sort_duration_shortest"
             android:textColor="@color/black"
             android:padding="8dp" />
 
@@ -70,7 +70,7 @@
             android:id="@+id/radio_name_az"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Name (A-Z)"
+            android:text="@string/sort_name_az"
             android:textColor="@color/black"
             android:padding="8dp" />
 
@@ -78,7 +78,7 @@
             android:id="@+id/radio_name_za"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Name (Z-A)"
+            android:text="@string/sort_name_za"
             android:textColor="@color/black"
             android:padding="8dp" />
 
@@ -88,7 +88,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Filter By Date Range"
+        android:text="@string/filter_by_date_range"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -105,7 +105,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Start Date"
+            android:text="@string/start_date"
             android:textSize="12sp"
             android:textAllCaps="false"
             android:background="@drawable/button_outline"
@@ -118,7 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="End Date"
+            android:text="@string/end_date"
             android:textSize="12sp"
             android:textAllCaps="false"
             android:background="@drawable/button_outline"
@@ -139,7 +139,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Clear"
+            android:text="@string/clear_filter"
             android:textAllCaps="false"
             android:background="@drawable/button_outline"
             android:textColor="@color/gray"
@@ -150,7 +150,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Apply"
+            android:text="@string/apply_filter"
             android:textAllCaps="false"
             android:background="@drawable/button_primary"
             android:textColor="@color/white"

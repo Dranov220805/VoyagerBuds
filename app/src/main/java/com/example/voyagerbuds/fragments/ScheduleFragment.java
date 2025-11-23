@@ -5,8 +5,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -25,6 +29,7 @@ import com.example.voyagerbuds.models.Trip;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import com.example.voyagerbuds.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,16 +45,14 @@ public class ScheduleFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String FLEXIBLE_DAY_KEY = "__flexible__";
     private static final SimpleDateFormat DB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("EEE, MMM dd",
-            Locale.getDefault());
 
     private String mParam1;
     private String mParam2;
     private long tripId = -1;
 
-    private TextView tvTripSummary;
-    private TextView tvTripDates;
-    private TextView tvTripStatusHint;
+    private TextView tvScheduleTitle;
+    private ImageView ivScheduleMenu;
+    private Spinner spinnerTripSelector;
     private TextView tvEmptyState;
     private RecyclerView recyclerView;
     private HorizontalScrollView scrollDateChips;
@@ -101,9 +104,9 @@ public class ScheduleFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_schedule, container, false);
         databaseHelper = new DatabaseHelper(requireContext());
 
-        tvTripSummary = view.findViewById(R.id.tv_trip_summary);
-        tvTripDates = view.findViewById(R.id.tv_trip_dates);
-        tvTripStatusHint = view.findViewById(R.id.tv_trip_status_hint);
+        tvScheduleTitle = view.findViewById(R.id.tv_schedule_title);
+        ivScheduleMenu = view.findViewById(R.id.iv_schedule_menu);
+        spinnerTripSelector = view.findViewById(R.id.spinner_trip_selector);
         tvEmptyState = view.findViewById(R.id.tv_schedule_empty_state);
         recyclerView = view.findViewById(R.id.recycler_view_schedule);
         scrollDateChips = view.findViewById(R.id.scroll_date_chips);
@@ -138,16 +141,31 @@ public class ScheduleFragment extends Fragment {
         // TODO replace with logged-in user id when authentication is ready
         trips.addAll(databaseHelper.getAllTrips(1));
 
+        // Sort trips by start date in ascending order (earliest upcoming trips first)
+        Collections.sort(trips, new Comparator<Trip>() {
+            @Override
+            public int compare(Trip t1, Trip t2) {
+                try {
+                    Date date1 = DB_DATE_FORMAT.parse(t1.getStartDate());
+                    Date date2 = DB_DATE_FORMAT.parse(t2.getStartDate());
+                    if (date1 == null || date2 == null)
+                        return 0;
+                    return date2.compareTo(date1); // Descending order (latest date first)
+                } catch (ParseException e) {
+                    return 0;
+                }
+            }
+        });
+
         if (trips.isEmpty()) {
             selectedTrip = null;
-            updateTripSummary(null);
+            setupTripSpinner();
             dayAdapter.updateGroups(new ArrayList<>());
             showEmptyState(getString(R.string.schedule_no_trips_prompt));
             return;
         }
 
-        // Priority: 1. Running trip, 2. Trip from args (if valid), 3. Upcoming trip?
-        // Requirement: "Always show... from the current trip if have"
+        // Priority: 1. Running trip, 2. Trip from args (if valid), 3. First trip
         long runningTripId = detectRunningTripId();
 
         if (runningTripId != -1) {
@@ -158,34 +176,79 @@ public class ScheduleFragment extends Fragment {
                 }
             }
         } else if (tripId > 0) {
-            // Fallback to argument trip if no running trip?
-            // Or strictly "current trip"?
-            // "if there is no current trip, say that there is no current trip"
-            // I will interpret "current trip" as "running trip".
-            // But if user navigated from "Add Schedule" for a specific trip, maybe we
-            // should show it?
-            // The prompt says "Always show... from the current trip".
-            // I will prioritize running trip. If no running trip, show empty state.
-            selectedTrip = null;
-        } else {
-            selectedTrip = null;
+            for (Trip trip : trips) {
+                if (trip.getTripId() == tripId) {
+                    selectedTrip = trip;
+                    break;
+                }
+            }
         }
+
+        if (selectedTrip == null && !trips.isEmpty()) {
+            selectedTrip = trips.get(0);
+        }
+
+        setupTripSpinner();
 
         if (selectedTrip != null) {
             tripId = selectedTrip.getTripId();
             selectedDate = null;
             tripDates.clear();
-            updateTripSummary(selectedTrip);
             loadSchedulesForSelectedTrip();
         } else {
-            updateTripSummary(null);
             dayAdapter.updateGroups(new ArrayList<>());
-            // "if there is no current trip, say that there is no current trip with icon"
-            // I'll use a generic message for now, user can add icon in XML if needed or I
-            // can add drawable here
             showEmptyState("No current trip happening now.");
             scrollDateChips.setVisibility(View.GONE);
         }
+    }
+
+    private void setupTripSpinner() {
+        if (trips.isEmpty()) {
+            spinnerTripSelector.setVisibility(View.GONE);
+            return;
+        }
+
+        spinnerTripSelector.setVisibility(View.VISIBLE);
+
+        List<String> tripNames = new ArrayList<>();
+        int selectedPosition = 0;
+        for (int i = 0; i < trips.size(); i++) {
+            Trip trip = trips.get(i);
+            String displayName = !TextUtils.isEmpty(trip.getDestination())
+                    ? trip.getDestination()
+                    : trip.getTripName();
+            tripNames.add(displayName);
+            if (selectedTrip != null && trip.getTripId() == selectedTrip.getTripId()) {
+                selectedPosition = i;
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, tripNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerTripSelector.setAdapter(adapter);
+        spinnerTripSelector.setSelection(selectedPosition);
+
+        spinnerTripSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position >= 0 && position < trips.size()) {
+                    Trip newSelectedTrip = trips.get(position);
+                    if (selectedTrip == null || selectedTrip.getTripId() != newSelectedTrip.getTripId()) {
+                        selectedTrip = newSelectedTrip;
+                        tripId = selectedTrip.getTripId();
+                        selectedDate = null;
+                        tripDates.clear();
+                        loadSchedulesForSelectedTrip();
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No action needed
+            }
+        });
     }
 
     private void loadSchedulesForSelectedTrip() {
@@ -247,14 +310,11 @@ public class ScheduleFragment extends Fragment {
             java.util.Calendar endCal = java.util.Calendar.getInstance();
             endCal.setTime(endDate);
 
-            SimpleDateFormat chipDateFormat = new SimpleDateFormat("EEE - MMM-dd", Locale.getDefault());
-
             while (!cal.after(endCal)) {
                 String dateKey = DB_DATE_FORMAT.format(cal.getTime());
-                String displayText = chipDateFormat.format(cal.getTime());
                 tripDates.add(dateKey);
 
-                TextView chip = createDateChip(displayText, dateKey);
+                LinearLayout chip = createCompactDateChip(cal.getTime(), dateKey);
                 layoutDateChips.addView(chip);
 
                 cal.add(java.util.Calendar.DAY_OF_MONTH, 1);
@@ -282,27 +342,76 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
-    private TextView createDateChip(String displayText, String dateKey) {
-        TextView chip = new TextView(requireContext());
-        chip.setText(displayText);
-        chip.setPadding(20, 12, 20, 12);
-        chip.setTextSize(14);
-        chip.setClickable(true);
-        chip.setFocusable(true);
+    private LinearLayout createCompactDateChip(Date date, String dateKey) {
+        LinearLayout chipContainer = new LinearLayout(requireContext());
+        chipContainer.setOrientation(LinearLayout.VERTICAL);
+        chipContainer.setPadding(24, 16, 24, 16);
+        chipContainer.setClickable(true);
+        chipContainer.setFocusable(true);
+        chipContainer.setGravity(android.view.Gravity.CENTER);
+
+        // Get localized weekday abbreviation from strings
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(date);
+        int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK);
+        String weekdayKey;
+        switch (dayOfWeek) {
+            case java.util.Calendar.MONDAY:
+                weekdayKey = "weekday_mon_short";
+                break;
+            case java.util.Calendar.TUESDAY:
+                weekdayKey = "weekday_tue_short";
+                break;
+            case java.util.Calendar.WEDNESDAY:
+                weekdayKey = "weekday_wed_short";
+                break;
+            case java.util.Calendar.THURSDAY:
+                weekdayKey = "weekday_thu_short";
+                break;
+            case java.util.Calendar.FRIDAY:
+                weekdayKey = "weekday_fri_short";
+                break;
+            case java.util.Calendar.SATURDAY:
+                weekdayKey = "weekday_sat_short";
+                break;
+            case java.util.Calendar.SUNDAY:
+                weekdayKey = "weekday_sun_short";
+                break;
+            default:
+                weekdayKey = "weekday_mon_short";
+        }
+
+        int resId = getResources().getIdentifier(weekdayKey, "string", requireContext().getPackageName());
+        String weekdayText = resId != 0 ? getString(resId) : "";
+
+        TextView weekdayView = new TextView(requireContext());
+        weekdayView.setText(weekdayText);
+        weekdayView.setTextSize(12);
+        weekdayView.setGravity(android.view.Gravity.CENTER);
+
+        TextView dayNumberView = new TextView(requireContext());
+        dayNumberView.setText(String.valueOf(cal.get(java.util.Calendar.DAY_OF_MONTH)));
+        dayNumberView.setTextSize(18);
+        dayNumberView.setTypeface(null, android.graphics.Typeface.BOLD);
+        dayNumberView.setGravity(android.view.Gravity.CENTER);
+
+        chipContainer.addView(weekdayView);
+        chipContainer.addView(dayNumberView);
 
         // Set initial style (unselected)
-        chip.setBackgroundResource(R.drawable.chip_bg_white);
-        chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+        chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
+        weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
+        dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMarginEnd(8);
-        chip.setLayoutParams(params);
+        params.setMarginEnd(12);
+        chipContainer.setLayoutParams(params);
 
-        chip.setOnClickListener(v -> selectDate(dateKey));
+        chipContainer.setOnClickListener(v -> selectDate(dateKey));
 
-        return chip;
+        return chipContainer;
     }
 
     private void selectDate(String dateKey) {
@@ -311,17 +420,23 @@ public class ScheduleFragment extends Fragment {
         // Update chip styles
         for (int i = 0; i < layoutDateChips.getChildCount(); i++) {
             View child = layoutDateChips.getChildAt(i);
-            if (child instanceof TextView) {
-                TextView chip = (TextView) child;
+            if (child instanceof LinearLayout) {
+                LinearLayout chipContainer = (LinearLayout) child;
                 String chipDateKey = tripDates.get(i);
+
+                TextView weekdayView = (TextView) chipContainer.getChildAt(0);
+                TextView dayNumberView = (TextView) chipContainer.getChildAt(1);
+
                 if (chipDateKey.equals(dateKey)) {
-                    // Selected style
-                    chip.setBackgroundResource(R.drawable.chip_bg);
-                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    // Selected style - teal background
+                    chipContainer.setBackgroundResource(R.drawable.chip_bg_selected);
+                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                 } else {
-                    // Unselected style
-                    chip.setBackgroundResource(R.drawable.chip_bg_white);
-                    chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                    // Unselected style - white background
+                    chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
+                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
+                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
                 }
             }
         }
@@ -355,53 +470,6 @@ public class ScheduleFragment extends Fragment {
         tvEmptyState.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         // No RecyclerView fade-in animation, static UI loading
-    }
-
-    private void updateTripSummary(@Nullable Trip trip) {
-        if (trip == null) {
-            tvTripSummary.setText(getString(R.string.schedule_no_trip_selected));
-            tvTripDates.setVisibility(View.GONE);
-            tvTripStatusHint.setVisibility(View.GONE);
-            return;
-        }
-
-        // Set trip name/destination
-        String name = !TextUtils.isEmpty(trip.getDestination()) ? trip.getDestination() : trip.getTripName();
-        tvTripSummary.setText(name);
-
-        // Calculate and format trip duration
-        try {
-            Date startDate = DB_DATE_FORMAT.parse(trip.getStartDate());
-            Date endDate = DB_DATE_FORMAT.parse(trip.getEndDate());
-            if (startDate != null && endDate != null) {
-                long diff = endDate.getTime() - startDate.getTime();
-                long days = (diff / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE - MMM dd", Locale.getDefault());
-                String startDateStr = dateFormat.format(startDate);
-                String durationText = startDateStr + " - " + days + " Days";
-                tvTripDates.setText(durationText);
-                tvTripDates.setVisibility(View.VISIBLE);
-            } else {
-                tvTripDates.setVisibility(View.GONE);
-            }
-        } catch (ParseException e) {
-            tvTripDates.setVisibility(View.GONE);
-        }
-
-        // Set trip status
-        if (isTripRunning(trip)) {
-            tvTripStatusHint.setVisibility(View.VISIBLE);
-            tvTripStatusHint.setText(R.string.schedule_trip_status_running);
-        } else if (isTripUpcoming(trip)) {
-            tvTripStatusHint.setVisibility(View.VISIBLE);
-            tvTripStatusHint.setText(R.string.schedule_trip_status_upcoming);
-        } else if (areTripDatesValid(trip)) {
-            tvTripStatusHint.setVisibility(View.VISIBLE);
-            tvTripStatusHint.setText(R.string.schedule_trip_status_past);
-        } else {
-            tvTripStatusHint.setVisibility(View.GONE);
-        }
     }
 
     private List<ScheduleDayGroup> groupSchedulesByDay(List<ScheduleItem> items) {

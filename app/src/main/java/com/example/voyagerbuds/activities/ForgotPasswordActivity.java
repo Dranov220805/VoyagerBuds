@@ -49,16 +49,16 @@ public class ForgotPasswordActivity extends BaseActivity {
         btnSendCode.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             if (email.isEmpty()) {
-                etEmail.setError("Email is required");
+                etEmail.setError(getString(R.string.error_email_required));
                 return;
             }
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEmail.setError("Please enter a valid email address");
+                etEmail.setError(getString(R.string.error_valid_email));
                 return;
             }
 
             // TODO: Implement send code logic
-            Toast.makeText(this, "Code sent to " + email, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.code_sent_to, email), Toast.LENGTH_SHORT).show();
             finish();
         });
     }

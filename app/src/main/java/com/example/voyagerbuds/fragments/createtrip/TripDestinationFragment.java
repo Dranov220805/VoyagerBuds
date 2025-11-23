@@ -84,7 +84,7 @@ public class TripDestinationFragment extends Fragment {
 
     private boolean validateInput(String destination) {
         if (TextUtils.isEmpty(destination)) {
-            etDestination.setError("Destination is required");
+            etDestination.setError(getString(R.string.error_destination_required));
             etDestination.requestFocus();
             return false;
         }

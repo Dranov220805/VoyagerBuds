@@ -96,7 +96,7 @@ public class EditTripFragment extends Fragment {
             etParticipants.setText(trip.getParticipants());
             etNotes.setText(trip.getNotes());
         } else {
-            Toast.makeText(getContext(), "Error loading trip", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_error_loading_trip), Toast.LENGTH_SHORT).show();
             getParentFragmentManager().popBackStack();
         }
     }
@@ -136,31 +136,31 @@ public class EditTripFragment extends Fragment {
 
         // Validation
         if (TextUtils.isEmpty(name)) {
-            etTripName.setError("Trip name is required");
+            etTripName.setError(getString(R.string.error_trip_name_required));
             return;
         }
         if (TextUtils.isEmpty(start)) {
-            etStartDate.setError("Start date is required");
+            etStartDate.setError(getString(R.string.error_start_date_required));
             return;
         }
         if (TextUtils.isEmpty(end)) {
-            etEndDate.setError("End date is required");
+            etEndDate.setError(getString(R.string.error_end_date_required));
             return;
         }
         if (TextUtils.isEmpty(dest)) {
-            etDestination.setError("Destination is required");
+            etDestination.setError(getString(R.string.error_destination_required));
             return;
         }
 
         // Check date validity
         if (start.compareTo(end) > 0) {
-            etEndDate.setError("End date cannot be before start date");
+            etEndDate.setError(getString(R.string.error_end_before_start));
             return;
         }
 
         // Check for overlapping trips (excluding current trip)
         if (!databaseHelper.isDateRangeAvailable(start, end, (int) tripId)) {
-            Toast.makeText(getContext(), "You already have a trip during these dates", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getString(R.string.toast_trip_date_conflict), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -181,7 +181,7 @@ public class EditTripFragment extends Fragment {
 
         // Update Geolocation in background
         btnSave.setEnabled(false);
-        btnSave.setText("Saving...");
+        btnSave.setText(R.string.saving);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -223,12 +223,14 @@ public class EditTripFragment extends Fragment {
                 int result = databaseHelper.updateTrip(trip);
 
                 if (result > 0) {
-                    Toast.makeText(getContext(), "Trip updated successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_trip_updated_success), Toast.LENGTH_SHORT)
+                            .show();
                     getParentFragmentManager().popBackStack();
                 } else {
-                    Toast.makeText(getContext(), "Failed to update trip", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_failed_update_trip), Toast.LENGTH_SHORT)
+                            .show();
                     btnSave.setEnabled(true);
-                    btnSave.setText("Save Changes");
+                    btnSave.setText(R.string.save_changes);
                 }
             });
         });
