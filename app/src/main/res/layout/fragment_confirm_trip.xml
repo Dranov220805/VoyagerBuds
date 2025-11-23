@@ -214,7 +214,12 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/teal_primary"
             app:cornerRadius="8dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeMaxTextSize="16sp" />
 
     </LinearLayout>
 

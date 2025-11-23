@@ -277,7 +277,7 @@
     <!-- Placeholders -->
     <string name="trip_destination_date_range">%1$s • %2$s</string>
     <string name="date_range_example">01/01 - 10/01</string>
-    <string name="money_placeholder">$0.00</string>
+    <string name="money_placeholder">0 ₫</string>
     <string name="visit_museum">Thăm bảo tàng</string>
     <string name="short_notes">Ghi chú ngắn</string>
     <string name="memory_title">Tiêu đề kỷ niệm</string>
@@ -368,11 +368,11 @@
     <string name="label_date">Ngày</string>
     <string name="tap_to_view_details">Nhấn để xem chi tiết</string>
     <string name="step_6_of_6">Bước 6 trên 6</string>
-    <string name="example_total_budget_2500_usd">$2,500 USD</string>
-    <string name="example_budget_800">$800</string>
-    <string name="example_lodging">$1,200</string>
-    <string name="example_food">$350</string>
-    <string name="example_activities">$150</string>
+    <string name="example_total_budget_2500_usd">63.625.000 ₫</string>
+    <string name="example_budget_800">20.360.000 ₫</string>
+    <string name="example_lodging">30.540.000 ₫</string>
+    <string name="example_food">8.907.500 ₫</string>
+    <string name="example_activities">3.817.500 ₫</string>
     <string name="label_my_location">Vị trí của tôi</string>
     <string name="example_location_manhattan">Manhattan, NY</string>
     <string name="example_trip_dubai">Dubai, Các Tiểu Vương Quốc Ả Rập Thống Nhất</string>
@@ -396,7 +396,7 @@
     <string name="example_places_visited_count">87</string>
     <string name="places_visited_label">Nơi đã đến</string>
     <string name="total_expenses_label">Tổng chi phí</string>
-    <string name="example_total_expenses_count">$12,450</string>
+    <string name="example_total_expenses_count">316.852.500 ₫</string>
     <string name="transport_label">🚗 Di chuyển</string>
     <string name="example_transport_cost">$4,200</string>
     <string name="hotel_label">🏨 Khách sạn</string>

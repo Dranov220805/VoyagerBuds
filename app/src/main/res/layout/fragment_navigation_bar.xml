@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation_bar"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/nav_bar_height"
     android:orientation="horizontal"
     android:background="@color/white"
     android:elevation="0dp"
@@ -14,22 +14,22 @@
     <LinearLayout
         android:id="@+id/nav_home"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_bar_height"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+        android:padding="@dimen/spacing_small">
 
         <ImageView
             android:id="@+id/icon_home"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/nav_icon_size"
+            android:layout_height="@dimen/nav_icon_size"
             android:src="@drawable/ic_home"
             android:contentDescription="@string/home"
-            android:scaleType="centerInside"
+            android:scaleType="fitStart"
             app:tint="@color/teal_primary" />
     </LinearLayout>
 
@@ -37,22 +37,22 @@
     <LinearLayout
         android:id="@+id/nav_schedule"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_bar_height"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+        android:padding="@dimen/spacing_small">
 
         <ImageView
             android:id="@+id/icon_search"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/nav_icon_size"
+            android:layout_height="@dimen/nav_icon_size"
             android:src="@drawable/ic_schedule"
             android:contentDescription="@string/schedule"
-            android:scaleType="centerInside"
+            android:scaleType="fitStart"
             app:tint="@color/text_medium" />
     </LinearLayout>
 
@@ -60,22 +60,22 @@
     <LinearLayout
         android:id="@+id/nav_capture"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_bar_height"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+        android:padding="@dimen/spacing_small">
 
         <ImageView
             android:id="@+id/icon_create"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/nav_icon_size"
+            android:layout_height="@dimen/nav_icon_size"
             android:src="@drawable/ic_camera"
             android:contentDescription="@string/capture"
-            android:scaleType="centerInside"
+            android:scaleType="fitStart"
             app:tint="@color/text_medium" />
     </LinearLayout>
 
@@ -83,22 +83,22 @@
     <LinearLayout
         android:id="@+id/nav_map"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_bar_height"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+        android:padding="@dimen/spacing_small">
 
         <ImageView
             android:id="@+id/icon_playlist"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/nav_icon_size"
+            android:layout_height="@dimen/nav_icon_size"
             android:src="@drawable/ic_map"
             android:contentDescription="@string/map"
-            android:scaleType="centerInside"
+            android:scaleType="fitStart"
             app:tint="@color/text_medium" />
     </LinearLayout>
 
@@ -106,22 +106,22 @@
     <LinearLayout
         android:id="@+id/nav_dashboard"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_bar_height"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical"
         android:clickable="true"
         android:focusable="true"
         android:foreground="?android:attr/selectableItemBackground"
-        android:padding="4dp">
+        android:padding="@dimen/spacing_small">
 
         <ImageView
             android:id="@+id/icon_dashboard"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="@dimen/nav_icon_size"
+            android:layout_height="@dimen/nav_icon_size"
             android:src="@drawable/ic_dashboard"
             android:contentDescription="@string/dashboard"
-            android:scaleType="centerInside"
+            android:scaleType="fitStart"
             app:tint="@color/text_medium" />
     </LinearLayout>
 
