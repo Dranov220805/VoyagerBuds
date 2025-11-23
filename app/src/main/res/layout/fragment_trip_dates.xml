@@ -70,12 +70,13 @@
 
         <!-- When are you traveling? -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/when_traveling"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/text_dark"
+            android:gravity="center"
             android:layout_marginBottom="16dp" />
 
         <!-- Start Date -->
@@ -157,7 +158,12 @@
             android:textColor="@color/white"
             android:backgroundTint="@color/teal_primary"
             app:cornerRadius="8dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeMaxTextSize="16sp" />
 
     </LinearLayout>
 

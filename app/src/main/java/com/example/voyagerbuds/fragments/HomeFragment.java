@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.example.voyagerbuds.utils.CurrencyHelper;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.activities.HomeActivity;
@@ -443,7 +444,7 @@ public class HomeFragment extends Fragment
         // Set total expenses
         if (tvHeroTripExpenses != null) {
             double totalExpenses = databaseHelper.getTotalExpensesForTrip(trip.getTripId());
-            tvHeroTripExpenses.setText(String.format(Locale.getDefault(), "$%.0f", totalExpenses));
+            tvHeroTripExpenses.setText(CurrencyHelper.formatCurrency(requireContext(), totalExpenses));
         }
 
         // Format and display dates
