@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">VoyagerBuds</string>
     <string name="hello_blank_fragment">Xin chào fragment trống</string>
@@ -8,24 +7,30 @@
     <string name="create">Tạo mới</string>
     <string name="dashboard">Bảng điều khiển</string>
     <string name="map">Bản đồ</string>
-    <string name="trip">Hành trình</string>
-    <string name="capture">Chụp</string>
+    <string name="trip">Chuyến đi</string>
+    <string name="capture">Ghi lại</string>
     <string name="schedule">Lịch trình</string>
     <string name="loading_map">Đang tải bản đồ</string>
     <string name="destination">Điểm đến</string>
     <string name="location">Vị trí</string>
     <string name="getting_location">Đang lấy vị trí...</string>
-    <string name="location_unavailable">Không thể xác định vị trí</string>
+    <string name="location_unavailable">Không thể lấy vị trí</string>
     <string name="location_permission_denied">Quyền truy cập vị trí bị từ chối</string>
     <string name="filter">Lọc</string>
-    <string name="popular_destinations">Điểm đến nổi bật</string>
+    <string name="popular_destinations">Điểm đến phổ biến</string>
     <string name="see_all">Xem tất cả</string>
-    <string name="trip_budget_tracker">Theo dõi chi phí chuyến đi</string>
-    <string name="total_budget">Tổng chi phí</string>
-    <string name="spent">Đã tiêu</string>
+    <string name="trip_budget_tracker">Theo dõi ngân sách chuyến đi</string>
+    <string name="total_budget">Tổng ngân sách</string>
+    <string name="spent">Đã chi</string>
     <string name="remaining">Còn lại</string>
 
     <!-- Profile Screen -->
+    <string name="account">Tài khoản</string>
+    <string name="preferences">Tùy chọn</string>
+    <string name="support">Hỗ trợ</string>
+    <string name="emergency_contacts">Liên hệ khẩn cấp</string>
+    <string name="theme_subtitle">Sáng / Tối</string>
+    <string name="language_subtitle">Tiếng Anh / Tiếng Việt</string>
     <string name="edit_profile">Chỉnh sửa hồ sơ</string>
     <string name="settings">Cài đặt</string>
     <string name="notifications">Thông báo</string>
@@ -33,13 +38,13 @@
     <string name="language">Ngôn ngữ</string>
     <string name="english">Tiếng Anh</string>
     <string name="vietnamese">Tiếng Việt</string>
-    <string name="help_support">Trợ giúp &amp; Hỗ trợ</string>
+    <string name="help_support">Hỗ trợ</string>
     <string name="logout">Đăng xuất</string>
     <string name="select_language">Chọn ngôn ngữ</string>
-    <string name="select_theme">Chọn chủ đề</string>
-    <string name="light_mode">Chủ đề sáng</string>
-    <string name="dark_mode">Chủ đề tối</string>
-    <string name="theme">Chủ đề</string>
+    <string name="select_theme">Chọn giao diện</string>
+    <string name="light_mode">Chế độ sáng</string>
+    <string name="dark_mode">Chế độ tối</string>
+    <string name="theme">Giao diện</string>
 
     <!-- Trip Management -->
     <string name="my_trips">Chuyến đi của tôi</string>
@@ -48,39 +53,75 @@
     <string name="start_date">Ngày bắt đầu</string>
     <string name="end_date">Ngày kết thúc</string>
     <string name="notes">Ghi chú</string>
-    <string name="total_spent">Tổng chi tiêu</string>
+    <string name="total_spent">Tổng đã chi</string>
     <string name="no_trips">Chưa có chuyến đi nào</string>
     <string name="create_first_trip">Tạo chuyến đi đầu tiên bằng cách nhấn nút +</string>
     <string name="trip_created">Tạo chuyến đi thành công!</string>
-    <string name="trip_creation_failed">Không thể tạo chuyến đi</string>
+    <string name="trip_creation_failed">Tạo chuyến đi thất bại</string>
     <string name="next">Tiếp theo</string>
     <string name="back">Quay lại</string>
-    <string name="finish">Hoàn thành</string>
+    <string name="finish">Hoàn tất</string>
     <string name="discard_trip_title">Hủy tạo chuyến đi?</string>
-    <string name="discard_trip_message">Bạn có thay đổi chưa được lưu. Bạn có chắc muốn rời đi? Tiến trình sẽ bị mất.</string>
-    <string name="discard">Hủy bỏ</string>
-    <string name="cancel">Hủy</string>
-    <string name="step_progress">Bước %1$d / %2$d</string>
+    <string name="discard_trip_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Tiến trình sẽ bị mất.</string>
+    <string name="discard">Hủy</string>
+    <string name="cancel">Huỷ bỏ</string>
+    <string name="step_progress">Bước %1$d trong %2$d</string>
     <string name="add_schedule_title">Thêm lịch trình</string>
-    <string name="add_schedule_prompt">Bạn có muốn thêm lịch trình cho từng ngày của chuyến đi bây giờ không?</string>
+    <string name="add_schedule_prompt">Bạn có muốn thêm lịch trình cho từng ngày của chuyến đi ngay bây giờ?</string>
     <string name="add_schedule_now">Thêm ngay</string>
     <string name="add_schedule_later">Để sau</string>
+    <string name="error_trip_name_required">Vui lòng nhập tên chuyến đi</string>
+    <string name="error_trip_name_too_short">Tên chuyến đi phải có ít nhất 3 ký tự</string>
+    <string name="error_start_date_required">Vui lòng chọn ngày bắt đầu</string>
+    <string name="error_end_date_required">Vui lòng chọn ngày kết thúc</string>
+    <string name="error_destination_required">Vui lòng nhập điểm đến</string>
+    <string name="error_end_before_start">Ngày kết thúc không thể trước ngày bắt đầu</string>
+    <string name="hint_budget">Ngân sách</string>
 
     <!-- Schedule -->
     <string name="schedule_timeline_title">Dòng thời gian chuyến đi</string>
     <string name="schedule_timeline_subtitle">Chọn một chuyến đi để xem lịch trình theo từng ngày</string>
     <string name="schedule_trip_picker_label">Chuyến đi</string>
-    <string name="schedule_no_trips_prompt">Bạn chưa có chuyến đi nào. Hãy tạo một chuyến đi để bắt đầu.</string>
+    <string name="schedule_no_trips_prompt">Bạn chưa có chuyến đi nào. Tạo một chuyến đi để bắt đầu lên kế hoạch.</string>
     <string name="schedule_no_trip_selected">Chưa chọn chuyến đi</string>
-    <string name="schedule_no_current_trip">Không có lịch trình hiện tại. Bạn không có chuyến đi nào đang diễn ra.</string>
+    <string name="schedule_no_current_trip">Không có lịch trình hiện tại. Bạn không ở trong chuyến đi nào.</string>
     <string name="schedule_no_events_for_trip">Chưa có lịch trình cho %1$s. Nhấn nút bên dưới để thêm.</string>
-    <string name="schedule_no_events_running">%1$s đang diễn ra nhưng chưa có mục lịch trình.</string>
+    <string name="schedule_no_events_running">%1$s đang diễn ra nhưng chưa có lịch trình nào.</string>
     <string name="schedule_trip_summary">%1$s • %2$s</string>
     <string name="schedule_trip_status_running">Đang diễn ra</string>
+    <string name="day_title_example">Thứ Hai, 12 Thg 6</string>
+    <string name="day_events_example">3 sự kiện</string>
+
+    <!-- Times -->
+    <string name="time_00">00:00</string>
+    <string name="time_01">01:00</string>
+    <string name="time_02">02:00</string>
+    <string name="time_03">03:00</string>
+    <string name="time_04">04:00</string>
+    <string name="time_05">05:00</string>
+    <string name="time_06">06:00</string>
+    <string name="time_07">07:00</string>
+    <string name="time_08">08:00</string>
+    <string name="time_09">09:00</string>
+    <string name="time_10">10:00</string>
+    <string name="time_11">11:00</string>
+    <string name="time_12">12:00</string>
+    <string name="time_13">13:00</string>
+    <string name="time_14">14:00</string>
+    <string name="time_15">15:00</string>
+    <string name="time_16">16:00</string>
+    <string name="time_17">17:00</string>
+    <string name="time_18">18:00</string>
+    <string name="time_19">19:00</string>
+    <string name="time_20">20:00</string>
+    <string name="time_21">21:00</string>
+    <string name="time_22">22:00</string>
+    <string name="time_23">23:00</string>
+
     <string name="schedule_trip_status_upcoming">Sắp diễn ra</string>
     <string name="schedule_trip_status_past">Đã kết thúc</string>
     <string name="schedule_add_event">Thêm sự kiện</string>
-    <string name="schedule_deleted">Đã xoá lịch trình</string>
+    <string name="schedule_deleted">Đã xóa lịch trình</string>
     <string name="schedule_edit_title">Chỉnh sửa lịch trình</string>
     <string name="schedule_title_required">Vui lòng nhập tiêu đề</string>
     <string name="schedule_added">Đã thêm lịch trình</string>
@@ -89,34 +130,54 @@
     <string name="schedule_event_count_one">%1$d sự kiện</string>
     <string name="schedule_event_count_other">%1$d sự kiện</string>
 
+    <!-- Weekday abbreviations -->
+    <string name="weekday_mon_short">T2</string>
+    <string name="weekday_tue_short">T3</string>
+    <string name="weekday_wed_short">T4</string>
+    <string name="weekday_thu_short">T5</string>
+    <string name="weekday_fri_short">T6</string>
+    <string name="weekday_sat_short">T7</string>
+    <string name="weekday_sun_short">CN</string>
+
     <!-- Common -->
     <string name="save">Lưu</string>
+    <string name="delete">Xóa</string>
+    <string name="menu">Trình đơn</string>
+    <string name="schedule_delete_title">Xóa lịch trình</string>
+    <string name="schedule_delete_confirm">Bạn có chắc muốn xóa lịch trình này?</string>
 
     <!-- Login Screen -->
     <string name="welcome_back">Chào mừng trở lại!</string>
     <string name="log_in_to_account">Đăng nhập vào tài khoản của bạn</string>
     <string name="email">Email</string>
+    <string name="error_email_required">Vui lòng nhập Email</string>
     <string name="password">Mật khẩu</string>
+    <string name="error_password_required">Vui lòng nhập mật khẩu</string>
+    <string name="error_password_too_short">Mật khẩu phải có ít nhất 6 ký tự</string>
     <string name="forgot_password">Quên mật khẩu?</string>
     <string name="log_in">Đăng nhập</string>
     <string name="or">HOẶC</string>
     <string name="continue_with_google">Tiếp tục với Google</string>
     <string name="dont_have_account">Chưa có tài khoản?</string>
     <string name="sign_up">Đăng ký</string>
+    <string name="register">Đăng ký</string>
+    <string name="already_have_account_login">Đã có tài khoản? Đăng nhập</string>
 
     <!-- Registration Screen -->
     <string name="create_account">Tạo tài khoản</string>
     <string name="lets_get_started">Hãy bắt đầu nào!</string>
     <string name="full_name">Họ và tên</string>
+    <string name="error_full_name_required">Vui lòng nhập họ và tên</string>
     <string name="email_address">Địa chỉ email</string>
     <string name="sign_up_with_google">Đăng ký với Google</string>
     <string name="already_have_account">Đã có tài khoản?</string>
     <string name="sign_in">Đăng nhập</string>
 
-    <!-- Forgot Password Screen -->
+    <!-- Forgot Password -->
     <string name="forgot_password_title">Quên mật khẩu?</string>
-    <string name="forgot_password_message">Đừng lo! Điều này vẫn hay xảy ra. Vui lòng nhập địa chỉ email liên kết với tài khoản của bạn.</string>
+    <string name="forgot_password_message">Đừng lo! Hãy nhập địa chỉ email liên kết với tài khoản của bạn.</string>
     <string name="enter_email_address">Nhập địa chỉ email</string>
+    <string name="error_valid_email">Vui lòng nhập địa chỉ email hợp lệ</string>
     <string name="send_code">Gửi mã</string>
 
     <!-- Home Screen -->
@@ -128,41 +189,268 @@
 
     <!-- Trip Details Screen -->
     <string name="trip_details">Chi tiết chuyến đi</string>
-    <string name="expenses">Chi tiêu</string>
-    <string name="trip_gallery">Album chuyến đi</string>
+    <string name="expenses">Chi phí</string>
+    <string name="trip_gallery">Bộ sưu tập</string>
     <string name="view_all">Xem tất cả</string>
     <string name="edit">Chỉnh sửa</string>
 
     <!-- Add Trip Screens -->
     <string name="trip_details_title">Chi tiết chuyến đi</string>
-    <string name="when_traveling">Bạn đi khi nào?</string>
+    <string name="when_traveling">Bạn đi du lịch khi nào?</string>
     <string name="select_date">Chọn ngày</string>
     <string name="who_traveling_with">Bạn đi cùng ai?</string>
     <string name="invite_friends">Mời bạn bè</string>
-    <string name="estimated_budget">Ngân sách dự kiến của bạn?</string>
+    <string name="estimated_budget">Ngân sách dự kiến?</string>
     <string name="confirm_your_trip">Xác nhận chuyến đi</string>
-    <string name="lets_go">Bắt đầu thôi!</string>
+    <string name="lets_go">Đi thôi!</string>
     <string name="set_trip_schedule">Thiết lập lịch trình</string>
     <string name="ready_to_plan_days">Sẵn sàng lên kế hoạch cho từng ngày?</string>
-    <string name="build_itinerary_message">Bạn có thể lập lịch trình chi tiết ngay bây giờ hoặc để sau.</string>
+    <string name="build_itinerary_message">Bạn có thể tạo lịch trình chi tiết ngay bây giờ hoặc lưu lại để sau.</string>
     <string name="set_up_schedule_now">Thiết lập ngay</string>
     <string name="ill_do_it_later">Để sau</string>
-    <string name="whats_travel_budget">Ngân sách du lịch của bạn là bao nhiêu?</string>
-    <string name="set_max_spending_limit">Đặt giới hạn chi tiêu tối đa cho chuyến đi (có thể thay đổi sau).</string>
+    <string name="whats_travel_budget">Ngân sách chuyến đi là bao nhiêu?</string>
+    <string name="set_max_spending_limit">Đặt giới hạn chi tiêu tối đa. Bạn có thể thay đổi sau.</string>
     <string name="currency">Tiền tệ</string>
     <string name="amount">Số tiền</string>
     <string name="enter_amount">Nhập số tiền</string>
-    <string name="skip_for_now">Bỏ qua</string>
-    <string name="set_your_budget">Thiết lập ngân sách</string>
+    <string name="hint_participants">Người tham gia (ngăn cách bằng dấu phẩy)</string>
+    <string name="hint_icon_emoji">Biểu tượng/Emoji (ví dụ: 🍴 ✈️ 📷)</string>
+    <string name="hint_location_optional">Vị trí (tuỳ chọn)</string>
+    <string name="capture_experience_hint">Ghi lại trải nghiệm du lịch của bạn...</string>
+    <string name="hint_date_tap_to_pick">Ngày (nhấn để chọn)</string>
+    <string name="hint_start_time">Giờ bắt đầu</string>
+    <string name="hint_end_time">Giờ kết thúc</string>
+    <string name="hint_title_do_something">Tiêu đề (làm gì đó)</string>
+    <string name="hint_notes_optional_small">Ghi chú (tuỳ chọn)</string>
+    <!-- Translations for missing keys -->
+    <string name="step_5_of_6">Bước 5 trên 6</string>
+    <string name="ask_destination">Bạn sẽ đi đâu?</string>
+    <string name="destination_description">Nhập thành phố hoặc địa điểm cho chuyến đi của bạn.</string>
+    <string name="hint_notes_optional">Ghi chú (tuỳ chọn)</string>
+    <string name="hint_invite_friends_optional">Mời bạn bè (tuỳ chọn)</string>
+    <string name="hint_budget_optional">Ngân sách (tuỳ chọn)</string>
+    <string name="ask_trip_name">Bạn muốn đặt tên chuyến đi là gì?</string>
+    <string name="trip_name_description">Đặt tên ngắn gọn cho chuyến đi để dễ nhận biết.</string>
+    <string name="schedule_time_example">09:00</string>
+    <string name="travel_notes">Ghi chú du lịch</string>
+    <string name="edit_note">Chỉnh sửa ghi chú</string>
+    <string name="save_note">Lưu ghi chú</string>
+    <string name="recent_photos">Ảnh gần đây</string>
+    <string name="skip_for_now">Để sau</string>
+    <string name="set_your_budget">Đặt ngân sách của bạn</string>
     <string name="total_trip_budget">Tổng ngân sách chuyến đi</string>
     <string name="budget_breakdown">Phân bổ ngân sách</string>
     <string name="flights">Vé máy bay</string>
-    <string name="lodging">Lưu trú</string>
+    <string name="lodging">Chỗ ở</string>
     <string name="food_drink">Ăn uống</string>
     <string name="activities">Hoạt động</string>
     <string name="adjust_budget_later">Bạn có thể điều chỉnh ngân sách sau.</string>
     <string name="continue_text">Tiếp tục</string>
     <string name="guest">Khách</string>
     <string name="unknown_user">Người dùng không xác định</string>
-    <string name="email_not_available">Email không khả dụng</string>
+    <string name="email_not_available">Không có email</string>
+
+    <!-- Permission screen -->
+    <string name="permission_welcome_title">Chào mừng đến VoyagerBuds</string>
+    <string name="permission_welcome_description">Để mang đến trải nghiệm tốt nhất, chúng tôi cần quyền truy cập sau:</string>
+    <string name="permission_camera">Máy ảnh</string>
+    <string name="permission_camera_description">Chụp ảnh điểm đến du lịch của bạn</string>
+    <string name="permission_location">Vị trí</string>
+    <string name="permission_location_description">Theo dõi vị trí và hiển thị trên bản đồ</string>
+    <string name="permission_photos_videos">Ảnh &amp; Video</string>
+    <string name="permission_photos_videos_description">Lưu và truy cập ảnh, video của bạn</string>
+    <string name="permission_notifications">Thông báo</string>
+    <string name="permission_notifications_description">Nhận cảnh báo khẩn cấp và nhắc nhở chuyến đi</string>
+
+    <!-- Filter & Sort -->
+    <string name="filter_sort_title">Lọc &amp; Sắp xếp</string>
+    <string name="sort_by_label">Sắp xếp theo</string>
+    <string name="sort_date_newest">Ngày (Mới nhất)</string>
+    <string name="sort_date_oldest">Ngày (Cũ nhất)</string>
+    <string name="sort_duration_longest">Thời lượng (Dài nhất)</string>
+    <string name="sort_duration_shortest">Thời lượng (Ngắn nhất)</string>
+    <string name="sort_name_az">Tên (A-Z)</string>
+    <string name="sort_name_za">Tên (Z-A)</string>
+    <string name="apply_filter">Áp dụng</string>
+    <string name="clear_filter">Xoá lọc</string>
+
+    <!-- Placeholders -->
+    <string name="trip_destination_date_range">%1$s • %2$s</string>
+    <string name="date_range_example">01/01 - 10/01</string>
+    <string name="money_placeholder">$0.00</string>
+    <string name="visit_museum">Thăm bảo tàng</string>
+    <string name="short_notes">Ghi chú ngắn</string>
+    <string name="memory_title">Tiêu đề kỷ niệm</string>
+    <string name="more">Thêm</string>
+
+    <!-- Content descriptions -->
+    <string name="desc_trip_icon">Biểu tượng chuyến đi</string>
+    <string name="desc_add_schedule">Thêm lịch trình</string>
+    <string name="desc_destination_icon">Biểu tượng điểm đến</string>
+    <string name="desc_back">Quay lại</string>
+    <string name="desc_profile_picture">Ảnh hồ sơ</string>
+    <string name="desc_notifications">Thông báo</string>
+    <string name="desc_arrow">Mũi tên</string>
+    <string name="desc_privacy">Quyền riêng tư</string>
+    <string name="desc_language">Ngôn ngữ</string>
+    <string name="desc_help">Trợ giúp</string>
+    <string name="desc_search">Tìm kiếm</string>
+    <string name="desc_trip_image">Hình ảnh chuyến đi</string>
+    <string name="desc_camera">Máy ảnh</string>
+    <string name="desc_video">Video</string>
+    <string name="desc_photo_1">Ảnh 1</string>
+    <string name="desc_photo_2">Ảnh 2</string>
+    <string name="desc_photo_3">Ảnh 3</string>
+    <string name="desc_photo_4">Ảnh 4</string>
+    <string name="desc_photo_5">Ảnh 5</string>
+    <string name="desc_photo_6">Ảnh 6</string>
+
+    <!-- Capture screen -->
+    <string name="capture_header_title">Nhật ký &amp; Truyền thông du lịch</string>
+    <string name="capture_header_subtitle">Ghi lại kỷ niệm và trải nghiệm của bạn</string>
+    <string name="take_photo">Chụp ảnh</string>
+    <string name="add_video">Thêm video</string>
+    <string name="desc_close">Đóng</string>
+    <string name="desc_my_location">Vị trí của tôi</string>
+
+    <!-- Menu -->
+    <string name="edit_trip">Chỉnh sửa chuyến đi</string>
+    <string name="delete_trip">Xóa chuyến đi</string>
+
+    <!-- General UI -->
+    <string name="saving">Đang lưu...</string>
+    <string name="save_changes">Lưu thay đổi</string>
+    <string name="coming_soon">Sắp ra mắt!</string>
+    <string name="currency_usd">USD</string>
+
+    <!-- Toasts -->
+    <string name="toast_trip_not_found">Không tìm thấy chuyến đi</string>
+    <string name="toast_trip_deleted_success">Xóa chuyến đi thành công</string>
+    <string name="toast_failed_delete_trip">Xóa chuyến đi thất bại</string>
+    <string name="toast_password_too_short">Mật khẩu phải có ít nhất 6 ký tự.</string>
+    <string name="toast_fill_all_fields">Vui lòng điền tất cả các trường.</string>
+    <string name="toast_registration_successful">Đăng ký thành công.</string>
+    <string name="toast_registration_failed">Đăng ký thất bại: %1$s</string>
+    <string name="toast_auth_failed_detailed">Xác thực thất bại: %1$s</string>
+    <string name="link_account_title">Liên kết tài khoản</string>
+    <string name="link_account_message">Tài khoản với email này đã tồn tại. Vui lòng nhập mật khẩu để liên kết với tài khoản Google của bạn.</string>
+    <string name="link">Liên kết</string>
+    <string name="toast_google_sign_in_failed">Đăng nhập Google thất bại.</string>
+    <string name="toast_enter_email_password">Vui lòng nhập email và mật khẩu.</string>
+    <string name="toast_auth_failed">Xác thực thất bại.</string>
+    <string name="toast_password_required">Vui lòng nhập mật khẩu.</string>
+    <string name="toast_accounts_linked_successful">Liên kết tài khoản thành công!</string>
+    <string name="toast_failed_to_link_accounts">Liên kết tài khoản thất bại.</string>
+    <string name="toast_incorrect_password_accounts_not_linked">Sai mật khẩu. Không thể liên kết tài khoản.</string>
+    <string name="toast_auth_successful">Xác thực thành công.</string>
+    <string name="toast_error_loading_trip">Lỗi tải chuyến đi</string>
+    <string name="toast_trip_date_conflict">Bạn đã có chuyến đi trong khoảng thời gian này</string>
+    <string name="toast_trip_updated_success">Cập nhật chuyến đi thành công</string>
+    <string name="toast_failed_update_trip">Cập nhật chuyến đi thất bại</string>
+    <string name="delete_trip_title">Xóa chuyến đi</string>
+    <string name="delete_trip_confirm_message">Bạn có chắc muốn xóa &quot;%1$s&quot;? Hành động này không thể hoàn tác.</string>
+    <string name="sign_in_with_google">Đăng nhập với Google</string>
+    <string name="dont_have_account_sign_up">Chưa có tài khoản? Đăng ký</string>
+    <string name="desc_calendar_icon">Biểu tượng lịch</string>
+    <string name="desc_money_icon">Biểu tượng tiền</string>
+    <string name="filter_by_date_range">Lọc theo khoảng ngày</string>
+    <string name="permission_all_granted_thanks">Đã cấp tất cả quyền! Cảm ơn bạn.</string>
+    <string name="your_current_location">Vị trí hiện tại của bạn</string>
+    <string name="permissions_required_title">Cần quyền truy cập</string>
+    <string name="grant_permissions">Cấp quyền</string>
+    <string name="some_permissions_denied_message">Một số quyền bị từ chối. Một số tính năng có thể bị giới hạn.</string>
+    <string name="skip_permissions_title">Bỏ qua quyền?</string>
+    <string name="skip_permissions_message">Một số tính năng có thể không hoạt động nếu thiếu quyền. Bạn có thể cấp quyền sau trong Cài đặt.\n\nBạn có chắc muốn bỏ qua không?</string>
+    <string name="skip_anyway">Vẫn bỏ qua</string>
+    <string name="go_back">Quay lại</string>
+    <string name="open_settings">Mở Cài đặt</string>
+    <string name="permissions_denied_settings_message">Một số quyền đã bị từ chối vĩnh viễn. Vui lòng bật chúng trong Cài đặt để dùng đầy đủ tính năng.</string>
+    <string name="label_date">Ngày</string>
+    <string name="tap_to_view_details">Nhấn để xem chi tiết</string>
+    <string name="step_6_of_6">Bước 6 trên 6</string>
+    <string name="example_total_budget_2500_usd">$2,500 USD</string>
+    <string name="example_budget_800">$800</string>
+    <string name="example_lodging">$1,200</string>
+    <string name="example_food">$350</string>
+    <string name="example_activities">$150</string>
+    <string name="label_my_location">Vị trí của tôi</string>
+    <string name="example_location_manhattan">Manhattan, NY</string>
+    <string name="example_trip_dubai">Dubai, Các Tiểu Vương Quốc Ả Rập Thống Nhất</string>
+    <string name="example_trip_description">Khám phá kiến trúc hiện đại &amp; văn hóa sôi động của Dubai...</string>
+    <string name="example_trip_duration">📅 5 Ngày</string>
+    <string name="example_trip_hotel">🏨 Khách sạn 4 sao</string>
+    <string name="code_sent_to">Mã đã được gửi tới %1$s</string>
+    <string name="next_trip">Chuyến đi tiếp theo</string>
+    <string name="default_trip_name">Chuyến đi</string>
+    <string name="unknown">Không xác định</string>
+    <string name="unknown_location">Vị trí không xác định</string>
+    <string name="no_schedule_items_yet">Chưa có mục lịch trình nào.</string>
+    <string name="no_dates_set">Chưa thiết lập ngày</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_subtitle">Theo dõi thống kê du lịch của bạn</string>
+    <string name="emoji_plane">✈️</string>
+    <string name="example_dashboard_trips_count">24</string>
+    <string name="total_trips_label">Tổng số chuyến đi</string>
+    <string name="emoji_pin">📍</string>
+    <string name="example_places_visited_count">87</string>
+    <string name="places_visited_label">Nơi đã đến</string>
+    <string name="total_expenses_label">Tổng chi phí</string>
+    <string name="example_total_expenses_count">$12,450</string>
+    <string name="transport_label">🚗 Di chuyển</string>
+    <string name="example_transport_cost">$4,200</string>
+    <string name="hotel_label">🏨 Khách sạn</string>
+    <string name="example_hotel_cost">$5,800</string>
+    <string name="food_label">🍴 Ăn uống</string>
+    <string name="example_food_cost">$2,450</string>
+    <string name="emergency_alert">Cảnh báo khẩn cấp</string>
+    <string name="emergency_alert_description">Tự động gửi cảnh báo đến người thân nếu bạn không hoạt động 24h</string>
+    <string name="last_activity">Hoạt động gần nhất: 2 giờ trước</string>
+    <string name="group_trips">Chuyến đi nhóm</string>
+    <string name="see_all_groups">Xem tất cả</string>
+    <string name="example_group_title">Hành trình Châu Âu</string>
+    <string name="example_group_members_days">5 thành viên • 12 ngày</string>
+    <string name="view_label">Xem</string>
+    <string name="create_group_button">+ Tạo nhóm</string>
+    <string name="join_group_button">Tham gia nhóm</string>
+    <string name="step_1_of_3">Bước 1 trên 3</string>
+    <string name="photo_extra_count">+12</string>
+
+    <!-- Profile examples -->
+    <string name="example_user_name">John Traveler</string>
+    <string name="example_user_email">john.traveler@email.com</string>
+    <string name="example_total_budget_15000">$15,000</string>
+    <string name="example_spent_12450">$12,450</string>
+    <string name="example_remaining_2550">$2,550</string>
+
+    <!-- Date picker -->
+    <string name="prompt_select_start_date">Vui lòng chọn ngày bắt đầu</string>
+    <string name="prompt_select_end_date">Vui lòng chọn ngày kết thúc</string>
+    <string name="error_end_date_after_start">Ngày kết thúc phải sau ngày bắt đầu</string>
+    <string name="example_trip_name_bali">Chuyến đi mùa hè đến Bali</string>
+    <string name="example_dates_bali">15 Thg 8 - 25 Thg 8</string>
+    <string name="no_schedules_yet_add_one">Chưa có lịch trình. Thêm ngay!</string>
+    <string name="expenses_coming_soon">Tính năng Chi phí sắp ra mắt</string>
+    <string name="notes_coming_soon">Tính năng Ghi chú sắp ra mắt</string>
+    <string name="no_notes_added">Chưa có ghi chú.</string>
+    <string name="home_discover">Khám phá\nNhững nơi tuyệt vời</string>
+    <string name="home_adventure">Phiêu lưu đến vùng đất mới</string>
+    <string name="example_hero_trip_name">Hành trình Tokyo</string>
+    <string name="example_hero_dates">20 Thg 10 - 5 Thg 11</string>
+    <string name="example_location_tokyo">Tokyo, Nhật Bản</string>
+    <string name="label_notes_colon">Ghi chú: </string>
+    <string name="example_trip_notes">Chuyến đi thú vị...</string>
+    <string name="label_schedule_colon">Lịch trình: </string>
+    <string name="example_schedule_arrival_tokyo">Đến Tokyo...</string>
+    <string name="label_total_expenses">Tổng chi phí: </string>
+    <string name="example_money_2500">$2500</string>
+    <string name="captured_memories">Kỷ niệm đã lưu</string>
+    <string name="desc_add_trip">Thêm chuyến đi</string>
+    <string name="example_trip_name_kyoto">Mùa hè ở Kyoto</string>
+    <string name="example_trip_subtitle_kyoto">Hành trình 10 ngày đến Kyoto.</string>
+    <string name="example_location_kyoto">Kyoto, Nhật Bản</string>
+    <string name="example_dates_kyoto">15 Thg 7 - 25 Thg 7, 2024</string>
+    <string name="example_companions_you_2">Bạn + 2 người nữa</string>
+    <string name="trip_schedule_title">Tên chuyến đi</string>
+    <string name="select_trip_hint">Chọn chuyến đi</string>
 </resources>

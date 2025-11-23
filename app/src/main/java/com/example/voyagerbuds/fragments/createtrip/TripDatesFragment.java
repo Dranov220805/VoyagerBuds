@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import com.example.voyagerbuds.utils.DateUtils;
 import java.util.TimeZone;
 
 public class TripDatesFragment extends Fragment {
@@ -41,7 +42,6 @@ public class TripDatesFragment extends Fragment {
     private ImageView btnBack;
     private OnTripDatesEnteredListener listener;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private SimpleDateFormat displayFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private DatabaseHelper databaseHelper;
 
     public interface OnTripDatesEnteredListener {
@@ -128,9 +128,7 @@ public class TripDatesFragment extends Fragment {
             String formattedDate = utcFormat.format(calendar.getTime());
 
             // Format for UI display
-            SimpleDateFormat displayUtcFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-            displayUtcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String displayDate = displayUtcFormat.format(calendar.getTime());
+            String displayDate = DateUtils.formatFullDate(getContext(), calendar.getTime());
 
             if (isStartDate) {
                 etStartDate.setText(displayDate);
@@ -167,11 +165,11 @@ public class TripDatesFragment extends Fragment {
 
     private boolean validateInput(String startDate, String endDate) {
         if (TextUtils.isEmpty(startDate)) {
-            Toast.makeText(getContext(), "Please select start date", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.prompt_select_start_date), Toast.LENGTH_SHORT).show();
             return false;
         }
         if (TextUtils.isEmpty(endDate)) {
-            Toast.makeText(getContext(), "Please select end date", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.prompt_select_end_date), Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -179,13 +177,13 @@ public class TripDatesFragment extends Fragment {
             Date start = dateFormat.parse(startDate);
             Date end = dateFormat.parse(endDate);
             if (start != null && end != null && end.before(start)) {
-                Toast.makeText(getContext(), "End date must be after start date", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.error_end_date_after_start), Toast.LENGTH_SHORT).show();
                 return false;
             }
 
             // Check for overlapping trips
             if (!databaseHelper.isDateRangeAvailable(startDate, endDate)) {
-                Toast.makeText(getContext(), "You already have a trip scheduled during these dates.", Toast.LENGTH_LONG)
+                Toast.makeText(getContext(), getString(R.string.toast_trip_date_conflict), Toast.LENGTH_LONG)
                         .show();
                 return false;
             }
@@ -208,11 +206,11 @@ public class TripDatesFragment extends Fragment {
                 Date start = dateFormat.parse(startDate);
                 Date end = dateFormat.parse(endDate);
                 if (start != null) {
-                    etStartDate.setText(displayFormat.format(start));
+                    etStartDate.setText(DateUtils.formatFullDate(getContext(), start));
                     etStartDate.setTag(startDate);
                 }
                 if (end != null) {
-                    etEndDate.setText(displayFormat.format(end));
+                    etEndDate.setText(DateUtils.formatFullDate(getContext(), end));
                     etEndDate.setTag(endDate);
                 }
             } catch (ParseException e) {

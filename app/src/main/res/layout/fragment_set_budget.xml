@@ -25,7 +25,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                android:contentDescription="Back"
+                    android:contentDescription="@string/desc_back"
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="4dp"
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Step 6 of 6"
+            android:text="@string/step_6_of_6"
             android:textSize="14sp"
             android:textColor="@color/text_medium"
             android:layout_gravity="center"
@@ -110,7 +110,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="$2,500 USD"
+                        android:text="@string/example_total_budget_2500_usd"
                         android:textSize="28sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_dark" />
@@ -173,7 +173,7 @@
                             android:id="@+id/tv_flights"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$800"
+                            android:text="@string/example_budget_800"
                             android:textSize="16sp"
                             android:textColor="@color/text_dark" />
                     </LinearLayout>
@@ -198,7 +198,7 @@
                             android:id="@+id/tv_lodging"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$1,200"
+                            android:text="@string/example_lodging"
                             android:textSize="16sp"
                             android:textColor="@color/text_dark" />
                     </LinearLayout>
@@ -223,7 +223,7 @@
                             android:id="@+id/tv_food_drink"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$350"
+                            android:text="@string/example_food"
                             android:textSize="16sp"
                             android:textColor="@color/text_dark" />
                     </LinearLayout>
@@ -247,7 +247,7 @@
                             android:id="@+id/tv_activities"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$150"
+                            android:text="@string/example_activities"
                             android:textSize="16sp"
                             android:textColor="@color/text_dark" />
                     </LinearLayout>

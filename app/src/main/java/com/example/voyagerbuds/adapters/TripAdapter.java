@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import com.example.voyagerbuds.utils.DateUtils;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
 
@@ -69,12 +70,14 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             compactHolder.tvTripName.setText(trip.getTripName());
 
             // Show destination and dates in one line
-            String destination = trip.getDestination() != null ? trip.getDestination() : "Unknown";
+            String destination = trip.getDestination() != null ? trip.getDestination()
+                    : context.getString(R.string.unknown);
             String duration = formatDuration(trip.getStartDate(), trip.getEndDate());
             compactHolder.tvTripInfo.setText(destination + " • " + duration);
         } else {
             holder.tvTripName.setText(trip.getTripName());
-            holder.tvDestination.setText(trip.getDestination() != null ? trip.getDestination() : "Unknown");
+            holder.tvDestination.setText(
+                    trip.getDestination() != null ? trip.getDestination() : context.getString(R.string.unknown));
 
             // Format duration
             String duration = formatDuration(trip.getStartDate(), trip.getEndDate());
@@ -83,7 +86,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             // Get total spent from expenses
             double totalSpent = databaseHelper.getTotalExpensesForTrip(trip.getTripId());
             if (trip.getBudget() > 0) {
-                holder.tvTotalSpent.setText(String.format(Locale.getDefault(), "$%.2f / $%.2f", totalSpent, trip.getBudget()));
+                holder.tvTotalSpent
+                        .setText(String.format(Locale.getDefault(), "$%.2f / $%.2f", totalSpent, trip.getBudget()));
             } else {
                 holder.tvTotalSpent.setText(String.format(Locale.getDefault(), "$%.2f", totalSpent));
             }
@@ -112,23 +116,18 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
     private String formatDuration(String startDate, String endDate) {
         if (startDate == null || endDate == null) {
-            return "No dates set";
+            return context.getString(R.string.no_dates_set);
         }
-
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            SimpleDateFormat outputFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
-
             Date start = inputFormat.parse(startDate);
             Date end = inputFormat.parse(endDate);
-
             if (start != null && end != null) {
-                return outputFormat.format(start) + " - " + outputFormat.format(end);
+                return DateUtils.formatDateRangeSimple(context, start, end);
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
         return startDate + " - " + endDate;
     }
 

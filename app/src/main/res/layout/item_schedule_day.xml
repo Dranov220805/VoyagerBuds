@@ -16,21 +16,21 @@
         android:paddingEnd="16dp"
         android:paddingBottom="12dp">
 
-        <TextView
+            <TextView
             android:id="@+id/tv_day_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="Monday, Jun 12" />
+            android:text="@string/day_title_example" />
 
-        <TextView
+            <TextView
             android:id="@+id/tv_day_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="3 events"
+            android:text="@string/day_events_example"
             android:textColor="#777777"
             android:textSize="13sp" />
 
@@ -51,30 +51,30 @@
             android:orientation="vertical"
             android:gravity="end">
 
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="00:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="01:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="02:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="03:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="04:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="05:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="06:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="07:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="08:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="09:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="10:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="11:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="12:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="13:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="14:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="15:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="16:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="17:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="18:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="19:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="20:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="21:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="22:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="23:00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_00" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_01" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_02" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_03" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_04" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_05" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_06" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_07" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_08" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_09" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_10" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_11" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_12" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_13" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_14" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_15" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_16" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_17" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_18" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_19" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_20" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_21" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_22" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="30dp" android:text="@string/time_23" android:textSize="10sp" android:textColor="#999999" android:gravity="center_vertical|end" android:paddingEnd="8dp"/>
 
         </LinearLayout>
 
@@ -96,13 +96,13 @@
             android:background="#E0E0E0" />
 
         <!-- Timeline Center Dot -->
-        <View
-            android:id="@+id/view_timeline_dot"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginStart="11dp"
-            android:background="@drawable/bg_timeline_dot" />
+<!--        <View-->
+<!--            android:id="@+id/view_timeline_dot"-->
+<!--            android:layout_width="12dp"-->
+<!--            android:layout_height="12dp"-->
+<!--            android:layout_gravity="start|center_vertical"-->
+<!--            android:layout_marginStart="11dp"-->
+<!--            android:background="@drawable/bg_timeline_dot" />-->
 
         <!-- Current Time Indicator Dot -->
         <View

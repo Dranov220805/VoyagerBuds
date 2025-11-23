@@ -11,6 +11,9 @@ public class ScheduleItem implements Serializable {
     private String endTime; // e.g., "11:00"
     private String title;
     private String notes;
+    private String icon; // emoji or icon identifier
+    private String location; // location string
+    private String participants; // comma-separated participant names
     private long createdAt;
     private long updatedAt;
 
@@ -87,5 +90,29 @@ public class ScheduleItem implements Serializable {
 
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(String participants) {
+        this.participants = participants;
     }
 }

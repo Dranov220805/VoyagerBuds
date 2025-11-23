@@ -50,7 +50,7 @@ public class RegisterActivity extends BaseActivity {
             String fullName = etFullName.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
-            
+
             if (validateInput(fullName, email, password)) {
                 // Navigate to HomeActivity
                 Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
@@ -72,19 +72,19 @@ public class RegisterActivity extends BaseActivity {
 
     private boolean validateInput(String fullName, String email, String password) {
         if (fullName.isEmpty()) {
-            etFullName.setError("Full name is required");
+            etFullName.setError(getString(R.string.error_full_name_required));
             return false;
         }
         if (email.isEmpty()) {
-            etEmail.setError("Email is required");
+            etEmail.setError(getString(R.string.error_email_required));
             return false;
         }
         if (password.isEmpty()) {
-            etPassword.setError("Password is required");
+            etPassword.setError(getString(R.string.error_password_required));
             return false;
         }
         if (password.length() < 6) {
-            etPassword.setError("Password must be at least 6 characters");
+            etPassword.setError(getString(R.string.error_password_too_short));
             return false;
         }
         return true;

@@ -35,7 +35,7 @@
                 android:id="@+id/tv_trip_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trip Name"
+                android:text="@string/trip_name"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -47,7 +47,7 @@
                 android:id="@+id/tv_trip_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Destination • Jan 1 - 10"
+                android:text="@string/date_range_example"
                 android:textColor="@color/gray"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp"
@@ -57,12 +57,12 @@
         </LinearLayout>
 
         <!-- Arrow Icon -->
-        <ImageView
+            <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@android:drawable/ic_menu_more"
             android:rotation="270"
-            android:contentDescription="More"
+                android:contentDescription="@string/more"
             app:tint="@color/gray" />
 
     </LinearLayout>

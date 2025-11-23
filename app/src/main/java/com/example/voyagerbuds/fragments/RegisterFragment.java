@@ -31,7 +31,8 @@ public class RegisterFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         binding = FragmentRegisterBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -48,10 +49,11 @@ public class RegisterFragment extends Fragment {
                 if (password.length() >= 6) {
                     registerUser(email, password);
                 } else {
-                    Toast.makeText(getContext(), "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.toast_password_too_short), Toast.LENGTH_SHORT)
+                            .show();
                 }
             } else {
-                Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.toast_fill_all_fields), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -65,12 +67,15 @@ public class RegisterFragment extends Fragment {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(getContext(), "Registration successful.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.toast_registration_successful),
+                                Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity(), HomeActivity.class);
                         startActivity(intent);
                         requireActivity().finish();
                     } else {
-                        Toast.makeText(getContext(), "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),
+                                getString(R.string.toast_registration_failed, task.getException().getMessage()),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }

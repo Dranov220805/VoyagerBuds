@@ -12,12 +12,12 @@
         android:background="@color/white"
         app:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
+            <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
-            app:title="Trip Details"
+            app:title="@string/trip_details"
             app:titleCentered="true"
             app:menu="@menu/menu_trip_details" />
 
@@ -70,7 +70,7 @@
                             android:id="@+id/tv_trip_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Summer Trip to Bali"
+                            android:text="@string/example_trip_name_bali"
                             android:textColor="@color/white"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -79,7 +79,7 @@
                             android:id="@+id/tv_trip_dates"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="August 15 - August 25"
+                            android:text="@string/example_dates_bali"
                             android:textColor="@color/white"
                             android:textSize="16sp" />
                     </LinearLayout>
@@ -99,17 +99,17 @@
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Schedule" />
+                    android:text="@string/schedule" />
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Expenses" />
+                    android:text="@string/expenses" />
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Notes" />
+                    android:text="@string/notes" />
             </com.google.android.material.tabs.TabLayout>
 
             <!-- Schedule Content -->
@@ -123,7 +123,7 @@
                     android:id="@+id/tv_empty_schedule"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No schedules yet. Add one!"
+                    android:text="@string/no_schedules_yet_add_one"
                     android:gravity="center"
                     android:padding="32dp"
                     android:visibility="gone"/>
@@ -146,7 +146,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Expenses Feature Coming Soon"
+                    android:text="@string/expenses_coming_soon"
                     android:gravity="center"
                     android:padding="32dp"/>
             </LinearLayout>
@@ -161,7 +161,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Notes Feature Coming Soon"
+                    android:text="@string/notes_coming_soon"
                     android:gravity="center"
                     android:padding="32dp"/>
             </LinearLayout>
@@ -179,7 +179,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Trip Gallery"
+                    android:text="@string/trip_gallery"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"/>
@@ -187,7 +187,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="View All"
+                    android:text="@string/view_all"
                     android:textColor="@color/main_color_voyager"
                     android:textStyle="bold"/>
             </LinearLayout>
@@ -239,6 +239,6 @@
         android:src="@drawable/ic_add"
         app:tint="@color/white"
         app:backgroundTint="@color/main_color_voyager"
-        android:contentDescription="Add Schedule" />
+        android:contentDescription="@string/desc_add_schedule" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

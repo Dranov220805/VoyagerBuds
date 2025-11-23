@@ -53,6 +53,14 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         holder.tvTime.setText(timeRange);
         holder.tvTitle.setText(it.getTitle() != null ? it.getTitle() : "");
 
+        // Set icon (default to calendar emoji if not set)
+        String icon = it.getIcon();
+        if (icon != null && !icon.trim().isEmpty()) {
+            holder.tvIcon.setText(icon);
+        } else {
+            holder.tvIcon.setText("📅");
+        }
+
         // If notes are empty, show formatted phrase
         String notes = it.getNotes();
         if (notes != null && !notes.trim().isEmpty()) {
@@ -68,6 +76,24 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
                 phrase = action;
             }
             holder.tvNotes.setText(phrase);
+        }
+
+        // Set location (show only if not empty)
+        String location = it.getLocation();
+        if (location != null && !location.trim().isEmpty()) {
+            holder.tvLocation.setText(location);
+            holder.layoutLocation.setVisibility(View.VISIBLE);
+        } else {
+            holder.layoutLocation.setVisibility(View.GONE);
+        }
+
+        // Set participants (show only if not empty)
+        String participants = it.getParticipants();
+        if (participants != null && !participants.trim().isEmpty()) {
+            holder.tvParticipants.setText(participants);
+            holder.layoutParticipants.setVisibility(View.VISIBLE);
+        } else {
+            holder.layoutParticipants.setVisibility(View.GONE);
         }
 
         // Position event based on start time
@@ -129,13 +155,19 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTime, tvTitle, tvNotes;
+        TextView tvTime, tvTitle, tvNotes, tvIcon, tvLocation, tvParticipants;
+        View layoutLocation, layoutParticipants;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTime = itemView.findViewById(R.id.tv_schedule_time);
             tvTitle = itemView.findViewById(R.id.tv_schedule_title);
             tvNotes = itemView.findViewById(R.id.tv_schedule_notes);
+            tvIcon = itemView.findViewById(R.id.tv_schedule_icon);
+            tvLocation = itemView.findViewById(R.id.tv_schedule_location);
+            tvParticipants = itemView.findViewById(R.id.tv_schedule_participants);
+            layoutLocation = itemView.findViewById(R.id.layout_location);
+            layoutParticipants = itemView.findViewById(R.id.layout_participants);
         }
     }
 }

@@ -9,7 +9,7 @@
         android:id="@+id/et_schedule_day"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Date (tap to pick)"
+        android:hint="@string/hint_date_tap_to_pick"
         android:focusable="false"
         android:clickable="true"
         android:inputType="none" />
@@ -25,7 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Start time"
+            android:hint="@string/hint_start_time"
             android:focusable="false"
             android:clickable="true"
             android:inputType="none" />
@@ -35,7 +35,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="End time"
+            android:hint="@string/hint_end_time"
             android:layout_marginStart="8dp"
             android:focusable="false"
             android:clickable="true"
@@ -47,7 +47,7 @@
         android:id="@+id/et_schedule_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Title (do something)"
+        android:hint="@string/hint_title_do_something"
         android:inputType="text"
         android:layout_marginTop="8dp" />
 
@@ -55,8 +55,33 @@
         android:id="@+id/et_schedule_notes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Notes (optional)"
+        android:hint="@string/hint_notes_optional_small"
         android:inputType="textMultiLine"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/et_schedule_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_icon_emoji"
+        android:inputType="text"
+        android:maxLength="2"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/et_schedule_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_location_optional"
+        android:inputType="text"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/et_schedule_participants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_participants"
+        android:inputType="text"
         android:layout_marginTop="8dp" />
 
 </LinearLayout>

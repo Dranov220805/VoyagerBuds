@@ -18,7 +18,7 @@
             android:id="@+id/tv_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Step 1 of 3"
+            android:text="@string/step_1_of_3"
             android:textSize="14sp"
             android:textColor="@color/gray"
             android:layout_marginBottom="8dp" />

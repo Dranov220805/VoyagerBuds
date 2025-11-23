@@ -41,7 +41,8 @@ public class TripNameFragment extends Fragment {
         etTripName = view.findViewById(R.id.et_trip_name);
         btnNext = view.findViewById(R.id.btn_next);
 
-        if (initialTripName != null) etTripName.setText(initialTripName);
+        if (initialTripName != null)
+            etTripName.setText(initialTripName);
 
         btnNext.setOnClickListener(v -> {
             String tripName = etTripName.getText().toString().trim();
@@ -68,12 +69,12 @@ public class TripNameFragment extends Fragment {
 
     private boolean validateInput(String tripName) {
         if (TextUtils.isEmpty(tripName)) {
-            etTripName.setError("Trip name is required");
+            etTripName.setError(getString(R.string.error_trip_name_required));
             etTripName.requestFocus();
             return false;
         }
         if (tripName.length() < 3) {
-            etTripName.setError("Trip name must be at least 3 characters");
+            etTripName.setError(getString(R.string.error_trip_name_too_short));
             etTripName.requestFocus();
             return false;
         }
