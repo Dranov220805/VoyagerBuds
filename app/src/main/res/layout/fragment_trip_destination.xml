@@ -16,14 +16,14 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@android:drawable/ic_dialog_map"
-            android:contentDescription="Destination icon"
+            android:contentDescription="@string/desc_destination_icon"
             android:layout_marginBottom="32dp"
             android:alpha="0.7" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Where are you going?"
+            android:text="@string/ask_destination"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -32,7 +32,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add destination and trip details"
+            android:text="@string/destination_description"
             android:textSize="14sp"
             android:textColor="@color/gray"
             android:layout_marginBottom="32dp" />
@@ -40,7 +40,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Destination"
+            android:hint="@string/destination"
             android:layout_marginBottom="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -57,7 +57,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Notes (Optional)"
+            android:hint="@string/hint_notes_optional"
             android:layout_marginBottom="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -75,7 +75,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Invite Friends (Optional)"
+            android:hint="@string/hint_invite_friends_optional"
             android:layout_marginBottom="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -91,7 +91,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Budget (Optional)"
+            android:hint="@string/hint_budget_optional"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -115,7 +115,7 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="Back"
+                android:text="@string/back"
                 android:textColor="@color/white"
                 android:background="@drawable/chip_bg_white"
                 android:layout_marginEnd="8dp"
@@ -127,7 +127,7 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="Create Trip"
+                android:text="@string/create_trip"
                 android:textColor="@color/white"
                 android:background="@drawable/chip_bg"
                 android:layout_marginStart="8dp"

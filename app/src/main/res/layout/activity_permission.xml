@@ -28,7 +28,7 @@
             android:id="@+id/title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to VoyagerBuds"
+            android:text="@string/permission_welcome_title"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -39,7 +39,7 @@
             android:id="@+id/subtitle_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="To provide you the best experience, we need access to the following:"
+            android:text="@string/permission_welcome_description"
             android:textSize="14sp"
             android:textColor="@color/black"
             android:textAlignment="center"
@@ -85,7 +85,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Camera"
+                            android:text="@string/permission_camera"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/black" />
@@ -93,7 +93,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Take photos of your travel destinations"
+                            android:text="@string/permission_camera_description"
                             android:textSize="12sp"
                             android:textColor="@color/black"
                             android:alpha="0.7" />
@@ -132,7 +132,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Location"
+                            android:text="@string/permission_location"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/black" />
@@ -140,7 +140,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Track your travel locations and show them on the map"
+                            android:text="@string/permission_location_description"
                             android:textSize="12sp"
                             android:textColor="@color/black"
                             android:alpha="0.7" />
@@ -179,7 +179,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Photos &amp; Videos"
+                            android:text="@string/permission_photos_videos"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/black" />
@@ -187,7 +187,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Save and access your travel photos and videos"
+                            android:text="@string/permission_photos_videos_description"
                             android:textSize="12sp"
                             android:textColor="@color/black"
                             android:alpha="0.7" />
@@ -226,7 +226,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Notifications"
+                            android:text="@string/permission_notifications"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/black" />
@@ -234,7 +234,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Receive emergency alerts and trip reminders"
+                            android:text="@string/permission_notifications_description"
                             android:textSize="12sp"
                             android:textColor="@color/black"
                             android:alpha="0.7" />
@@ -249,7 +249,7 @@
             android:id="@+id/btn_continue"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Continue"
+            android:text="@string/continue_text"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/white"
@@ -261,7 +261,7 @@
             android:id="@+id/btn_skip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Skip for now"
+            android:text="@string/skip_for_now"
             android:textSize="14sp"
             android:textColor="@color/black"
             android:alpha="0.6"

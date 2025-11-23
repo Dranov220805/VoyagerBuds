@@ -30,6 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
+import com.example.voyagerbuds.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -114,8 +115,18 @@ public class TripDetailFragment extends Fragment {
         trip = databaseHelper.getTripById((int) tripId);
         if (trip != null) {
             tvTitle.setText(trip.getTripName());
-            String dateRange = trip.getStartDate() + " - " + trip.getEndDate();
-            tvDates.setText(dateRange);
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                java.util.Date start = sdf.parse(trip.getStartDate());
+                java.util.Date end = sdf.parse(trip.getEndDate());
+                if (start != null && end != null) {
+                    tvDates.setText(DateUtils.formatDateRangeSimple(getContext(), start, end));
+                } else {
+                    tvDates.setText(trip.getStartDate() + " - " + trip.getEndDate());
+                }
+            } catch (Exception e) {
+                tvDates.setText(trip.getStartDate() + " - " + trip.getEndDate());
+            }
         }
 
         // Setup RecyclerView
@@ -292,7 +303,7 @@ public class TripDetailFragment extends Fragment {
 
     private void editTrip() {
         if (trip == null) {
-            Toast.makeText(getContext(), "Trip not found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_trip_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -316,13 +327,12 @@ public class TripDetailFragment extends Fragment {
         }
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("Delete Trip")
-                .setMessage(
-                        "Are you sure you want to delete \"" + trip.getTripName() + "\"? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> {
+                .setTitle(R.string.delete_trip_title)
+                .setMessage(getString(R.string.delete_trip_confirm_message, trip.getTripName()))
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
                     deleteTrip();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     dialog.dismiss();
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -336,7 +346,7 @@ public class TripDetailFragment extends Fragment {
 
         try {
             databaseHelper.deleteTrip((int) tripId);
-            Toast.makeText(getContext(), "Trip deleted successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_trip_deleted_success), Toast.LENGTH_SHORT).show();
 
             // Navigate back to home fragment
             if (getParentFragmentManager().getBackStackEntryCount() > 0) {
@@ -348,7 +358,7 @@ public class TripDetailFragment extends Fragment {
                         .commit();
             }
         } catch (Exception e) {
-            Toast.makeText(getContext(), "Failed to delete trip", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.toast_failed_delete_trip), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }

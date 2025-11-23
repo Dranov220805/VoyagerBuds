@@ -2,19 +2,19 @@ package com.example.voyagerbuds.models;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import com.example.voyagerbuds.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Represents a day in the trip timeline along with the schedule events for that day.
+ * Represents a day in the trip timeline along with the schedule events for that
+ * day.
  */
 public class ScheduleDayGroup {
 
     private static final SimpleDateFormat INPUT_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd", Locale.getDefault());
 
     private final String dayKey;
     private final boolean flexible;
@@ -48,7 +48,9 @@ public class ScheduleDayGroup {
         try {
             Date date = INPUT_FORMAT.parse(dayKey);
             if (date != null) {
-                return DAY_FORMAT.format(date) + ", " + DATE_FORMAT.format(date);
+                String weekday = new SimpleDateFormat("EEEE", Locale.getDefault()).format(date);
+                String shortDate = DateUtils.formatShortDate(Locale.getDefault(), date);
+                return weekday + ", " + shortDate;
             }
         } catch (ParseException ignored) {
         }
@@ -62,4 +64,3 @@ public class ScheduleDayGroup {
         return null;
     }
 }
-

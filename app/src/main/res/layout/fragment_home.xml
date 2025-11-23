@@ -24,91 +24,266 @@
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
+            <!-- Current Trip Header -->
+            <TextView
+                android:id="@+id/tv_current_trip_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/current_trip"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
             <!-- Current Trip Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_hero_trip"
                 android:layout_width="match_parent"
-                android:layout_height="280dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                app:cardElevation="4dp"
                 android:visibility="gone">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <!-- Background Image -->
-                    <ImageView
-                        android:id="@+id/img_hero_trip"
+                    <!-- Top Section: Image Background -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_dialog_map"
-                        android:contentDescription="Trip image" />
+                        android:layout_height="220dp">
 
-                    <!-- Gradient Overlay -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/gradient_overlay" />
+                        <!-- Background Image -->
+                        <ImageView
+                            android:id="@+id/img_hero_trip"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/voyagerbuds"
+                            android:background="@color/dark_gray"
+                            android:contentDescription="@string/desc_trip_image" />
 
-                    <!-- In Progress Badge -->
-                    <TextView
-                        android:id="@+id/tv_current_badge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/in_progress"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        android:background="@drawable/badge_in_progress"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:paddingTop="6dp"
-                        android:paddingBottom="6dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_marginTop="20dp"
-                        android:visibility="gone"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+                        <!-- Gradient Overlay -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay" />
 
-                    <!-- Trip Info Container -->
+                        <!-- Trip Info Container -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/iv_arrow_right">
+
+                            <!-- Trip Name -->
+                            <TextView
+                                android:id="@+id/tv_hero_trip_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/example_hero_trip_name"
+                                android:textColor="@color/white"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:shadowColor="#80000000"
+                                android:shadowDx="1"
+                                android:shadowDy="1"
+                                android:shadowRadius="2"/>
+
+                            <!-- Date Row -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="6dp">
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_calendar"
+                                    app:tint="@color/white"
+                                    android:layout_marginEnd="8dp"/>
+                                <TextView
+                                    android:id="@+id/tv_hero_trip_dates"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/example_hero_dates"
+                                    android:textColor="@color/white"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                            <!-- Location Row -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="4dp">
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_location"
+                                    app:tint="@color/white"
+                                    android:layout_marginEnd="8dp"/>
+                                <TextView
+                                    android:id="@+id/tv_hero_trip_location"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/example_location_tokyo"
+                                    android:textColor="@color/white"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"/>
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Right Arrow -->
+                        <ImageView
+                            android:id="@+id/iv_arrow_right"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="@color/white"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginBottom="24dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Bottom Section: Details -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="20dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent">
+                        android:background="@color/white">
 
-                        <!-- Trip Name -->
-                        <TextView
-                            android:id="@+id/tv_hero_trip_name"
+                        <!-- Notes -->
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Tokyo Adventure"
-                            android:textColor="@color/white"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="8dp" />
+                            android:orientation="horizontal"
+                            android:gravity="top"
+                            android:layout_marginBottom="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_edit"
+                                app:tint="@color/text_tertiary"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="0dp"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_notes_colon"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/musebox_green"
+                                    android:textSize="15sp"/>
+                                <TextView
+                                    android:id="@+id/tv_hero_trip_notes"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/example_trip_notes"
+                                    android:textColor="@color/text_tertiary"
+                                    android:textSize="15sp"
+                                    android:maxLines="2"
+                                    android:ellipsize="end"
+                                    android:layout_marginStart="4dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
 
-                        <!-- Trip Dates -->
-                        <TextView
-                            android:id="@+id/tv_hero_trip_dates"
-                            android:layout_width="wrap_content"
+                        <!-- Schedule -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Oct 20 - Nov 5"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:layout_marginTop="8dp" />
+                            android:orientation="horizontal"
+                            android:gravity="top"
+                            android:layout_marginBottom="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_schedule"
+                                app:tint="@color/text_tertiary"
+                                android:layout_marginEnd="16dp"
+                                android:layout_marginTop="0dp"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_schedule_colon"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/musebox_green"
+                                    android:textSize="15sp"/>
+                                <TextView
+                                    android:id="@+id/tv_hero_trip_schedule"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/example_schedule_arrival_tokyo"
+                                    android:textColor="@color/text_tertiary"
+                                    android:textSize="15sp"
+                                    android:maxLines="2"
+                                    android:ellipsize="end"
+                                    android:layout_marginStart="4dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Expenses -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_wallet"
+                                app:tint="@color/text_tertiary"
+                                android:layout_marginEnd="16dp"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/label_total_expenses"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/musebox_green"
+                                    android:textSize="15sp"/>
+                                <TextView
+                                    android:id="@+id/tv_hero_trip_expenses"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/example_money_2500"
+                                    android:textColor="@color/main_color_voyager"
+                                    android:textStyle="bold"
+                                    android:textSize="15sp"
+                                    android:layout_marginStart="4dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
 
                     </LinearLayout>
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
@@ -127,17 +302,16 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone" />
 
-            <!-- RecyclerView for Upcoming Trips -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view_upcoming_trips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
                 android:visibility="gone" />
 
-            <!-- Past Trips Section -->
+            <!-- Finished Trips Section -->
             <TextView
                 android:id="@+id/tv_past_trips_header"
                 android:layout_width="match_parent"
@@ -152,31 +326,38 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone" />
 
-            <!-- RecyclerView for Past Trips -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view_past_trips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:paddingBottom="16dp"
-                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
                 android:visibility="gone" />
 
-            <!-- RecyclerView for all trips (fallback) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_trips"
+            <!-- Captured Memories Section -->
+            <TextView
+                android:id="@+id/tv_memories_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="220dp"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="false"
-                android:visibility="gone" />
+                android:text="@string/captured_memories"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_dark"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_memories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false" />
 
         </LinearLayout>
-
     </ScrollView>
 
     <!-- Floating Action Button -->
@@ -184,8 +365,8 @@
         android:id="@+id/fab_add_trip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_add"
-        android:contentDescription="Add Trip"
+            android:src="@drawable/ic_add"
+        android:contentDescription="@string/desc_add_trip"
         app:backgroundTint="@color/teal_primary"
         app:tint="@color/white"
         app:elevation="6dp"
@@ -213,14 +394,14 @@
             android:layout_height="140dp"
             android:src="@android:drawable/ic_dialog_map"
             android:alpha="0.2"
-            android:contentDescription="No trips"
+            android:contentDescription="@string/no_trips"
             app:tint="@color/teal_primary" />
 
         <TextView
             android:id="@+id/tv_empty_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Discover\nAmazing Places"
+            android:text="@string/home_discover"
             android:textSize="28sp"
             android:textColor="@color/text_dark"
             android:textStyle="bold"
@@ -231,7 +412,7 @@
             android:id="@+id/tv_empty_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Adventure New Places"
+            android:text="@string/home_adventure"
             android:textSize="16sp"
             android:textColor="@color/text_medium"
             android:textAlignment="center"

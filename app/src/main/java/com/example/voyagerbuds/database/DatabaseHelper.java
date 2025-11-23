@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -55,6 +55,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_SCHEDULE_END_TIME = "end_time";
     private static final String COLUMN_SCHEDULE_TITLE = "title";
     private static final String COLUMN_SCHEDULE_NOTES = "notes";
+    private static final String COLUMN_SCHEDULE_ICON = "icon";
+    private static final String COLUMN_SCHEDULE_LOCATION = "location";
+    private static final String COLUMN_SCHEDULE_PARTICIPANTS = "participants";
     private static final String COLUMN_SCHEDULE_CREATED_AT = "created_at";
     private static final String COLUMN_SCHEDULE_UPDATED_AT = "updated_at";
 
@@ -107,6 +110,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_SCHEDULE_END_TIME + " TEXT,"
                 + COLUMN_SCHEDULE_TITLE + " TEXT,"
                 + COLUMN_SCHEDULE_NOTES + " TEXT,"
+                + COLUMN_SCHEDULE_ICON + " TEXT,"
+                + COLUMN_SCHEDULE_LOCATION + " TEXT,"
+                + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT,"
                 + COLUMN_SCHEDULE_CREATED_AT + " INTEGER,"
                 + COLUMN_SCHEDULE_UPDATED_AT + " INTEGER,"
                 + "FOREIGN KEY(" + COLUMN_SCHEDULE_TRIP_ID + ") REFERENCES "
@@ -139,6 +145,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Add budget and participants columns
             db.execSQL("ALTER TABLE " + TABLE_TRIPS + " ADD COLUMN " + COLUMN_BUDGET + " REAL");
             db.execSQL("ALTER TABLE " + TABLE_TRIPS + " ADD COLUMN " + COLUMN_PARTICIPANTS + " TEXT");
+        }
+        if (oldVersion < 4) {
+            // Add icon, location, and participants columns to Schedules table
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_ICON + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_LOCATION + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT");
         }
     }
 
@@ -179,6 +191,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
         values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
         values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
+        values.put(COLUMN_SCHEDULE_ICON, item.getIcon());
+        values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
+        values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
         values.put(COLUMN_SCHEDULE_CREATED_AT, item.getCreatedAt());
         values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
 
@@ -204,6 +219,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 it.setEndTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_END_TIME)));
                 it.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TITLE)));
                 it.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_NOTES)));
+
+                // Get new fields (may be null for older records)
+                int iconIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_ICON);
+                if (iconIndex != -1) {
+                    it.setIcon(cursor.getString(iconIndex));
+                }
+                int locationIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LOCATION);
+                if (locationIndex != -1) {
+                    it.setLocation(cursor.getString(locationIndex));
+                }
+                int participantsIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_PARTICIPANTS);
+                if (participantsIndex != -1) {
+                    it.setParticipants(cursor.getString(participantsIndex));
+                }
+
                 it.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));
                 it.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_UPDATED_AT)));
                 list.add(it);
@@ -222,6 +252,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
         values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
         values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
+        values.put(COLUMN_SCHEDULE_ICON, item.getIcon());
+        values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
+        values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
         values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
 
         int result = db.update(TABLE_SCHEDULES, values, COLUMN_SCHEDULE_ID + " = ?",
@@ -332,6 +365,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_UPDATED_AT, System.currentTimeMillis());
         values.put(COLUMN_MAP_LATITUDE, trip.getMapLatitude());
         values.put(COLUMN_MAP_LONGITUDE, trip.getMapLongitude());
+        values.put(COLUMN_BUDGET, trip.getBudget());
+        values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
+        values.put(COLUMN_IS_GROUP_TRIP, trip.getIsGroupTrip());
 
         int result = db.update(TABLE_TRIPS, values, COLUMN_TRIP_ID + " = ?",
                 new String[] { String.valueOf(trip.getTripId()) });

@@ -34,9 +34,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvCurrentTheme;
     private LinearLayout btnLanguage;
     private LinearLayout btnTheme;
-    private Button btnEditProfile;
     private Button btnLogout;
-    private TextView tvSettings;
     private TextView tvNotifications;
     private TextView tvPrivacy;
     private TextView tvLanguageLabel;
@@ -78,13 +76,11 @@ public class ProfileFragment extends Fragment {
         tvCurrentTheme = view.findViewById(R.id.tv_current_theme);
         tvUserName = view.findViewById(R.id.tv_user_name);
         tvUserEmail = view.findViewById(R.id.tv_user_email);
-        btnEditProfile = view.findViewById(R.id.btn_edit_profile);
         btnLogout = view.findViewById(R.id.btn_logout);
-        tvSettings = view.findViewById(R.id.tv_settings);
         tvNotifications = view.findViewById(R.id.tv_notifications);
         tvPrivacy = view.findViewById(R.id.tv_privacy);
-        tvLanguageLabel = view.findViewById(R.id.tv_language);
-        tvThemeLabel = view.findViewById(R.id.tv_theme);
+        tvLanguageLabel = view.findViewById(R.id.tv_language_label);
+        tvThemeLabel = view.findViewById(R.id.tv_theme_label);
         tvHelp = view.findViewById(R.id.tv_help);
 
         // Update current language display

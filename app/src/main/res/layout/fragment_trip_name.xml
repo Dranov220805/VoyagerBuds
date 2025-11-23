@@ -16,14 +16,14 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@android:drawable/ic_dialog_info"
-        android:contentDescription="Trip icon"
+        android:contentDescription="@string/desc_trip_icon"
         android:layout_marginBottom="32dp"
         android:alpha="0.7" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What's the name of your trip?"
+        android:text="@string/ask_trip_name"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -32,7 +32,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Give your adventure a memorable name"
+        android:text="@string/trip_name_description"
         android:textSize="14sp"
         android:textColor="@color/gray"
         android:layout_marginBottom="32dp" />
@@ -40,7 +40,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Trip Name"
+        android:hint="@string/trip_name"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -53,11 +53,11 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+        <Button
         android:id="@+id/btn_next"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Next"
+        android:text="@string/next"
         android:textColor="@color/white"
         android:background="@drawable/chip_bg"
         android:layout_marginTop="24dp"

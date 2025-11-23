@@ -214,7 +214,7 @@ public class MapFragment extends Fragment {
         currentLocationMarker = new Marker(mapView);
         currentLocationMarker.setPosition(location);
         currentLocationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        currentLocationMarker.setTitle("Your Current Location");
+        currentLocationMarker.setTitle(getString(R.string.your_current_location));
         currentLocationMarker.setSnippet(String.format("Lat: %.4f, Lon: %.4f",
                 location.getLatitude(), location.getLongitude()));
 

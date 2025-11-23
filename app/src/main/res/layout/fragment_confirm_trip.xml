@@ -20,12 +20,12 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="24dp">
 
-            <ImageView
+                <ImageView
                 android:id="@+id/btn_back_arrow"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_back"
-                android:contentDescription="Back"
+                    android:contentDescription="@string/desc_back"
                 android:clickable="true"
                 android:focusable="true"
                 android:padding="4dp"
@@ -75,7 +75,7 @@
             android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:src="@android:drawable/ic_dialog_map"
-            android:contentDescription="Trip image"
+            android:contentDescription="@string/desc_trip_image"
             android:layout_marginBottom="24dp"
             android:background="@color/input_border" />
 
@@ -92,7 +92,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Summer in Kyoto"
+                android:text="@string/example_trip_name_kyoto"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark" />
@@ -112,11 +112,11 @@
         </LinearLayout>
 
         <!-- Trip Subtitle -->
-        <TextView
-            android:id="@+id/tv_trip_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="A 10-day adventure to Kyoto."
+            <TextView
+                android:id="@+id/tv_trip_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/example_trip_subtitle_kyoto"
             android:textSize="14sp"
             android:textColor="@color/text_medium"
             android:layout_marginBottom="16dp" />
@@ -148,7 +148,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Kyoto, Japan"
+                    android:text="@string/example_location_kyoto"
                     android:textSize="16sp"
                     android:textColor="@color/text_dark" />
             </LinearLayout>
@@ -173,7 +173,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="July 15 - July 25, 2024"
+                    android:text="@string/example_dates_kyoto"
                     android:textSize="16sp"
                     android:textColor="@color/text_dark" />
             </LinearLayout>
@@ -197,7 +197,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="You + 2 others"
+                    android:text="@string/example_companions_you_2"
                     android:textSize="16sp"
                     android:textColor="@color/text_dark" />
             </LinearLayout>

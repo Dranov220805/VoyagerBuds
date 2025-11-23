@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Location"
+                android:text="@string/label_my_location"
                 android:textColor="#666666"
                 android:textSize="12sp"/>
 
@@ -72,7 +72,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Manhattan, NY"
+                    android:text="@string/example_location_manhattan"
                     android:textColor="#000000"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
@@ -83,7 +83,7 @@
                     android:layout_height="32dp"
                     android:src="@android:drawable/ic_menu_search"
                     android:tint="@color/main_color_voyager"
-                    android:contentDescription="Search"/>
+                    android:contentDescription="@string/desc_search"/>
 
             </LinearLayout>
 
@@ -121,7 +121,7 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:background="#4DD4F1"
-                    android:contentDescription="Trip image"/>
+                    android:contentDescription="@string/desc_trip_image"/>
 
             </androidx.cardview.widget.CardView>
 
@@ -137,7 +137,7 @@
                     android:id="@+id/tv_trip_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Dubai, United Arab Emirates"
+                    android:text="@string/example_trip_dubai"
                     android:textColor="#000000"
                     android:textSize="14sp"
                     android:textStyle="bold"/>
@@ -146,7 +146,7 @@
                     android:id="@+id/tv_trip_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Explore Dubai's modern architecture &amp; vibrant culture..."
+                    android:text="@string/example_trip_description"
                     android:textColor="#666666"
                     android:textSize="12sp"
                     android:maxLines="2"
@@ -163,7 +163,7 @@
                         android:id="@+id/tv_trip_duration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📅 5 Days"
+                        android:text="@string/example_trip_duration"
                         android:textColor="@color/main_color_voyager"
                         android:textSize="11sp"
                         android:layout_marginEnd="12dp"/>
@@ -172,7 +172,7 @@
                         android:id="@+id/tv_trip_hotel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🏨 4 Star Hotel"
+                        android:text="@string/example_trip_hotel"
                         android:textColor="@color/main_color_voyager"
                         android:textSize="11sp"/>
 
@@ -188,7 +188,7 @@
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 android:tint="#999999"
                 android:layout_gravity="top"
-                android:contentDescription="Close"/>
+                android:contentDescription="@string/desc_close"/>
 
         </LinearLayout>
 
@@ -202,7 +202,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@drawable/ic_location"
-        android:contentDescription="My Location"
+        android:contentDescription="@string/desc_my_location"
         app:tint="@color/white"
         app:backgroundTint="@color/main_color_voyager"
         app:elevation="6dp" />
