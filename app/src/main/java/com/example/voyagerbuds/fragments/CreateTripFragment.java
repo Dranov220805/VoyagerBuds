@@ -1,6 +1,10 @@
 package com.example.voyagerbuds.fragments;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +23,11 @@ import com.example.voyagerbuds.fragments.createtrip.TripDatesFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripDestinationFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripNameFragment;
 import com.example.voyagerbuds.models.Trip;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CreateTripFragment extends Fragment {
 
@@ -120,7 +129,8 @@ public class CreateTripFragment extends Fragment {
         TripDestinationFragment fragment = new TripDestinationFragment();
         fragment.setListener(new TripDestinationFragment.OnTripDestinationEnteredListener() {
             @Override
-            public void onTripDestinationEntered(String dest, String tripNotes, String friendList, String budgetAmount) {
+            public void onTripDestinationEntered(String dest, String tripNotes, String friendList,
+                    String budgetAmount) {
                 destination = dest;
                 notes = tripNotes;
                 friends = friendList;
@@ -142,41 +152,87 @@ public class CreateTripFragment extends Fragment {
     }
 
     private void saveTrip() {
-        Trip trip = new Trip();
-        trip.setUserId(1); // TODO: Get from logged-in user
-        trip.setTripName(tripName);
-        trip.setStartDate(startDate);
-        trip.setEndDate(endDate);
-        trip.setDestination(destination);
-        
-        if (friends != null && !friends.isEmpty()) {
-            trip.setParticipants(friends);
-            trip.setIsGroupTrip(1);
-        }
-        
-        if (budget != null && !budget.isEmpty()) {
-            try {
-                trip.setBudget(Double.parseDouble(budget));
-            } catch (NumberFormatException e) {
-                trip.setBudget(0.0);
-            }
-        }
-        
-        trip.setCreatedAt(System.currentTimeMillis());
-        trip.setUpdatedAt(System.currentTimeMillis());
-        trip.setSyncStatus("pending");
+        // Show loading or disable UI while saving
+        if (progressBar != null)
+            progressBar.setIndeterminate(true);
 
-        long result = databaseHelper.addTrip(trip);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
 
-        if (result > 0) {
-            isTripCreationComplete = true;
-            Toast.makeText(getContext(), R.string.trip_created, Toast.LENGTH_SHORT).show();
-            if (listener != null) {
-                listener.onTripCreated(result);
+        executor.execute(() -> {
+            double lat = 0.0;
+            double lon = 0.0;
+
+            if (destination != null && !destination.isEmpty()) {
+                Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                try {
+                    // Try to find the location
+                    List<Address> addresses = geocoder.getFromLocationName(destination, 1);
+
+                    // If not found, and doesn't contain "Vietnam", try appending it
+                    if ((addresses == null || addresses.isEmpty()) && !destination.toLowerCase().contains("vietnam")) {
+                        addresses = geocoder.getFromLocationName(destination + ", Vietnam", 1);
+                    }
+
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Address address = addresses.get(0);
+                        lat = address.getLatitude();
+                        lon = address.getLongitude();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } else {
-            Toast.makeText(getContext(), R.string.trip_creation_failed, Toast.LENGTH_SHORT).show();
-        }
+
+            double finalLat = lat;
+            double finalLon = lon;
+
+            handler.post(() -> {
+                Trip trip = new Trip();
+                trip.setUserId(1); // TODO: Get from logged-in user
+                trip.setTripName(tripName);
+                trip.setStartDate(startDate);
+                trip.setEndDate(endDate);
+                trip.setDestination(destination);
+                trip.setNotes(notes);
+
+                // Set coordinates
+                trip.setMapLatitude(finalLat);
+                trip.setMapLongitude(finalLon);
+
+                if (friends != null && !friends.isEmpty()) {
+                    trip.setParticipants(friends);
+                    trip.setIsGroupTrip(1);
+                }
+
+                if (budget != null && !budget.isEmpty()) {
+                    try {
+                        trip.setBudget(Double.parseDouble(budget));
+                    } catch (NumberFormatException e) {
+                        trip.setBudget(0.0);
+                    }
+                }
+
+                trip.setCreatedAt(System.currentTimeMillis());
+                trip.setUpdatedAt(System.currentTimeMillis());
+                trip.setSyncStatus("pending");
+
+                long result = databaseHelper.addTrip(trip);
+
+                if (progressBar != null)
+                    progressBar.setIndeterminate(false);
+
+                if (result > 0) {
+                    isTripCreationComplete = true;
+                    Toast.makeText(getContext(), R.string.trip_created, Toast.LENGTH_SHORT).show();
+                    if (listener != null) {
+                        listener.onTripCreated(result);
+                    }
+                } else {
+                    Toast.makeText(getContext(), R.string.trip_creation_failed, Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
     private void replaceChildFragment(Fragment fragment) {

@@ -351,10 +351,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Check for overlap: (StartA <= EndB) and (EndA >= StartB)
         // New trip: StartA, EndA
         // Existing trip: StartB, EndB
-        // Query: SELECT * FROM Trips WHERE (newStart <= endDate) AND (newEnd >= startDate)
+        // Query: SELECT * FROM Trips WHERE (newStart <= endDate) AND (newEnd >=
+        // startDate)
 
+        // Note: Dates are stored as strings in "yyyy-MM-dd" format, so string
+        // comparison works correctly.
         String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ?";
-        String[] selectionArgs = new String[]{endDate, startDate};
+        String[] selectionArgs = new String[] { endDate, startDate };
+
+        Cursor cursor = db.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
+        boolean isAvailable = cursor.getCount() == 0;
+        cursor.close();
+        db.close();
+        return isAvailable;
+    }
+
+    public boolean isDateRangeAvailable(String startDate, String endDate, int excludeTripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
+        String[] selectionArgs = new String[] { endDate, startDate, String.valueOf(excludeTripId) };
 
         Cursor cursor = db.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
         boolean isAvailable = cursor.getCount() == 0;

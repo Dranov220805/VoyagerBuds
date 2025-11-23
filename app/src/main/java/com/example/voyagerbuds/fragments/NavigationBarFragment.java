@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.res.ColorStateList;
+import android.util.TypedValue;
+import androidx.core.content.ContextCompat;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ImageView;
@@ -129,6 +132,9 @@ public class NavigationBarFragment extends Fragment {
     private void setNavItemSelected(ViewGroup navItem, boolean selected) {
         if (navItem == null)
             return;
+        // Resolve theme colorPrimary once
+        int colorPrimary = ContextCompat.getColor(navItem.getContext(), R.color.main_color_voyager);
+        int colorDefault = ContextCompat.getColor(navItem.getContext(), R.color.text_medium);
 
         // Get the ImageView and TextView children (works for both LinearLayout and
         // FrameLayout)
@@ -137,20 +143,17 @@ public class NavigationBarFragment extends Fragment {
             if (child instanceof ImageView) {
                 ImageView icon = (ImageView) child;
                 if (selected) {
-                    icon.setColorFilter(getResources().getColor(R.color.teal_primary, null));
-                    // Slightly scale up selected icon for emphasis
-                    icon.animate().scaleX(1.15f).scaleY(1.15f).setDuration(120).start();
+                    // Use theme color for selected icon tint
+                    icon.setImageTintList(ColorStateList.valueOf(colorPrimary));
                 } else {
-                    icon.setColorFilter(getResources().getColor(R.color.text_medium, null));
-                    // Reset scale for non-selected
-                    icon.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    icon.setImageTintList(ColorStateList.valueOf(colorDefault));
                 }
             } else if (child instanceof TextView) {
                 TextView text = (TextView) child;
                 if (selected) {
-                    text.setTextColor(getResources().getColor(R.color.teal_primary, null));
+                    text.setTextColor(colorPrimary);
                 } else {
-                    text.setTextColor(getResources().getColor(R.color.text_medium, null));
+                    text.setTextColor(colorDefault);
                 }
             } else if (child instanceof ViewGroup) {
                 // Recursively check nested layouts (for FrameLayout > LinearLayout structure)

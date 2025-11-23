@@ -44,27 +44,51 @@ public class BookedDateDecorator extends DayViewDecorator {
         }
     };
 
-        @Nullable
+    @Nullable
     @Override
-    public Drawable getCompoundDrawableBottom(@NonNull Context context, int year, int month, int day, boolean valid, boolean selected) {
+    public Drawable getCompoundDrawableBottom(@NonNull Context context, int year, int month, int day, boolean valid,
+            boolean selected) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(year, month, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         long date = calendar.getTimeInMillis();
+
+        // Check for past dates (before today)
+        Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        if (date < today.getTimeInMillis()) {
+            return ContextCompat.getDrawable(context, R.drawable.ic_underline_red);
+        }
 
         if (isBooked(date)) {
             return ContextCompat.getDrawable(context, R.drawable.ic_underline_red);
         }
         return null;
     }
-    
+
     @Nullable
     @Override
-    public ColorStateList getTextColor(@NonNull Context context, int year, int month, int day, boolean valid, boolean selected) {
+    public ColorStateList getTextColor(@NonNull Context context, int year, int month, int day, boolean valid,
+            boolean selected) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(year, month, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         long date = calendar.getTimeInMillis();
+
+        // Check for past dates (before today)
+        Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        if (date < today.getTimeInMillis()) {
+            return ColorStateList.valueOf(Color.RED);
+        }
 
         if (isBooked(date)) {
             return ColorStateList.valueOf(Color.RED);
@@ -73,11 +97,12 @@ public class BookedDateDecorator extends DayViewDecorator {
     }
 
     private boolean isBooked(long date) {
-        if (bookedRanges == null) return false;
-        
-        // Normalize date to UTC midnight for comparison if needed, 
+        if (bookedRanges == null)
+            return false;
+
+        // Normalize date to UTC midnight for comparison if needed,
         // but MaterialDatePicker usually passes UTC midnight timestamps.
-        
+
         for (int i = 0; i < bookedRanges.size(); i += 2) {
             long start = bookedRanges.get(i);
             long end = bookedRanges.get(i + 1);
