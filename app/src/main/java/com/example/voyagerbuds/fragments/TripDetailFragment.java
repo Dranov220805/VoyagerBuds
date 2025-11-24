@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -48,6 +49,8 @@ import com.example.voyagerbuds.utils.DateUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
@@ -257,8 +260,39 @@ public class TripDetailFragment extends Fragment {
     }
 
     private void showAddEditDialog(@Nullable ScheduleItem editing) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_schedule, null);
+        bottomSheetDialog.setContentView(dialogView);
+
+        // Configure BottomSheet Behavior
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        bottomSheetDialog.getBehavior().setDraggable(false); // Disable default drag to prevent accidental dismissal
+
+        View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
+        View btnClose = dialogView.findViewById(R.id.btn_close_sheet);
+
+        // Enable dragging only when touching the handle
+        dragHandle.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    bottomSheetDialog.getBehavior().setDraggable(true);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // We keep it draggable until the gesture ends, but we can't easily reset it
+                    // here
+                    // because the behavior might still be processing the drag.
+                    // However, setting it to false here might stop the fling.
+                    // A better approach for "only handle" is usually complex, but let's try this:
+                    // If we set it to false, the next touch on content won't drag.
+                    // We delay it slightly or just set it.
+                    v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+                    break;
+            }
+            return false; // Let the touch propagate to the behavior
+        });
+
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
         TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etDay = dialogView.findViewById(R.id.et_schedule_day);
@@ -276,6 +310,7 @@ public class TripDetailFragment extends Fragment {
         EditText etNotifyBefore = dialogView.findViewById(R.id.et_schedule_notify_before);
         Button btnAddImage = dialogView.findViewById(R.id.btn_add_image);
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_schedule_images);
+        Button btnSave = dialogView.findViewById(R.id.btn_save_schedule);
 
         // Setup Currency Spinner
         ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
@@ -385,86 +420,86 @@ public class TripDetailFragment extends Fragment {
             tp.show();
         });
 
-        builder.setView(dialogView)
-                .setPositiveButton(R.string.save, (dialog, which) -> {
-                    String day = etDay.getText().toString().trim();
-                    String start = etStartTime.getText().toString().trim();
-                    String end = etEndTime.getText().toString().trim();
-                    String title = etTitle.getText().toString().trim();
-                    String notes = etNotes.getText().toString().trim();
-                    String location = etLocation.getText().toString().trim();
-                    String participants = etParticipants.getText().toString().trim();
-                    String expenseStr = etExpenseAmount.getText().toString().trim();
-                    String notifyBeforeStr = etNotifyBefore.getText().toString().trim();
-                    String currency = spinnerCurrency.getSelectedItem().toString();
+        btnSave.setOnClickListener(v -> {
+            String day = etDay.getText().toString().trim();
+            String start = etStartTime.getText().toString().trim();
+            String end = etEndTime.getText().toString().trim();
+            String title = etTitle.getText().toString().trim();
+            String notes = etNotes.getText().toString().trim();
+            String location = etLocation.getText().toString().trim();
+            String participants = etParticipants.getText().toString().trim();
+            String expenseStr = etExpenseAmount.getText().toString().trim();
+            String notifyBeforeStr = etNotifyBefore.getText().toString().trim();
+            String currency = spinnerCurrency.getSelectedItem().toString();
 
-                    double expenseAmount = 0;
-                    if (!expenseStr.isEmpty()) {
-                        try {
-                            expenseAmount = Double.parseDouble(expenseStr);
-                        } catch (NumberFormatException e) {
-                            // Ignore
-                        }
-                    }
+            double expenseAmount = 0;
+            if (!expenseStr.isEmpty()) {
+                try {
+                    expenseAmount = Double.parseDouble(expenseStr);
+                } catch (NumberFormatException e) {
+                    // Ignore
+                }
+            }
 
-                    int notifyBeforeMinutes = 0;
-                    if (!notifyBeforeStr.isEmpty()) {
-                        try {
-                            notifyBeforeMinutes = Integer.parseInt(notifyBeforeStr);
-                        } catch (NumberFormatException e) {
-                            // Ignore
-                        }
-                    }
+            int notifyBeforeMinutes = 0;
+            if (!notifyBeforeStr.isEmpty()) {
+                try {
+                    notifyBeforeMinutes = Integer.parseInt(notifyBeforeStr);
+                } catch (NumberFormatException e) {
+                    // Ignore
+                }
+            }
 
-                    if (title.isEmpty()) {
-                        Toast.makeText(getContext(), R.string.schedule_title_required, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            if (title.isEmpty()) {
+                Toast.makeText(getContext(), R.string.schedule_title_required, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                    if (editing == null) {
-                        ScheduleItem newItem = new ScheduleItem();
-                        newItem.setTripId((int) tripId);
-                        newItem.setDay(day);
-                        newItem.setStartTime(start);
-                        newItem.setEndTime(end);
-                        newItem.setTitle(title);
-                        newItem.setNotes(notes);
-                        newItem.setLocation(location);
-                        newItem.setParticipants(participants);
-                        newItem.setExpenseAmount(expenseAmount);
-                        newItem.setExpenseCurrency(currency);
-                        newItem.setImagePaths(serializeImagePaths(tempImagePaths));
-                        newItem.setNotifyBeforeMinutes(notifyBeforeMinutes);
-                        newItem.setCreatedAt(System.currentTimeMillis());
-                        newItem.setUpdatedAt(System.currentTimeMillis());
-                        long id = databaseHelper.addSchedule(newItem);
-                        newItem.setId((int) id);
-                        com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
-                                newItem);
-                        Toast.makeText(getContext(), R.string.schedule_added, Toast.LENGTH_SHORT).show();
-                    } else {
-                        editing.setDay(day);
-                        editing.setStartTime(start);
-                        editing.setEndTime(end);
-                        editing.setTitle(title);
-                        editing.setNotes(notes);
-                        editing.setLocation(location);
-                        editing.setParticipants(participants);
-                        editing.setExpenseAmount(expenseAmount);
-                        editing.setExpenseCurrency(currency);
-                        editing.setImagePaths(serializeImagePaths(tempImagePaths));
-                        editing.setNotifyBeforeMinutes(notifyBeforeMinutes);
-                        editing.setUpdatedAt(System.currentTimeMillis());
-                        databaseHelper.updateSchedule(editing);
-                        com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
-                                editing);
-                        Toast.makeText(getContext(), R.string.schedule_updated, Toast.LENGTH_SHORT).show();
-                    }
+            if (editing == null) {
+                ScheduleItem newItem = new ScheduleItem();
+                newItem.setTripId((int) tripId);
+                newItem.setDay(day);
+                newItem.setStartTime(start);
+                newItem.setEndTime(end);
+                newItem.setTitle(title);
+                newItem.setNotes(notes);
+                newItem.setLocation(location);
+                newItem.setParticipants(participants);
+                newItem.setExpenseAmount(expenseAmount);
+                newItem.setExpenseCurrency(currency);
+                newItem.setImagePaths(serializeImagePaths(tempImagePaths));
+                newItem.setNotifyBeforeMinutes(notifyBeforeMinutes);
+                newItem.setCreatedAt(System.currentTimeMillis());
+                newItem.setUpdatedAt(System.currentTimeMillis());
+                long id = databaseHelper.addSchedule(newItem);
+                newItem.setId((int) id);
+                com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
+                        newItem);
+                Toast.makeText(getContext(), R.string.schedule_added, Toast.LENGTH_SHORT).show();
+            } else {
+                editing.setDay(day);
+                editing.setStartTime(start);
+                editing.setEndTime(end);
+                editing.setTitle(title);
+                editing.setNotes(notes);
+                editing.setLocation(location);
+                editing.setParticipants(participants);
+                editing.setExpenseAmount(expenseAmount);
+                editing.setExpenseCurrency(currency);
+                editing.setImagePaths(serializeImagePaths(tempImagePaths));
+                editing.setNotifyBeforeMinutes(notifyBeforeMinutes);
+                editing.setUpdatedAt(System.currentTimeMillis());
+                databaseHelper.updateSchedule(editing);
+                com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
+                        editing);
+                Toast.makeText(getContext(), R.string.schedule_updated, Toast.LENGTH_SHORT).show();
+            }
 
-                    loadSchedules();
-                })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
-                .show();
+            loadSchedules();
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
     }
 
     private void deleteSchedule(ScheduleItem item) {
