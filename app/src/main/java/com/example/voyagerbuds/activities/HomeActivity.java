@@ -80,6 +80,28 @@ public class HomeActivity extends BaseActivity
             if (upperBarFragment != null) {
                 upperBarFragment.setAppName(getString(R.string.app_name));
             }
+            updateUpperBarVisibility("home");
+        } else {
+            // Restore state
+            currentFragment = savedInstanceState.getString("currentFragment", "home");
+
+            // Restore fragment references
+            upperBarFragment = (com.example.voyagerbuds.fragments.UpperBarFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.upper_bar_container);
+            navigationBarFragment = (NavigationBarFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.navigation_container);
+
+            Fragment contentFragment = getSupportFragmentManager().findFragmentById(R.id.content_container);
+            if (contentFragment instanceof CreateTripFragment) {
+                createTripFragment = (CreateTripFragment) contentFragment;
+                createTripFragment.setListener(this);
+            }
+
+            // Update UI based on restored state
+            updateUpperBarVisibility(currentFragment);
+            if (upperBarFragment != null) {
+                upperBarFragment.setAppName(getTitleForFragment(currentFragment));
+            }
         }
 
         handleNotificationIntent(getIntent());
@@ -119,6 +141,7 @@ public class HomeActivity extends BaseActivity
                 if (upperBarFragment != null) {
                     upperBarFragment.setAppName(getString(R.string.schedule));
                 }
+                updateUpperBarVisibility("schedule");
             }
         }
     }
@@ -191,6 +214,8 @@ public class HomeActivity extends BaseActivity
             upperBarFragment.setAppName(title);
         }
 
+        updateUpperBarVisibility(fragmentKey);
+
         // Update navigation bar selection
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
@@ -255,6 +280,7 @@ public class HomeActivity extends BaseActivity
         if (upperBarFragment != null) {
             upperBarFragment.setAppName(getString(R.string.profile));
         }
+        updateUpperBarVisibility("profile");
         createTripFragment = null;
     }
 
@@ -271,6 +297,7 @@ public class HomeActivity extends BaseActivity
         if (upperBarFragment != null) {
             upperBarFragment.setAppName(getString(R.string.create_trip));
         }
+        updateUpperBarVisibility("create_trip");
     }
 
     @Override
@@ -289,6 +316,7 @@ public class HomeActivity extends BaseActivity
         if (upperBarFragment != null) {
             upperBarFragment.setAppName(getString(R.string.schedule));
         }
+        updateUpperBarVisibility("add_schedule");
         createTripFragment = null;
     }
 
@@ -310,6 +338,7 @@ public class HomeActivity extends BaseActivity
             if (upperBarFragment != null) {
                 upperBarFragment.setAppName(getString(R.string.profile));
             }
+            updateUpperBarVisibility("profile");
             createTripFragment = null;
             return;
         }
@@ -357,9 +386,27 @@ public class HomeActivity extends BaseActivity
         if (upperBarFragment != null) {
             upperBarFragment.setAppName(getTitleForFragment(fragmentKey));
         }
+        updateUpperBarVisibility(fragmentKey);
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
         }
         createTripFragment = null;
+    }
+
+    private void updateUpperBarVisibility(String fragmentKey) {
+        android.view.View upperBarContainer = findViewById(R.id.upper_bar_container);
+        if (upperBarContainer != null) {
+            if ("home".equals(fragmentKey)) {
+                upperBarContainer.setVisibility(android.view.View.VISIBLE);
+            } else {
+                upperBarContainer.setVisibility(android.view.View.GONE);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentFragment", currentFragment);
     }
 }

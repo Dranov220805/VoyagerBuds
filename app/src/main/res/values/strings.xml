@@ -470,5 +470,5 @@
     <string name="participants">Participants</string>
     <string name="expense">Expense</string>
     <string name="notify_before">Notify before</string>
-    <string name="confirm">Xác nhận</string>
+    <string name="confirm">Confirm</string>
 </resources>
