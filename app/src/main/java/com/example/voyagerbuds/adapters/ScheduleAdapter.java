@@ -20,9 +20,9 @@ import java.util.Locale;
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
 
     public interface OnScheduleActionListener {
-        void onEdit(ScheduleItem item);
+        void onItemClick(ScheduleItem item);
 
-        void onDelete(ScheduleItem item);
+        void onItemLongClick(View view, ScheduleItem item);
     }
 
     private Context context;
@@ -53,13 +53,9 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         holder.tvTime.setText(timeRange);
         holder.tvTitle.setText(it.getTitle() != null ? it.getTitle() : "");
 
-        // Set icon (default to calendar emoji if not set)
-        String icon = it.getIcon();
-        if (icon != null && !icon.trim().isEmpty()) {
-            holder.tvIcon.setText(icon);
-        } else {
-            holder.tvIcon.setText("📅");
-        }
+        // Set icon (default to calendar emoji)
+        // Fixed icon issue
+        holder.tvIcon.setText("📅");
 
         // If notes are empty, show formatted phrase
         String notes = it.getNotes();
@@ -111,12 +107,12 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null)
-                listener.onEdit(it);
+                listener.onItemClick(it);
         });
 
         holder.itemView.setOnLongClickListener(v -> {
             if (listener != null)
-                listener.onDelete(it);
+                listener.onItemLongClick(v, it);
             return true;
         });
     }

@@ -1,6 +1,7 @@
 package com.example.voyagerbuds.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.fragments.*;
+import com.example.voyagerbuds.receivers.NotificationReceiver;
 import com.example.voyagerbuds.utils.LocaleHelper;
 
 public class HomeActivity extends BaseActivity
@@ -77,6 +79,46 @@ public class HomeActivity extends BaseActivity
             // Initialize the upper bar title to app name or "Home"
             if (upperBarFragment != null) {
                 upperBarFragment.setAppName(getString(R.string.app_name));
+            }
+        }
+
+        handleNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent);
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(NotificationReceiver.EXTRA_SCHEDULE_ID)) {
+            int scheduleId = intent.getIntExtra(NotificationReceiver.EXTRA_SCHEDULE_ID, -1);
+            if (scheduleId != -1) {
+                // Navigate to ScheduleFragment
+                ScheduleFragment scheduleFragment = new ScheduleFragment();
+                Bundle args = new Bundle();
+                args.putInt(ScheduleFragment.ARG_SCHEDULE_ID, scheduleId);
+                scheduleFragment.setArguments(args);
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.content_container, scheduleFragment)
+                        .commit();
+
+                // Update current fragment state
+                currentFragment = "schedule";
+
+                // Update navigation bar selection if possible
+                if (navigationBarFragment != null) {
+                    // We need to expose a method in NavigationBarFragment to set selection
+                    // For now, we can just rely on the fragment change
+                }
+
+                // Update upper bar title
+                if (upperBarFragment != null) {
+                    upperBarFragment.setAppName(getString(R.string.schedule));
+                }
             }
         }
     }

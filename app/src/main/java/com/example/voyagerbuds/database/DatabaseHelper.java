@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -55,9 +55,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_SCHEDULE_END_TIME = "end_time";
     private static final String COLUMN_SCHEDULE_TITLE = "title";
     private static final String COLUMN_SCHEDULE_NOTES = "notes";
-    private static final String COLUMN_SCHEDULE_ICON = "icon";
+    // private static final String COLUMN_SCHEDULE_ICON = "icon"; // Removed
     private static final String COLUMN_SCHEDULE_LOCATION = "location";
     private static final String COLUMN_SCHEDULE_PARTICIPANTS = "participants";
+    private static final String COLUMN_SCHEDULE_EXPENSE_AMOUNT = "expense_amount";
+    private static final String COLUMN_SCHEDULE_EXPENSE_CURRENCY = "expense_currency";
+    private static final String COLUMN_SCHEDULE_IMAGES = "image_paths";
+    private static final String COLUMN_SCHEDULE_NOTIFY_BEFORE = "notify_before_minutes";
     private static final String COLUMN_SCHEDULE_CREATED_AT = "created_at";
     private static final String COLUMN_SCHEDULE_UPDATED_AT = "updated_at";
 
@@ -110,9 +114,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_SCHEDULE_END_TIME + " TEXT,"
                 + COLUMN_SCHEDULE_TITLE + " TEXT,"
                 + COLUMN_SCHEDULE_NOTES + " TEXT,"
-                + COLUMN_SCHEDULE_ICON + " TEXT,"
+                // + COLUMN_SCHEDULE_ICON + " TEXT," // Removed
                 + COLUMN_SCHEDULE_LOCATION + " TEXT,"
                 + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT,"
+                + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL,"
+                + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT,"
+                + COLUMN_SCHEDULE_IMAGES + " TEXT,"
+                + COLUMN_SCHEDULE_NOTIFY_BEFORE + " INTEGER DEFAULT 0,"
                 + COLUMN_SCHEDULE_CREATED_AT + " INTEGER,"
                 + COLUMN_SCHEDULE_UPDATED_AT + " INTEGER,"
                 + "FOREIGN KEY(" + COLUMN_SCHEDULE_TRIP_ID + ") REFERENCES "
@@ -148,9 +156,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 4) {
             // Add icon, location, and participants columns to Schedules table
-            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_ICON + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + "icon" + " TEXT");
             db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_LOCATION + " TEXT");
             db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT");
+        }
+        if (oldVersion < 5) {
+            // Add expense and images columns to Schedules table
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_IMAGES + " TEXT");
+            // Note: We are not dropping the 'icon' column to avoid complex migration logic,
+            // but it will be unused in the code.
+        }
+        if (oldVersion < 6) {
+            // Add notify_before_minutes column to Schedules table
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_NOTIFY_BEFORE
+                    + " INTEGER DEFAULT 0");
         }
     }
 
@@ -191,9 +212,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
         values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
         values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
-        values.put(COLUMN_SCHEDULE_ICON, item.getIcon());
+        // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
         values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
         values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
+        values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount());
+        values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency());
+        values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
+        values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
         values.put(COLUMN_SCHEDULE_CREATED_AT, item.getCreatedAt());
         values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
 
@@ -221,10 +246,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 it.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_NOTES)));
 
                 // Get new fields (may be null for older records)
-                int iconIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_ICON);
-                if (iconIndex != -1) {
-                    it.setIcon(cursor.getString(iconIndex));
-                }
+                /*
+                 * int iconIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_ICON);
+                 * if (iconIndex != -1) {
+                 * it.setIcon(cursor.getString(iconIndex));
+                 * }
+                 */
                 int locationIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LOCATION);
                 if (locationIndex != -1) {
                     it.setLocation(cursor.getString(locationIndex));
@@ -232,6 +259,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int participantsIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_PARTICIPANTS);
                 if (participantsIndex != -1) {
                     it.setParticipants(cursor.getString(participantsIndex));
+                }
+                int expenseAmountIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_AMOUNT);
+                if (expenseAmountIndex != -1) {
+                    it.setExpenseAmount(cursor.getDouble(expenseAmountIndex));
+                }
+                int expenseCurrencyIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_CURRENCY);
+                if (expenseCurrencyIndex != -1) {
+                    it.setExpenseCurrency(cursor.getString(expenseCurrencyIndex));
+                }
+                int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
+                if (imagesIndex != -1) {
+                    it.setImagePaths(cursor.getString(imagesIndex));
+                }
+                int notifyBeforeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_NOTIFY_BEFORE);
+                if (notifyBeforeIndex != -1) {
+                    it.setNotifyBeforeMinutes(cursor.getInt(notifyBeforeIndex));
                 }
 
                 it.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));
@@ -252,9 +295,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
         values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
         values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
-        values.put(COLUMN_SCHEDULE_ICON, item.getIcon());
+        // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
         values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
         values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
+        values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount());
+        values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency());
+        values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
+        values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
         values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
 
         int result = db.update(TABLE_SCHEDULES, values, COLUMN_SCHEDULE_ID + " = ?",
@@ -412,5 +459,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return isAvailable;
+    }
+
+    public com.example.voyagerbuds.models.ScheduleItem getScheduleById(int scheduleId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        android.database.Cursor cursor = db.query(TABLE_SCHEDULES, null, COLUMN_SCHEDULE_ID + "=?",
+                new String[] { String.valueOf(scheduleId) }, null, null, null);
+
+        com.example.voyagerbuds.models.ScheduleItem it = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            it = new com.example.voyagerbuds.models.ScheduleItem();
+            it.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_ID)));
+            it.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TRIP_ID)));
+            it.setDay(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_DAY)));
+            it.setStartTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_START_TIME)));
+            it.setEndTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_END_TIME)));
+            it.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TITLE)));
+            it.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_NOTES)));
+
+            int locationIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LOCATION);
+            if (locationIndex != -1)
+                it.setLocation(cursor.getString(locationIndex));
+
+            int participantsIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_PARTICIPANTS);
+            if (participantsIndex != -1)
+                it.setParticipants(cursor.getString(participantsIndex));
+
+            int expenseAmountIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_AMOUNT);
+            if (expenseAmountIndex != -1)
+                it.setExpenseAmount(cursor.getDouble(expenseAmountIndex));
+
+            int expenseCurrencyIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_CURRENCY);
+            if (expenseCurrencyIndex != -1)
+                it.setExpenseCurrency(cursor.getString(expenseCurrencyIndex));
+
+            int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
+            if (imagesIndex != -1)
+                it.setImagePaths(cursor.getString(imagesIndex));
+
+            int notifyBeforeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_NOTIFY_BEFORE);
+            if (notifyBeforeIndex != -1)
+                it.setNotifyBeforeMinutes(cursor.getInt(notifyBeforeIndex));
+
+            it.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));
+            it.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_UPDATED_AT)));
+        }
+        if (cursor != null)
+            cursor.close();
+        db.close();
+        return it;
     }
 }

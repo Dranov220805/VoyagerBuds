@@ -5,10 +5,11 @@
     <string name="home">Trang chủ</string>
     <string name="search">Tìm kiếm</string>
     <string name="create">Tạo mới</string>
-    <string name="dashboard">Bảng điều khiển</string>
+<!--    <string name="dashboard">Bảng điều khiển</string>-->
+    <string name="dashboard">Dashboard</string>
     <string name="map">Bản đồ</string>
     <string name="trip">Chuyến đi</string>
-    <string name="capture">Ghi lại</string>
+    <string name="capture">Chụp ảnh</string>
     <string name="schedule">Lịch trình</string>
     <string name="loading_map">Đang tải bản đồ</string>
     <string name="destination">Điểm đến</string>
@@ -85,7 +86,7 @@
     <string name="schedule_no_trips_prompt">Bạn chưa có chuyến đi nào. Tạo một chuyến đi để bắt đầu lên kế hoạch.</string>
     <string name="schedule_no_trip_selected">Chưa chọn chuyến đi</string>
     <string name="schedule_no_current_trip">Không có lịch trình hiện tại. Bạn không ở trong chuyến đi nào.</string>
-    <string name="schedule_no_events_for_trip">Chưa có lịch trình cho %1$s. Nhấn nút bên dưới để thêm.</string>
+    <string name="schedule_no_events_for_trip">Chưa có lịch trình cho %1$s.</string>
     <string name="schedule_no_events_running">%1$s đang diễn ra nhưng chưa có lịch trình nào.</string>
     <string name="schedule_trip_summary">%1$s • %2$s</string>
     <string name="schedule_trip_status_running">Đang diễn ra</string>
@@ -453,4 +454,27 @@
     <string name="example_companions_you_2">Bạn + 2 người nữa</string>
     <string name="trip_schedule_title">Tên chuyến đi</string>
     <string name="select_trip_hint">Chọn chuyến đi</string>
+    <string name="get_my_location">lấy địa điểm của tôi</string>
+    <string name="location_found">Đã tìm thấy địa điểm</string>
+    <string name="geocoding_error">Lỗi địa điểm</string>
+    <string name="add_image">Thêm ảnh</string>
+    <string name="hint_expense_amount">Chi phí</string>
+
+    <string name="schedule_image_desc">Mô tả ảnh lịch trình</string>
+    <string name="remove_image">Xóa ảnh</string>
+    <string name="select_image_source">Chọn ảnh</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Thư viện</string>
+    <string name="permission_required">Yêu cầu quyền</string>
+    <string name="camera_permission_rationale">Yêu cầu quyền camera để chụp ảnh.</string>
+    <string name="storage_permission_rationale">Yêu cầu quyền bộ nhớ để chọn ảnh.</string>
+
+    <!-- Schedule Details Dialog -->
+    <string name="schedule_details">Lịch trình chi tiết</string>
+    <string name="title">Tên lịch trình</string>
+    <string name="time">Thời gian</string>
+    <string name="participants">Người tham gia</string>
+    <string name="expense">Chi phí</string>
+    <string name="notify_before">Thông báo trước bao lâu</string>
+    <string name="confirm">Xác nhận</string>
 </resources>

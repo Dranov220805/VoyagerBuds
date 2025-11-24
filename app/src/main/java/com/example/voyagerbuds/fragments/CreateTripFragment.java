@@ -279,7 +279,7 @@ public class CreateTripFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.discard_trip_title)
                 .setMessage(R.string.discard_trip_message)
-                .setPositiveButton(R.string.discard, (dialog, which) -> {
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     if (listener != null) {
                         listener.onCancelTripCreation();
                     }
@@ -287,7 +287,7 @@ public class CreateTripFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     dialog.dismiss();
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning)
                 .show();
     }
 
