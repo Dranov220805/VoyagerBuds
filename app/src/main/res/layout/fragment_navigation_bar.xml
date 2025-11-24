@@ -31,6 +31,15 @@
             android:contentDescription="@string/home"
             android:scaleType="fitStart"
             app:tint="@color/teal_primary" />
+
+        <TextView
+            android:id="@+id/text_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/home"
+            android:textSize="12sp"
+            android:textColor="@color/teal_primary"
+            android:paddingTop="2dp" />
     </LinearLayout>
 
     <!-- Schedule -->
@@ -54,6 +63,15 @@
             android:contentDescription="@string/schedule"
             android:scaleType="fitStart"
             app:tint="@color/text_medium" />
+
+        <TextView
+            android:id="@+id/text_schedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/schedule"
+            android:textSize="12sp"
+            android:textColor="@color/nav_text_color"
+            android:paddingTop="2dp" />
     </LinearLayout>
 
     <!-- Capture -->
@@ -77,6 +95,15 @@
             android:contentDescription="@string/capture"
             android:scaleType="fitStart"
             app:tint="@color/text_medium" />
+
+        <TextView
+            android:id="@+id/text_capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/capture"
+            android:textSize="12sp"
+            android:textColor="@color/nav_text_color"
+            android:paddingTop="2dp" />
     </LinearLayout>
 
     <!-- Map -->
@@ -100,6 +127,15 @@
             android:contentDescription="@string/map"
             android:scaleType="fitStart"
             app:tint="@color/text_medium" />
+
+        <TextView
+            android:id="@+id/text_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/map"
+            android:textSize="12sp"
+            android:textColor="@color/nav_text_color"
+            android:paddingTop="2dp" />
     </LinearLayout>
 
     <!-- Dashboard -->
@@ -123,6 +159,15 @@
             android:contentDescription="@string/dashboard"
             android:scaleType="fitStart"
             app:tint="@color/text_medium" />
+
+        <TextView
+            android:id="@+id/text_dashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dashboard"
+            android:textSize="12sp"
+            android:textColor="@color/nav_text_color"
+            android:paddingTop="2dp" />
     </LinearLayout>
 
 </LinearLayout>

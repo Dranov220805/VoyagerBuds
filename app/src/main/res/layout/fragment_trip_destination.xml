@@ -108,13 +108,19 @@
             android:layout_marginBottom="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/et_destination"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textCapWords"
                 android:maxLines="1"
-                android:imeOptions="actionNext" />
+                android:imeOptions="actionNext"
+                android:background="@android:color/transparent"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:completionThreshold="3" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

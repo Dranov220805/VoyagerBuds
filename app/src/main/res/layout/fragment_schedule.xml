@@ -26,14 +26,14 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/iv_schedule_menu"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_more_vert"
-            android:contentDescription="@string/menu" />
+<!--        <ImageView-->
+<!--            android:id="@+id/iv_schedule_menu"-->
+<!--            android:layout_width="24dp"-->
+<!--            android:layout_height="24dp"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:src="@drawable/ic_more_vert"-->
+<!--            android:contentDescription="@string/menu" />-->
 
     </RelativeLayout>
 

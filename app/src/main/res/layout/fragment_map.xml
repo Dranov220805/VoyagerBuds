@@ -77,13 +77,13 @@
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
-                <ImageView
-                    android:id="@+id/btn_search_map"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    android:tint="@color/main_color_voyager"
-                    android:contentDescription="@string/desc_search"/>
+<!--                <ImageView-->
+<!--                    android:id="@+id/btn_search_map"-->
+<!--                    android:layout_width="32dp"-->
+<!--                    android:layout_height="32dp"-->
+<!--                    android:src="@android:drawable/ic_menu_search"-->
+<!--                    android:tint="@color/main_color_voyager"-->
+<!--                    android:contentDescription="@string/desc_search"/>-->
 
             </LinearLayout>
 

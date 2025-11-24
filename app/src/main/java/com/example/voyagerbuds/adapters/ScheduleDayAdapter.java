@@ -141,12 +141,12 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
 
             eventView.setOnClickListener(v -> {
                 if (listener != null)
-                    listener.onEdit(event);
+                    listener.onItemClick(event);
             });
 
             eventView.setOnLongClickListener(v -> {
                 if (listener != null)
-                    listener.onDelete(event);
+                    listener.onItemLongClick(v, event);
                 return true;
             });
 

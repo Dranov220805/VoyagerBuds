@@ -75,6 +75,50 @@ public class MapFragment extends Fragment {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Check for temporary pin arguments
+        if (getArguments() != null && getArguments().containsKey("pin_lat")) {
+            double lat = getArguments().getDouble("pin_lat");
+            double lng = getArguments().getDouble("pin_lng");
+            String title = getArguments().getString("pin_title");
+            String snippet = getArguments().getString("pin_snippet");
+            String time = getArguments().getString("pin_time");
+            String budget = getArguments().getString("pin_budget");
+            addTemporaryPin(lat, lng, title, snippet, time, budget);
+        }
+    }
+
+    private void addTemporaryPin(double lat, double lng, String title, String snippet, String time, String budget) {
+        // Wait for map to be ready
+        mapView.post(() -> {
+            GeoPoint point = new GeoPoint(lat, lng);
+            Marker marker = new Marker(mapView);
+            marker.setPosition(point);
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            marker.setIcon(getResources().getDrawable(R.drawable.ic_temp_marker));
+            marker.setTitle(title);
+            marker.setSnippet(snippet != null ? snippet : "Temporary Pin");
+            marker.setSubDescription(time); // Use subDescription for time
+            // We can use related object to store budget or other data if needed,
+            // but for now let's just pass it to the info window via a custom property or
+            // just handle it in the info window class if we pass it in constructor.
+            // Actually, Marker doesn't have a generic tag field easily accessible in
+            // InfoWindow without casting or subclassing.
+            // But we can set the related object.
+            marker.setRelatedObject(budget);
+
+            // Set custom info window
+            marker.setInfoWindow(new SimpleInfoWindow(R.layout.info_window_simple, mapView));
+
+            mapView.getOverlays().add(marker);
+            mapView.getController().setCenter(point);
+            mapView.getController().setZoom(15.0);
+            marker.showInfoWindow();
+        });
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -332,6 +376,7 @@ public class MapFragment extends Fragment {
                 Marker marker = new Marker(mapView);
                 marker.setPosition(new GeoPoint(trip.getMapLatitude(), trip.getMapLongitude()));
                 marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                marker.setIcon(getResources().getDrawable(R.drawable.ic_trip_marker));
                 marker.setTitle(trip.getTripName());
                 marker.setSnippet(trip.getStartDate() + " - " + trip.getEndDate());
 
@@ -371,17 +416,85 @@ public class MapFragment extends Fragment {
 
             TextView tvTitle = (TextView) mView.findViewById(R.id.tv_trip_title);
             TextView tvDate = (TextView) mView.findViewById(R.id.tv_trip_date);
+            TextView tvDestination = (TextView) mView.findViewById(R.id.tv_trip_destination);
 
             if (tvTitle != null)
                 tvTitle.setText(trip.getTripName());
             if (tvDate != null)
                 tvDate.setText(trip.getStartDate() + " - " + trip.getEndDate());
+            if (tvDestination != null)
+                tvDestination.setText(trip.getDestination());
 
             // Set click listener on the whole view to navigate
             mView.setOnClickListener(v -> {
                 navigateToTripDetail(trip.getTripId());
                 close();
             });
+        }
+
+        @Override
+        public void onClose() {
+            // nothing to do
+        }
+    }
+
+    private class SimpleInfoWindow extends InfoWindow {
+        public SimpleInfoWindow(int layoutResId, MapView mapView) {
+            super(layoutResId, mapView);
+        }
+
+        @Override
+        public void onOpen(Object item) {
+            Marker marker = (Marker) item;
+            TextView tvTitle = (TextView) mView.findViewById(R.id.tv_bubble_title);
+            TextView tvSnippet = (TextView) mView.findViewById(R.id.tv_bubble_snippet);
+            TextView tvTime = (TextView) mView.findViewById(R.id.tv_bubble_time);
+            TextView tvBudget = (TextView) mView.findViewById(R.id.tv_bubble_budget);
+            View layoutDetails = mView.findViewById(R.id.layout_bubble_details);
+
+            if (tvTitle != null)
+                tvTitle.setText(marker.getTitle());
+
+            if (tvSnippet != null) {
+                if (marker.getSnippet() != null && !marker.getSnippet().isEmpty()) {
+                    tvSnippet.setText(marker.getSnippet());
+                    tvSnippet.setVisibility(View.VISIBLE);
+                } else {
+                    tvSnippet.setVisibility(View.GONE);
+                }
+            }
+
+            boolean hasDetails = false;
+
+            // Time
+            if (tvTime != null) {
+                String time = marker.getSubDescription();
+                if (time != null && !time.isEmpty()) {
+                    tvTime.setText(time);
+                    ((View) tvTime.getParent()).setVisibility(View.VISIBLE);
+                    hasDetails = true;
+                } else {
+                    ((View) tvTime.getParent()).setVisibility(View.GONE);
+                }
+            }
+
+            // Budget
+            if (tvBudget != null) {
+                Object relatedObj = marker.getRelatedObject();
+                if (relatedObj instanceof String && !((String) relatedObj).isEmpty()) {
+                    tvBudget.setText((String) relatedObj);
+                    ((View) tvBudget.getParent()).setVisibility(View.VISIBLE);
+                    hasDetails = true;
+                } else {
+                    ((View) tvBudget.getParent()).setVisibility(View.GONE);
+                }
+            }
+
+            if (layoutDetails != null) {
+                layoutDetails.setVisibility(hasDetails ? View.VISIBLE : View.GONE);
+            }
+
+            mView.setOnClickListener(v -> close());
         }
 
         @Override

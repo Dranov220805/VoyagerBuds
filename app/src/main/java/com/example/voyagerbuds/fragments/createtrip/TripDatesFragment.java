@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
 import java.util.TimeZone;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class TripDatesFragment extends Fragment {
 
@@ -119,16 +122,14 @@ public class TripDatesFragment extends Fragment {
         MaterialDatePicker<Long> picker = builder.build();
         picker.addOnPositiveButtonClickListener(selection -> {
             // MaterialDatePicker returns time in UTC
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            calendar.setTimeInMillis(selection);
+            // MaterialDatePicker returns time in UTC epoch millis, convert to local date
+            Instant instant = Instant.ofEpochMilli(selection);
+            LocalDate selectedLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
 
-            // Format for display (local time representation of the date)
-            SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            String formattedDate = utcFormat.format(calendar.getTime());
-
-            // Format for UI display
-            String displayDate = DateUtils.formatFullDate(getContext(), calendar.getTime());
+            String formattedDate = DateUtils.formatLocalDateToDbKey(selectedLocalDate);
+            // Format for UI display (as Date at start of day in local timezone)
+            Date displayDateObj = Date.from(selectedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            String displayDate = DateUtils.formatFullDate(getContext(), displayDateObj);
 
             if (isStartDate) {
                 etStartDate.setText(displayDate);
@@ -174,9 +175,9 @@ public class TripDatesFragment extends Fragment {
         }
 
         try {
-            Date start = dateFormat.parse(startDate);
-            Date end = dateFormat.parse(endDate);
-            if (start != null && end != null && end.before(start)) {
+            java.time.LocalDate s = DateUtils.parseDbDateToLocalDate(startDate);
+            java.time.LocalDate e = DateUtils.parseDbDateToLocalDate(endDate);
+            if (s != null && e != null && e.isBefore(s)) {
                 Toast.makeText(getContext(), getString(R.string.error_end_date_after_start), Toast.LENGTH_SHORT).show();
                 return false;
             }
@@ -187,7 +188,7 @@ public class TripDatesFragment extends Fragment {
                         .show();
                 return false;
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
