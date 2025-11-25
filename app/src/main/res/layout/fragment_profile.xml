@@ -8,7 +8,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F5F5F5"
+        android:background="@color/background_light"
         android:fillViewport="true"
         tools:context=".fragments.ProfileFragment">
 
@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white"
+                app:cardBackgroundColor="@color/card_background"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -56,7 +56,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Alice Wonderland"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_dark"
                             android:textSize="18sp"
                             android:textStyle="bold"/>
 
@@ -65,7 +65,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="alice.w@example.com"
-                            android:textColor="#757575"
+                            android:textColor="@color/text_medium"
                             android:textSize="14sp"
                             android:layout_marginTop="4dp"/>
                     </LinearLayout>
@@ -78,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/account"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white"
+                app:cardBackgroundColor="@color/card_background"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -110,7 +110,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_notification"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <TextView
                             android:id="@+id/tv_notifications"
@@ -118,21 +118,20 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/notifications"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_dark"
                             android:textSize="16sp"
                             android:layout_marginStart="16dp"/>
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switch_notifications"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/divider"
                         android:layout_marginStart="56dp"/>
 
                     <!-- Privacy & Security -->
@@ -149,7 +148,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_lock"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <TextView
                             android:id="@+id/tv_privacy"
@@ -157,7 +156,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/privacy_security"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_dark"
                             android:textSize="16sp"
                             android:layout_marginStart="16dp"/>
 
@@ -165,7 +164,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -176,7 +175,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/preferences"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
@@ -186,7 +185,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white"
+                app:cardBackgroundColor="@color/card_background"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -208,7 +207,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_palette"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -222,7 +221,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/theme"
-                                android:textColor="@android:color/black"
+                                android:textColor="@color/text_dark"
                                 android:textSize="16sp"/>
 
                             <TextView
@@ -230,7 +229,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/theme_subtitle"
-                                android:textColor="#757575"
+                                android:textColor="@color/text_medium"
                                 android:textSize="12sp"
                                 android:layout_marginTop="2dp"/>
                         </LinearLayout>
@@ -239,13 +238,13 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/divider"
                         android:layout_marginStart="56dp"/>
 
                     <!-- Language -->
@@ -262,7 +261,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_language"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -276,7 +275,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/language"
-                                android:textColor="@android:color/black"
+                                android:textColor="@color/text_dark"
                                 android:textSize="16sp"/>
 
                             <TextView
@@ -284,7 +283,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/language_subtitle"
-                                android:textColor="#757575"
+                                android:textColor="@color/text_medium"
                                 android:textSize="12sp"
                                 android:layout_marginTop="2dp"/>
                         </LinearLayout>
@@ -293,7 +292,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
                     </LinearLayout>
 
                 </LinearLayout>
@@ -304,7 +303,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/support"
-                android:textColor="@android:color/black"
+                android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
@@ -314,7 +313,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@android:color/white"
+                app:cardBackgroundColor="@color/card_background"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -336,7 +335,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_person"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <TextView
                             android:id="@+id/tv_emergency"
@@ -344,7 +343,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/emergency_contacts"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_dark"
                             android:textSize="16sp"
                             android:layout_marginStart="16dp"/>
 
@@ -352,13 +351,13 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#F0F0F0"
+                        android:background="@color/divider"
                         android:layout_marginStart="56dp"/>
 
                     <!-- Help & Support -->
@@ -375,7 +374,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_help_support"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
 
                         <TextView
                             android:id="@+id/tv_help"
@@ -383,7 +382,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/help_support"
-                            android:textColor="@android:color/black"
+                            android:textColor="@color/text_dark"
                             android:textSize="16sp"
                             android:layout_marginStart="16dp"/>
 
@@ -391,7 +390,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_arrow_forward"
-                            app:tint="#757575"/>
+                            app:tint="@color/text_medium"/>
                     </LinearLayout>
 
                 </LinearLayout>

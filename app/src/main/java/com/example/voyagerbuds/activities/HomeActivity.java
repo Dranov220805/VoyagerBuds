@@ -1,6 +1,7 @@
 package com.example.voyagerbuds.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -13,17 +14,14 @@ import androidx.fragment.app.Fragment;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.fragments.*;
+import com.example.voyagerbuds.receivers.NotificationReceiver;
 import com.example.voyagerbuds.utils.LocaleHelper;
 
 public class HomeActivity extends BaseActivity
         implements NavigationBarFragment.OnNavigationItemSelectedListener,
-        UpperBarFragment.OnProfileClickListener,
         CreateTripFragment.OnTripCreatedListener {
 
     private String currentFragment = "home";
-    // Keep a reference to the upper bar fragment so we can update its title
-    // dynamically
-    private com.example.voyagerbuds.fragments.UpperBarFragment upperBarFragment;
     private NavigationBarFragment navigationBarFragment;
     private static final String[] FRAGMENT_ORDER = { "home", "schedule", "capture", "map", "dashboard" };
     private CreateTripFragment createTripFragment;
@@ -59,12 +57,6 @@ public class HomeActivity extends BaseActivity
         setContentView(R.layout.activity_home);
 
         if (savedInstanceState == null) {
-            // Add upper bar fragment and keep reference so we can update title later
-            upperBarFragment = new com.example.voyagerbuds.fragments.UpperBarFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.upper_bar_container, upperBarFragment)
-                    .commit();
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_container, new HomeFragment())
                     .commit();
@@ -73,10 +65,55 @@ public class HomeActivity extends BaseActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.navigation_container, navigationBarFragment)
                     .commit();
+        } else {
+            // Restore state
+            currentFragment = savedInstanceState.getString("currentFragment", "home");
 
-            // Initialize the upper bar title to app name or "Home"
-            if (upperBarFragment != null) {
-                upperBarFragment.setAppName(getString(R.string.app_name));
+            // Restore fragment references
+            navigationBarFragment = (NavigationBarFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.navigation_container);
+
+            Fragment contentFragment = getSupportFragmentManager().findFragmentById(R.id.content_container);
+            if (contentFragment instanceof CreateTripFragment) {
+                createTripFragment = (CreateTripFragment) contentFragment;
+                createTripFragment.setListener(this);
+            }
+
+            // Update UI based on restored state
+        }
+
+        handleNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent);
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(NotificationReceiver.EXTRA_SCHEDULE_ID)) {
+            int scheduleId = intent.getIntExtra(NotificationReceiver.EXTRA_SCHEDULE_ID, -1);
+            if (scheduleId != -1) {
+                // Navigate to ScheduleFragment
+                ScheduleFragment scheduleFragment = new ScheduleFragment();
+                Bundle args = new Bundle();
+                args.putInt(ScheduleFragment.ARG_SCHEDULE_ID, scheduleId);
+                scheduleFragment.setArguments(args);
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.content_container, scheduleFragment)
+                        .commit();
+
+                // Update current fragment state
+                currentFragment = "schedule";
+
+                // Update navigation bar selection if possible
+                if (navigationBarFragment != null) {
+                    // We need to expose a method in NavigationBarFragment to set selection
+                    // For now, we can just rely on the fragment change
+                }
             }
         }
     }
@@ -143,12 +180,6 @@ public class HomeActivity extends BaseActivity
                 .replace(R.id.content_container, fragment)
                 .commit();
 
-        // Update the upper bar title based on the selected page
-        if (upperBarFragment != null) {
-            String title = getTitleForFragment(fragmentKey);
-            upperBarFragment.setAppName(title);
-        }
-
         // Update navigation bar selection
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
@@ -187,7 +218,6 @@ public class HomeActivity extends BaseActivity
         return 0;
     }
 
-    @Override
     public void onProfileClicked() {
         // Check if we're in trip creation mode
         if (currentFragment.equals("create_trip") && createTripFragment != null) {
@@ -209,10 +239,6 @@ public class HomeActivity extends BaseActivity
 
         // Update current fragment tracker
         currentFragment = "profile";
-        // Update upper bar title
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.profile));
-        }
         createTripFragment = null;
     }
 
@@ -226,9 +252,6 @@ public class HomeActivity extends BaseActivity
                 .commit();
 
         currentFragment = "create_trip";
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.create_trip));
-        }
     }
 
     @Override
@@ -244,9 +267,6 @@ public class HomeActivity extends BaseActivity
                 .commit();
 
         currentFragment = "add_schedule";
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.schedule));
-        }
         createTripFragment = null;
     }
 
@@ -265,9 +285,6 @@ public class HomeActivity extends BaseActivity
                     .addToBackStack(null)
                     .commit();
             currentFragment = "profile";
-            if (upperBarFragment != null) {
-                upperBarFragment.setAppName(getString(R.string.profile));
-            }
             createTripFragment = null;
             return;
         }
@@ -312,12 +329,15 @@ public class HomeActivity extends BaseActivity
      */
     public void setCurrentFragmentKey(String fragmentKey) {
         this.currentFragment = fragmentKey;
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getTitleForFragment(fragmentKey));
-        }
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
         }
         createTripFragment = null;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentFragment", currentFragment);
     }
 }

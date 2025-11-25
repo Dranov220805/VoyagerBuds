@@ -3,11 +3,14 @@ package com.example.voyagerbuds.fragments;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +39,7 @@ public class ProfileFragment extends Fragment {
     private LinearLayout btnTheme;
     private Button btnLogout;
     private TextView tvNotifications;
+    private SwitchCompat switchNotifications;
     private TextView tvPrivacy;
     private TextView tvLanguageLabel;
     private TextView tvThemeLabel;
@@ -78,10 +82,20 @@ public class ProfileFragment extends Fragment {
         tvUserEmail = view.findViewById(R.id.tv_user_email);
         btnLogout = view.findViewById(R.id.btn_logout);
         tvNotifications = view.findViewById(R.id.tv_notifications);
+        switchNotifications = view.findViewById(R.id.switch_notifications);
         tvPrivacy = view.findViewById(R.id.tv_privacy);
         tvLanguageLabel = view.findViewById(R.id.tv_language_label);
         tvThemeLabel = view.findViewById(R.id.tv_theme_label);
         tvHelp = view.findViewById(R.id.tv_help);
+
+        // Setup Notifications Switch
+        SharedPreferences prefs = requireContext().getSharedPreferences("VoyagerBudsPrefs", Context.MODE_PRIVATE);
+        boolean notificationsEnabled = prefs.getBoolean("notifications_enabled", true);
+        switchNotifications.setChecked(notificationsEnabled);
+
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("notifications_enabled", isChecked).apply();
+        });
 
         // Update current language display
         updateLanguageDisplay();

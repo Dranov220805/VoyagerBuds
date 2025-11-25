@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.example.voyagerbuds.utils.CurrencyHelper;
 
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
 
@@ -85,20 +86,22 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
             // Get total spent from expenses
             double totalSpent = databaseHelper.getTotalExpensesForTrip(trip.getTripId());
+            String formattedSpent = CurrencyHelper.formatCurrency(context, totalSpent);
+
             if (trip.getBudget() > 0) {
-                holder.tvTotalSpent
-                        .setText(String.format(Locale.getDefault(), "$%.2f / $%.2f", totalSpent, trip.getBudget()));
+                String formattedBudget = CurrencyHelper.formatCurrency(context, trip.getBudget());
+                holder.tvTotalSpent.setText(formattedSpent + " / " + formattedBudget);
             } else {
-                holder.tvTotalSpent.setText(String.format(Locale.getDefault(), "$%.2f", totalSpent));
+                holder.tvTotalSpent.setText(formattedSpent);
             }
 
             // Load image if available (placeholder for now)
             if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
                 // TODO: Load image using Glide or Picasso
                 // For now, use placeholder
-                holder.imgTrip.setImageResource(R.drawable.voyagerbuds);
+                holder.imgTrip.setImageResource(R.drawable.voyagerbuds_nobg);
             } else {
-                holder.imgTrip.setImageResource(R.drawable.voyagerbuds);
+                holder.imgTrip.setImageResource(R.drawable.voyagerbuds_nobg);
             }
         }
 

@@ -5,10 +5,11 @@
     <string name="home">Trang chủ</string>
     <string name="search">Tìm kiếm</string>
     <string name="create">Tạo mới</string>
-    <string name="dashboard">Bảng điều khiển</string>
+<!--    <string name="dashboard">Bảng điều khiển</string>-->
+    <string name="dashboard">Dashboard</string>
     <string name="map">Bản đồ</string>
     <string name="trip">Chuyến đi</string>
-    <string name="capture">Ghi lại</string>
+    <string name="capture">Chụp ảnh</string>
     <string name="schedule">Lịch trình</string>
     <string name="loading_map">Đang tải bản đồ</string>
     <string name="destination">Điểm đến</string>
@@ -85,7 +86,7 @@
     <string name="schedule_no_trips_prompt">Bạn chưa có chuyến đi nào. Tạo một chuyến đi để bắt đầu lên kế hoạch.</string>
     <string name="schedule_no_trip_selected">Chưa chọn chuyến đi</string>
     <string name="schedule_no_current_trip">Không có lịch trình hiện tại. Bạn không ở trong chuyến đi nào.</string>
-    <string name="schedule_no_events_for_trip">Chưa có lịch trình cho %1$s. Nhấn nút bên dưới để thêm.</string>
+    <string name="schedule_no_events_for_trip">Chưa có lịch trình cho %1$s.</string>
     <string name="schedule_no_events_running">%1$s đang diễn ra nhưng chưa có lịch trình nào.</string>
     <string name="schedule_trip_summary">%1$s • %2$s</string>
     <string name="schedule_trip_status_running">Đang diễn ra</string>
@@ -277,7 +278,7 @@
     <!-- Placeholders -->
     <string name="trip_destination_date_range">%1$s • %2$s</string>
     <string name="date_range_example">01/01 - 10/01</string>
-    <string name="money_placeholder">$0.00</string>
+    <string name="money_placeholder">0 ₫</string>
     <string name="visit_museum">Thăm bảo tàng</string>
     <string name="short_notes">Ghi chú ngắn</string>
     <string name="memory_title">Tiêu đề kỷ niệm</string>
@@ -368,11 +369,11 @@
     <string name="label_date">Ngày</string>
     <string name="tap_to_view_details">Nhấn để xem chi tiết</string>
     <string name="step_6_of_6">Bước 6 trên 6</string>
-    <string name="example_total_budget_2500_usd">$2,500 USD</string>
-    <string name="example_budget_800">$800</string>
-    <string name="example_lodging">$1,200</string>
-    <string name="example_food">$350</string>
-    <string name="example_activities">$150</string>
+    <string name="example_total_budget_2500_usd">63.625.000 ₫</string>
+    <string name="example_budget_800">20.360.000 ₫</string>
+    <string name="example_lodging">30.540.000 ₫</string>
+    <string name="example_food">8.907.500 ₫</string>
+    <string name="example_activities">3.817.500 ₫</string>
     <string name="label_my_location">Vị trí của tôi</string>
     <string name="example_location_manhattan">Manhattan, NY</string>
     <string name="example_trip_dubai">Dubai, Các Tiểu Vương Quốc Ả Rập Thống Nhất</string>
@@ -386,6 +387,7 @@
     <string name="unknown_location">Vị trí không xác định</string>
     <string name="no_schedule_items_yet">Chưa có mục lịch trình nào.</string>
     <string name="no_dates_set">Chưa thiết lập ngày</string>
+    <string name="edit_from_trip_detail_screen">Chỉnh sửa trong màn hình chi tiết chuyến đi</string>
 
     <!-- Dashboard -->
     <string name="dashboard_subtitle">Theo dõi thống kê du lịch của bạn</string>
@@ -396,7 +398,7 @@
     <string name="example_places_visited_count">87</string>
     <string name="places_visited_label">Nơi đã đến</string>
     <string name="total_expenses_label">Tổng chi phí</string>
-    <string name="example_total_expenses_count">$12,450</string>
+    <string name="example_total_expenses_count">316.852.500 ₫</string>
     <string name="transport_label">🚗 Di chuyển</string>
     <string name="example_transport_cost">$4,200</string>
     <string name="hotel_label">🏨 Khách sạn</string>
@@ -453,4 +455,31 @@
     <string name="example_companions_you_2">Bạn + 2 người nữa</string>
     <string name="trip_schedule_title">Tên chuyến đi</string>
     <string name="select_trip_hint">Chọn chuyến đi</string>
+    <string name="get_my_location">lấy địa điểm của tôi</string>
+    <string name="location_found">Đã tìm thấy địa điểm</string>
+    <string name="geocoding_error">Lỗi địa điểm</string>
+    <string name="add_image">Thêm ảnh</string>
+    <string name="hint_expense_amount">Chi phí</string>
+
+    <string name="schedule_image_desc">Mô tả ảnh lịch trình</string>
+    <string name="remove_image">Xóa ảnh</string>
+    <string name="select_image_source">Chọn ảnh</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Thư viện</string>
+    <string name="permission_required">Yêu cầu quyền</string>
+    <string name="camera_permission_rationale">Yêu cầu quyền camera để chụp ảnh.</string>
+    <string name="storage_permission_rationale">Yêu cầu quyền bộ nhớ để chọn ảnh.</string>
+
+    <!-- Schedule Details Dialog -->
+    <string name="schedule_details">Lịch trình chi tiết</string>
+    <string name="title">Tên lịch trình</string>
+    <string name="time">Thời gian</string>
+    <string name="participants">Người tham gia</string>
+    <string name="expense">Chi phí</string>
+    <string name="notify_before">Thông báo trước bao lâu</string>
+    <string name="confirm">Xác nhận</string>
+
+    <!-- Empty schedule state -->
+    <string name="schedule_no_events_today">Không có lịch trình vào hôm nay. Vui lòng tạo mới trong chuyến đi chi tiết</string>
+    <string name="go_to_trip_detail">Đi tới chuyến đi chi tiết</string>
 </resources>

@@ -2,7 +2,6 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.VoyagerBuds" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="fontFamily">@font/quicksand_bold</item>
         <!-- App colors -->
         <item name="colorPrimary">@color/main_color_voyager</item>
@@ -16,7 +15,6 @@
     </style>
 
     <style name="Theme.VoyagerBuds" parent="Base.Theme.VoyagerBuds" />
-
     <style name="Theme.VoyagerBuds.NoActionBar" parent="Base.Theme.VoyagerBuds">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

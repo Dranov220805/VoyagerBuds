@@ -91,7 +91,7 @@
     <string name="schedule_no_trips_prompt">You dont have any trips yet. Create one to start planning.</string>
     <string name="schedule_no_trip_selected">No trip selected</string>
     <string name="schedule_no_current_trip">No current schedule. You re not on a running trip right now.</string>
-    <string name="schedule_no_events_for_trip">No schedule for %1$s yet. Tap the button below to add one.</string>
+    <string name="schedule_no_events_for_trip">No schedule for %1$s yet.</string>
     <string name="schedule_no_events_running">%1$s is running but has no schedule items yet.</string>
     <string name="schedule_trip_summary">%1$s • %2$s</string>
     <string name="schedule_trip_status_running">Currently running</string>
@@ -213,7 +213,7 @@
     <string name="amount">Amount</string>
     <string name="enter_amount">Enter amount</string>
     <string name="hint_participants">Participants (comma separated)</string>
-    <string name="hint_icon_emoji">Icon/Emoji (e.g., 🍴 ✈️ 📷)</string>
+    <string name="hint_icon_emoji">Emoji</string> <!-- Keeping it for now if referenced elsewhere, but unused in new code -->
     <string name="hint_location_optional">Location (optional)</string>
     <string name="capture_experience_hint">Write your travel experiences here...</string>
     <string name="hint_date_tap_to_pick">Date (tap to pick)</string>
@@ -385,6 +385,7 @@
     <string name="unknown_location">Unknown Location</string>
     <string name="no_schedule_items_yet">No schedule items yet.</string>
     <string name="no_dates_set">No dates set</string>
+    <string name="edit_from_trip_detail_screen">Edit from Trip Detail screen</string>
     <!-- Dashboard strings -->
     <string name="dashboard_subtitle">Track your travel statistics</string>
     <string name="emoji_plane">✈️</string>
@@ -449,7 +450,30 @@
     <string name="example_companions_you_2">You + 2 others</string>
     <string name="trip_schedule_title">Trip Schedule Name</string>
     <string name="select_trip_hint">Select Trip</string>
+    <string name="get_my_location">Get my location</string>
+    <string name="location_found">Location found</string>
+    <string name="geocoding_error">Geocoding error</string>
+    <string name="add_image">Add image</string>
+    <string name="hint_expense_amount">Expense ammount</string>
+    <string name="schedule_image_desc">Schedule Image</string>
+    <string name="remove_image">Remove Image</string>
+    <string name="select_image_source">Select Image Source</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="permission_required">Permission required</string>
+    <string name="camera_permission_rationale">Camera permission is needed to take photos.</string>
+    <string name="storage_permission_rationale">Storage permission is needed to select photos.</string>
 
+    <!-- Schedule Details Dialog -->
+    <string name="schedule_details">Schedule Details</string>
+    <string name="title">Title</string>
+    <string name="time">Time</string>
+    <string name="participants">Participants</string>
+    <string name="expense">Expense</string>
+    <string name="notify_before">Notify before</string>
+    <string name="confirm">Confirm</string>
 
-    <!-- <string name="app_name">My App</string> -->
+    <!-- Empty schedule state -->
+    <string name="schedule_no_events_today">No schedule for today, create one in the trip detail</string>
+    <string name="go_to_trip_detail">Go to Trip Detail</string>
 </resources>

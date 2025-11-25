@@ -16,7 +16,7 @@
         android:id="@+id/loading_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80FFFFFF"
+        android:background="@color/overlay_background"
         android:clickable="true"
         android:focusable="true">
 
@@ -45,7 +45,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardCornerRadius="16dp"
-        app:cardElevation="0dp">
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/card_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/label_my_location"
-                android:textColor="#666666"
+                android:textColor="@color/text_medium"
                 android:textSize="12sp"/>
 
             <LinearLayout
@@ -67,23 +68,33 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="4dp">
 
+                <ImageView
+                    android:id="@+id/btn_back_from_location"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_back"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone"
+                    app:tint="@color/text_dark"
+                    android:contentDescription="@string/back" />
+
                 <TextView
                     android:id="@+id/tv_current_location"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/example_location_manhattan"
-                    android:textColor="#000000"
+                    android:text="@string/label_my_location"
+                    android:textColor="@color/text_dark"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
 
-                <ImageView
-                    android:id="@+id/btn_search_map"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    android:tint="@color/main_color_voyager"
-                    android:contentDescription="@string/desc_search"/>
+<!--                <ImageView-->
+<!--                    android:id="@+id/btn_search_map"-->
+<!--                    android:layout_width="32dp"-->
+<!--                    android:layout_height="32dp"-->
+<!--                    android:src="@android:drawable/ic_menu_search"-->
+<!--                    android:tint="@color/main_color_voyager"-->
+<!--                    android:contentDescription="@string/desc_search"/>-->
 
             </LinearLayout>
 
@@ -100,7 +111,8 @@
         android:layout_margin="16dp"
         android:visibility="gone"
         app:cardCornerRadius="20dp"
-        app:cardElevation="0dp">
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/card_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,7 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:background="#4DD4F1"
+                    android:background="@color/cyan_light"
                     android:contentDescription="@string/desc_trip_image"/>
 
             </androidx.cardview.widget.CardView>
@@ -138,7 +150,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/example_trip_dubai"
-                    android:textColor="#000000"
+                    android:textColor="@color/text_dark"
                     android:textSize="14sp"
                     android:textStyle="bold"/>
 
@@ -147,7 +159,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/example_trip_description"
-                    android:textColor="#666666"
+                    android:textColor="@color/text_medium"
                     android:textSize="12sp"
                     android:maxLines="2"
                     android:ellipsize="end"
@@ -186,7 +198,8 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:tint="#999999"
+
+                android:tint="@color/icon_tint_gray"
                 android:layout_gravity="top"
                 android:contentDescription="@string/desc_close"/>
 

@@ -6,6 +6,10 @@ import android.os.Build;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 public class DateUtils {
@@ -134,6 +138,37 @@ public class DateUtils {
             return false;
         SimpleDateFormat monthYear = new SimpleDateFormat("MM-yyyy", Locale.getDefault());
         return monthYear.format(start).equals(monthYear.format(end));
+    }
+
+    // --- New helpers for parsing and formatting database date keys (yyyy-MM-dd)
+    public static LocalDate parseDbDateToLocalDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return null;
+        try {
+            // Use ISO_LOCAL_DATE (yyyy-MM-dd)
+            return LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException ex) {
+            // Fall back: try to parse using java.util.Date if necessary
+            try {
+                Date d = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateStr);
+                if (d == null) return null;
+                return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
+    public static String formatLocalDateToDbKey(LocalDate ld) {
+        if (ld == null) return null;
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(ld);
+    }
+
+    public static LocalDate todayLocalDate() {
+        return LocalDate.now(ZoneId.systemDefault());
+    }
+
+    public static String getTodayKey() {
+        return formatLocalDateToDbKey(todayLocalDate());
     }
 
 }

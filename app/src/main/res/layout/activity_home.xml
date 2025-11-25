@@ -5,12 +5,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!-- Upper Bar Container -->
-    <FrameLayout
-        android:id="@+id/upper_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <!-- Content Container -->
     <FrameLayout
         android:id="@+id/content_container"

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -69,6 +70,15 @@ public class AddScheduleStepFragment extends Fragment {
 
         Button btnNow = view.findViewById(R.id.btn_add_schedule_now);
         TextView btnLater = view.findViewById(R.id.btn_add_schedule_later);
+
+        ImageView ivBack = view.findViewById(R.id.btn_back_arrow);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> {
+                if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
 
         btnNow.setOnClickListener(v -> {
             // Navigate to TripDetailFragment for this trip so user can add schedule items

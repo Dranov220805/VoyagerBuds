@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/card_background"
     android:layout_marginBottom="12dp">
 
     <LinearLayout
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="@string/schedule_time_example"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:textSize="14sp"
             android:layout_marginBottom="12dp" />
 
@@ -40,7 +40,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/circular_bg"
-                    android:backgroundTint="#FFF3E0" />
+                    android:backgroundTint="@color/schedule_bg_tint" />
 
                 <TextView
                     android:id="@+id/tv_schedule_icon"
@@ -66,7 +66,7 @@
                     android:text="@string/visit_museum"
                     android:textStyle="bold"
                     android:textSize="16sp"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_dark"
                     android:maxLines="2"
                     android:ellipsize="end" />
 
@@ -77,7 +77,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/short_notes"
                     android:textSize="14sp"
-                    android:textColor="@color/gray"
+                    android:textColor="@color/text_medium"
                     android:layout_marginTop="4dp"
                     android:maxLines="2"
                     android:ellipsize="end" />
@@ -97,13 +97,14 @@
                         android:src="@drawable/ic_location"
                         android:layout_marginEnd="4dp"
                         android:layout_gravity="center_vertical"
+                        app:tint="@color/text_medium"
                         android:contentDescription="@string/location" />
 
                     <TextView
                         android:id="@+id/tv_schedule_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/gray"
+                        android:textColor="@color/text_medium"
                         android:textSize="12sp" />
                 </LinearLayout>
 
@@ -122,13 +123,14 @@
                         android:src="@drawable/ic_person"
                         android:layout_marginEnd="4dp"
                         android:layout_gravity="center_vertical"
+                        app:tint="@color/text_medium"
                         android:contentDescription="@string/profile" />
 
                     <TextView
                         android:id="@+id/tv_schedule_participants"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/gray"
+                        android:textColor="@color/text_medium"
                         android:textSize="12sp" />
                 </LinearLayout>
 

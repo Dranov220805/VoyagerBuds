@@ -7,12 +7,60 @@
     android:background="@color/background_light"
     tools:context=".fragments.HomeFragment">
 
+    <!-- Upper Bar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/upper_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/card_background"
+        android:elevation="4dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- App Name/Logo -->
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/profile_icon"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Profile Icon -->
+        <ImageView
+            android:id="@+id/profile_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_person"
+            android:padding="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            app:tint="@color/text_dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:contentDescription="@string/profile" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
         android:scrollbars="none"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/upper_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,6 +96,7 @@
                 android:layout_marginEnd="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/card_background"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -66,8 +115,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/voyagerbuds"
-                            android:background="@color/dark_gray"
+                            android:src="@drawable/voyagerbuds_nobg"
+                            android:background="@color/card_background"
                             android:contentDescription="@string/desc_trip_image" />
 
                         <!-- Gradient Overlay -->
@@ -168,7 +217,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="20dp"
-                        android:background="@color/white">
+                        android:background="@color/card_background">
 
                         <!-- Notes -->
                         <LinearLayout

@@ -77,9 +77,9 @@ public class TripCardAdapter extends RecyclerView.Adapter<TripCardAdapter.TripCa
             // TODO: Load image using Glide/Picasso
             if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
                 // Placeholder for now
-                imgBackground.setImageResource(R.drawable.voyagerbuds);
+                imgBackground.setImageResource(R.drawable.voyagerbuds_nobg);
             } else {
-                imgBackground.setImageResource(R.drawable.voyagerbuds);
+                imgBackground.setImageResource(R.drawable.voyagerbuds_nobg);
             }
 
             itemView.setOnClickListener(v -> listener.onTripClick(trip));

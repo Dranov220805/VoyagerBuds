@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -72,9 +73,7 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
 
         private final TextView tvDayTitle;
         private final TextView tvDaySubtitle;
-        private final FrameLayout containerEvents;
-        private final View viewCurrentTimeLine;
-        private final View viewCurrentTimeDot;
+        private final LinearLayout containerEvents;
         private final View viewTimelineContainer;
         private final View itemViewRoot;
         private ScheduleAdapter.OnScheduleActionListener listener;
@@ -86,8 +85,6 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
             tvDayTitle = itemView.findViewById(R.id.tv_day_title);
             tvDaySubtitle = itemView.findViewById(R.id.tv_day_subtitle);
             containerEvents = itemView.findViewById(R.id.container_events);
-            viewCurrentTimeLine = itemView.findViewById(R.id.view_current_time_line);
-            viewCurrentTimeDot = itemView.findViewById(R.id.view_current_time_dot);
             viewTimelineContainer = itemView.findViewById(R.id.container_timeline);
         }
 
@@ -107,20 +104,17 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
             // Clear existing event views
             containerEvents.removeAllViews();
 
-            // Add event views positioned based on their time
+            // Add event views
             List<ScheduleItem> events = dayGroup.getEvents();
             for (ScheduleItem event : events) {
                 View eventView = createEventView(context, event);
                 containerEvents.addView(eventView);
             }
-
-            // Update current time indicator
-            updateCurrentTimeIndicator(dayGroup, selectedDateKey);
         }
 
         private View createEventView(Context context, ScheduleItem event) {
             View eventView = LayoutInflater.from(context).inflate(R.layout.item_schedule, containerEvents, false);
-            
+
             TextView tvTime = eventView.findViewById(R.id.tv_schedule_time);
             TextView tvTitle = eventView.findViewById(R.id.tv_schedule_title);
             TextView tvNotes = eventView.findViewById(R.id.tv_schedule_notes);
@@ -128,10 +122,10 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
             String start = event.getStartTime() != null ? event.getStartTime() : "";
             String end = event.getEndTime() != null ? event.getEndTime() : "";
             String timeRange = start.isEmpty() ? end : (end.isEmpty() ? start : start + " - " + end);
-            
+
             tvTime.setText(timeRange);
             tvTitle.setText(event.getTitle() != null ? event.getTitle() : "");
-            
+
             String notes = event.getNotes();
             if (notes != null && !notes.trim().isEmpty()) {
                 tvNotes.setText(notes);
@@ -139,113 +133,24 @@ public class ScheduleDayAdapter extends RecyclerView.Adapter<ScheduleDayAdapter.
                 tvNotes.setText("");
             }
 
-            // Position event based on start time
-            if (!start.isEmpty()) {
-                int topMargin = calculateTimePosition(context, start);
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.WRAP_CONTENT);
-                params.topMargin = topMargin;
-                eventView.setLayoutParams(params);
-            }
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.bottomMargin = 16; // Add some spacing between items
+            eventView.setLayoutParams(params);
 
             eventView.setOnClickListener(v -> {
                 if (listener != null)
-                    listener.onEdit(event);
+                    listener.onItemClick(event);
             });
 
             eventView.setOnLongClickListener(v -> {
                 if (listener != null)
-                    listener.onDelete(event);
+                    listener.onItemLongClick(v, event);
                 return true;
             });
 
             return eventView;
-        }
-
-        private int calculateTimePosition(Context context, String timeStr) {
-            try {
-                String[] parts = timeStr.split(":");
-                if (parts.length >= 2) {
-                    int hour = Integer.parseInt(parts[0]);
-                    int minute = Integer.parseInt(parts[1]);
-                    
-                    // Calculate position: 30dp per hour
-                    float hours = hour + (minute / 60.0f);
-                    int positionDp = (int) (hours * 30.0f);
-                    
-                    // Convert dp to pixels
-                    float density = context.getResources().getDisplayMetrics().density;
-                    return (int) (positionDp * density);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return 0;
-        }
-
-        private void updateCurrentTimeIndicator(ScheduleDayGroup dayGroup, String selectedDateKey) {
-            // Check if this is today's date
-            String todayKey = DATE_FORMAT.format(new Date());
-            boolean isToday = selectedDateKey != null && selectedDateKey.equals(todayKey)
-                    && !dayGroup.isFlexible() && dayGroup.getDayKey() != null
-                    && dayGroup.getDayKey().equals(todayKey);
-
-            if (isToday) {
-                // Calculate current time position
-                Calendar now = Calendar.getInstance();
-                int currentHour = now.get(Calendar.HOUR_OF_DAY);
-                int currentMinute = now.get(Calendar.MINUTE);
-
-                // Calculate position as percentage of day (0-24 hours)
-                double timePosition = currentHour + (currentMinute / 60.0);
-                double percentage = (timePosition / 24.0) * 100.0;
-
-                // Show indicators
-                viewCurrentTimeLine.setVisibility(View.VISIBLE);
-                viewCurrentTimeDot.setVisibility(View.VISIBLE);
-
-                // Position the indicators after layout
-                itemViewRoot.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int containerHeight = viewTimelineContainer.getHeight();
-                        if (containerHeight > 0) {
-                            int position = (int) (containerHeight * percentage / 100.0);
-
-                            // Position the dot on the timeline
-                            FrameLayout.LayoutParams dotParams = (FrameLayout.LayoutParams) viewCurrentTimeDot
-                                    .getLayoutParams();
-                            if (dotParams == null) {
-                                dotParams = new FrameLayout.LayoutParams(
-                                        FrameLayout.LayoutParams.WRAP_CONTENT,
-                                        FrameLayout.LayoutParams.WRAP_CONTENT);
-                            }
-                            dotParams.gravity = Gravity.START | Gravity.TOP;
-                            dotParams.topMargin = position - 8; // -8 to center the 16dp dot
-                            dotParams.leftMargin = 8; // Align with timeline (15dp margin - 7dp to center)
-                            viewCurrentTimeDot.setLayoutParams(dotParams);
-
-                            // Position the horizontal line extending from timeline
-                            FrameLayout.LayoutParams lineParams = (FrameLayout.LayoutParams) viewCurrentTimeLine
-                                    .getLayoutParams();
-                            if (lineParams == null) {
-                                lineParams = new FrameLayout.LayoutParams(
-                                        FrameLayout.LayoutParams.MATCH_PARENT,
-                                        FrameLayout.LayoutParams.WRAP_CONTENT);
-                            }
-                            lineParams.gravity = Gravity.TOP;
-                            lineParams.topMargin = position - 1; // -1 to center the 2dp line
-                            lineParams.leftMargin = 32; // Start after timeline (15dp + 2dp line + 15dp)
-                            viewCurrentTimeLine.setLayoutParams(lineParams);
-                        }
-                    }
-                });
-            } else {
-                // Hide indicators if not today
-                viewCurrentTimeLine.setVisibility(View.GONE);
-                viewCurrentTimeDot.setVisibility(View.GONE);
-            }
         }
     }
 }

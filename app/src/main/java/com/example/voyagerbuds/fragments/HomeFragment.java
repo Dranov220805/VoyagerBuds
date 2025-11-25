@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.example.voyagerbuds.utils.CurrencyHelper;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.activities.HomeActivity;
@@ -117,6 +118,16 @@ public class HomeFragment extends Fragment
         tvHeroTripSchedule = view.findViewById(R.id.tv_hero_trip_schedule);
         tvHeroTripExpenses = view.findViewById(R.id.tv_hero_trip_expenses);
         fabAddTrip = view.findViewById(R.id.fab_add_trip);
+
+        // Initialize profile icon
+        ImageView profileIcon = view.findViewById(R.id.profile_icon);
+        if (profileIcon != null) {
+            profileIcon.setOnClickListener(v -> {
+                if (getActivity() instanceof HomeActivity) {
+                    ((HomeActivity) getActivity()).onProfileClicked();
+                }
+            });
+        }
 
         // Initialize new sections
         recyclerViewUpcomingTrips = view.findViewById(R.id.recycler_view_upcoming_trips);
@@ -211,14 +222,13 @@ public class HomeFragment extends Fragment
         Collections.sort(tripList, new Comparator<Trip>() {
             @Override
             public int compare(Trip o1, Trip o2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 try {
-                    Date d1 = sdf.parse(o1.getStartDate());
-                    Date d2 = sdf.parse(o2.getStartDate());
+                    java.time.LocalDate d1 = DateUtils.parseDbDateToLocalDate(o1.getStartDate());
+                    java.time.LocalDate d2 = DateUtils.parseDbDateToLocalDate(o2.getStartDate());
                     if (d1 == null || d2 == null)
                         return 0;
                     return d1.compareTo(d2);
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     return 0;
                 }
             }
@@ -229,21 +239,20 @@ public class HomeFragment extends Fragment
         pastTripList.clear();
         Trip currentTrip = null;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Date currentDate = new Date();
+        java.time.LocalDate currentDate = DateUtils.todayLocalDate();
 
         for (Trip trip : tripList) {
             try {
-                Date startDate = sdf.parse(trip.getStartDate());
-                Date endDate = sdf.parse(trip.getEndDate());
+                java.time.LocalDate startDate = DateUtils.parseDbDateToLocalDate(trip.getStartDate());
+                java.time.LocalDate endDate = DateUtils.parseDbDateToLocalDate(trip.getEndDate());
 
                 if (startDate != null && endDate != null) {
-                    if (!currentDate.before(startDate) && !currentDate.after(endDate)) {
+                    if (!currentDate.isBefore(startDate) && !currentDate.isAfter(endDate)) {
                         // Current Trip
                         if (currentTrip == null) {
                             currentTrip = trip;
                         }
-                    } else if (currentDate.before(startDate)) {
+                    } else if (currentDate.isBefore(startDate)) {
                         // Upcoming Trip
                         upcomingTripList.add(trip);
                     } else {
@@ -251,7 +260,7 @@ public class HomeFragment extends Fragment
                         pastTripList.add(trip);
                     }
                 }
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -260,14 +269,13 @@ public class HomeFragment extends Fragment
         Collections.sort(upcomingTripList, new Comparator<Trip>() {
             @Override
             public int compare(Trip o1, Trip o2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 try {
-                    Date d1 = sdf.parse(o1.getStartDate());
-                    Date d2 = sdf.parse(o2.getStartDate());
+                    java.time.LocalDate d1 = DateUtils.parseDbDateToLocalDate(o1.getStartDate());
+                    java.time.LocalDate d2 = DateUtils.parseDbDateToLocalDate(o2.getStartDate());
                     if (d1 == null || d2 == null)
                         return 0;
                     return d1.compareTo(d2);
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     return 0;
                 }
             }
@@ -277,14 +285,13 @@ public class HomeFragment extends Fragment
         Collections.sort(pastTripList, new Comparator<Trip>() {
             @Override
             public int compare(Trip o1, Trip o2) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 try {
-                    Date d1 = sdf.parse(o1.getStartDate());
-                    Date d2 = sdf.parse(o2.getStartDate());
+                    java.time.LocalDate d1 = DateUtils.parseDbDateToLocalDate(o1.getStartDate());
+                    java.time.LocalDate d2 = DateUtils.parseDbDateToLocalDate(o2.getStartDate());
                     if (d1 == null || d2 == null)
                         return 0;
                     return d2.compareTo(d1);
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     return 0;
                 }
             }
@@ -308,19 +315,18 @@ public class HomeFragment extends Fragment
     private Trip findCurrentTrip() {
         int userId = 1;
         List<Trip> allTrips = databaseHelper.getAllTrips(userId);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Date currentDate = new Date();
+        java.time.LocalDate currentDate = DateUtils.todayLocalDate();
 
         for (Trip trip : allTrips) {
             try {
-                Date startDate = sdf.parse(trip.getStartDate());
-                Date endDate = sdf.parse(trip.getEndDate());
+                java.time.LocalDate startDate = DateUtils.parseDbDateToLocalDate(trip.getStartDate());
+                java.time.LocalDate endDate = DateUtils.parseDbDateToLocalDate(trip.getEndDate());
                 if (startDate != null && endDate != null) {
-                    if (!currentDate.before(startDate) && !currentDate.after(endDate)) {
+                    if (!currentDate.isBefore(startDate) && !currentDate.isAfter(endDate)) {
                         return trip;
                     }
                 }
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -443,7 +449,7 @@ public class HomeFragment extends Fragment
         // Set total expenses
         if (tvHeroTripExpenses != null) {
             double totalExpenses = databaseHelper.getTotalExpensesForTrip(trip.getTripId());
-            tvHeroTripExpenses.setText(String.format(Locale.getDefault(), "$%.0f", totalExpenses));
+            tvHeroTripExpenses.setText(CurrencyHelper.formatCurrency(requireContext(), totalExpenses));
         }
 
         // Format and display dates
@@ -457,23 +463,22 @@ public class HomeFragment extends Fragment
             // TODO: Load image using Glide or Picasso
             // For now, use app icon as placeholder even if URL exists (until image loading
             // is implemented)
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
+            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
         } else {
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
+            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
         }
     }
 
     private boolean isCurrentTrip(Trip trip) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            Date currentDate = new Date();
-            Date startDate = sdf.parse(trip.getStartDate());
-            Date endDate = sdf.parse(trip.getEndDate());
+            java.time.LocalDate currentDate = DateUtils.todayLocalDate();
+            java.time.LocalDate startDate = DateUtils.parseDbDateToLocalDate(trip.getStartDate());
+            java.time.LocalDate endDate = DateUtils.parseDbDateToLocalDate(trip.getEndDate());
 
             if (startDate != null && endDate != null) {
-                return !currentDate.before(startDate) && !currentDate.after(endDate);
+                return !currentDate.isBefore(startDate) && !currentDate.isAfter(endDate);
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;

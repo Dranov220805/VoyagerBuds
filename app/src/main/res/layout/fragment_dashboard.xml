@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:background="@color/background_light"
     tools:context=".fragments.DashboardFragment">
 
     <LinearLayout
@@ -18,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dashboard"
-            android:textColor="#000000"
+            android:textColor="@color/text_dark"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
@@ -27,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dashboard_subtitle"
-            android:textColor="#666666"
+            android:textColor="@color/text_medium"
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
@@ -75,7 +76,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/total_trips_label"
-                        android:textColor="#E0FFFFFF"
+                        android:textColor="@color/white"
                         android:textSize="12sp"/>
 
                 </LinearLayout>
@@ -96,7 +97,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:background="#FFB74D"
+                    android:background="@color/orange_light"
                     android:gravity="center">
 
                     <TextView
@@ -119,7 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/places_visited_label"
-                        android:textColor="#E0FFFFFF"
+                        android:textColor="@color/white"
                         android:textSize="12sp"/>
 
                 </LinearLayout>
@@ -134,6 +135,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/card_background"
             android:layout_marginBottom="16dp">
 
             <LinearLayout
@@ -154,7 +156,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                             android:text="@string/total_expenses_label"
-                        android:textColor="#000000"
+                        android:textColor="@color/text_dark"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
@@ -187,7 +189,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                                 android:text="@string/transport_label"
-                            android:textColor="#666666"
+                            android:textColor="@color/text_medium"
                             android:textSize="13sp"/>
 
                         <ProgressBar
@@ -203,7 +205,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_transport_cost"
-                            android:textColor="#000000"
+                            android:textColor="@color/text_dark"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp"/>
@@ -222,7 +224,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                             android:text="@string/hotel_label"
-                            android:textColor="#666666"
+                            android:textColor="@color/text_medium"
                             android:textSize="13sp"/>
 
                         <ProgressBar
@@ -232,13 +234,13 @@
                             android:max="100"
                             android:progress="35"
                             style="?android:attr/progressBarStyleHorizontal"
-                            android:progressTint="#FFB74D"/>
+                            android:progressTint="@color/orange_light"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_hotel_cost"
-                            android:textColor="#000000"
+                            android:textColor="@color/text_dark"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp"/>
@@ -256,7 +258,7 @@
                             android:layout_width="100dp"
                             android:layout_height="wrap_content"
                                 android:text="@string/food_label"
-                            android:textColor="#666666"
+                            android:textColor="@color/text_medium"
                             android:textSize="13sp"/>
 
                         <ProgressBar
@@ -266,13 +268,13 @@
                             android:max="100"
                             android:progress="20"
                             style="?android:attr/progressBarStyleHorizontal"
-                            android:progressTint="#81C784"/>
+                            android:progressTint="@color/green_light"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_food_cost"
-                            android:textColor="#000000"
+                            android:textColor="@color/text_dark"
                             android:textSize="13sp"
                             android:textStyle="bold"
                             android:layout_marginStart="12dp"/>
@@ -291,6 +293,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/card_background"
             android:layout_marginBottom="16dp">
 
             <LinearLayout
@@ -311,7 +314,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/emergency_alert"
-                        android:textColor="#000000"
+                        android:textColor="@color/text_dark"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
@@ -329,7 +332,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/emergency_alert_description"
-                    android:textColor="#666666"
+                    android:textColor="@color/text_medium"
                     android:textSize="13sp"
                     android:layout_marginBottom="12dp"/>
 
@@ -358,7 +361,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/group_trips"
-                android:textColor="#000000"
+                android:textColor="@color/text_dark"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
@@ -397,7 +400,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/example_group_title"
-                        android:textColor="#000000"
+                        android:textColor="@color/text_dark"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
@@ -405,7 +408,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/example_group_members_days"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_medium"
                         android:textSize="12sp"
                         android:layout_marginTop="4dp"/>
 

@@ -11,9 +11,13 @@ public class ScheduleItem implements Serializable {
     private String endTime; // e.g., "11:00"
     private String title;
     private String notes;
-    private String icon; // emoji or icon identifier
+    // private String icon; // Removed as per requirement
     private String location; // location string
     private String participants; // comma-separated participant names
+    private double expenseAmount;
+    private String expenseCurrency;
+    private String imagePaths; // JSON or comma-separated paths
+    private int notifyBeforeMinutes; // 0 means no notification
     private long createdAt;
     private long updatedAt;
 
@@ -76,6 +80,54 @@ public class ScheduleItem implements Serializable {
         this.notes = notes;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(String participants) {
+        this.participants = participants;
+    }
+
+    public double getExpenseAmount() {
+        return expenseAmount;
+    }
+
+    public void setExpenseAmount(double expenseAmount) {
+        this.expenseAmount = expenseAmount;
+    }
+
+    public String getExpenseCurrency() {
+        return expenseCurrency;
+    }
+
+    public void setExpenseCurrency(String expenseCurrency) {
+        this.expenseCurrency = expenseCurrency;
+    }
+
+    public String getImagePaths() {
+        return imagePaths;
+    }
+
+    public void setImagePaths(String imagePaths) {
+        this.imagePaths = imagePaths;
+    }
+
+    public int getNotifyBeforeMinutes() {
+        return notifyBeforeMinutes;
+    }
+
+    public void setNotifyBeforeMinutes(int notifyBeforeMinutes) {
+        this.notifyBeforeMinutes = notifyBeforeMinutes;
+    }
+
     public long getCreatedAt() {
         return createdAt;
     }
@@ -92,27 +144,13 @@ public class ScheduleItem implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(String participants) {
-        this.participants = participants;
-    }
+    /*
+     * public String getIcon() {
+     * return icon;
+     * }
+     * 
+     * public void setIcon(String icon) {
+     * this.icon = icon;
+     * }
+     */
 }
