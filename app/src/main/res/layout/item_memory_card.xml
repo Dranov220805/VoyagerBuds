@@ -29,7 +29,7 @@
             android:textColor="@color/text_dark"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:background="@color/white" />
+            android:background="@color/card_background" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

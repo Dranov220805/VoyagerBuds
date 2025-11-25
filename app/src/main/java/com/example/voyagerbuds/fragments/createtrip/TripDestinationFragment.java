@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -108,6 +109,15 @@ public class TripDestinationFragment extends Fragment {
             }
         });
 
+        // Also make the arrow icon clickable for consistency
+        ImageView ivBack = view.findViewById(R.id.btn_back_arrow);
+        if (ivBack != null) {
+            ivBack.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onBack();
+                }
+            });
+        }
         btnBack.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onBack();

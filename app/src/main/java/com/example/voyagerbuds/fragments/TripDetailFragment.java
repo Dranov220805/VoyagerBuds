@@ -698,8 +698,34 @@ public class TripDetailFragment extends Fragment {
     }
 
     private void showDetailDialog(ScheduleItem item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_detail, null);
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        bottomSheetDialog.getBehavior().setDraggable(false);
+
+        View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
+
+        // Enable dragging only when touching the handle
+        dragHandle.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    bottomSheetDialog.getBehavior().setDraggable(true);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    // We keep it draggable until the gesture ends, but we can't easily reset it
+                    // here
+                    // because the behavior might still be processing the drag.
+                    // However, setting it to false here might stop the fling.
+                    // A better approach for "only handle" is usually complex, but let's try this:
+                    // If we set it to false, the next touch on content won't drag.
+                    // We delay it slightly or just set it.
+                    v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+                    break;
+            }
+            return false; // Let the touch propagate to the behavior
+        });
 
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);
@@ -719,6 +745,7 @@ public class TripDetailFragment extends Fragment {
         View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
         View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
         View btnClose = dialogView.findViewById(R.id.btn_detail_close);
+        View btnCloseSheet = dialogView.findViewById(R.id.btn_close_sheet);
 
         etTitle.setText(item.getTitle());
 
@@ -791,8 +818,6 @@ public class TripDetailFragment extends Fragment {
             rvImages.setVisibility(View.GONE);
         }
 
-        AlertDialog dialog = builder.setView(dialogView).create();
-
         // Hide Edit/Delete buttons in detail dialog as they are now in long-press menu
         // But user might still want them here for convenience.
         // The prompt said "If user hold the event, it will have a smaller menu for
@@ -803,18 +828,21 @@ public class TripDetailFragment extends Fragment {
         // Let's keep them for now as it's better UX to have multiple ways.
 
         btnDelete.setOnClickListener(v -> {
-            dialog.dismiss();
+            bottomSheetDialog.dismiss();
             deleteSchedule(item);
         });
 
         btnEdit.setOnClickListener(v -> {
-            dialog.dismiss();
+            bottomSheetDialog.dismiss();
             showAddEditDialog(item);
         });
 
-        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        if (btnCloseSheet != null) {
+            btnCloseSheet.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        }
 
-        dialog.show();
+        bottomSheetDialog.show();
     }
 
     private void navigateToMapWithPin(ScheduleItem item) {

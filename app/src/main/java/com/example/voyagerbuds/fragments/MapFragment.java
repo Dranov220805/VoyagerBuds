@@ -2,6 +2,8 @@ package com.example.voyagerbuds.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,12 +34,13 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.Trip;
-import android.widget.TextView;
 import android.widget.LinearLayout;
 
 import org.osmdroid.events.MapEventsReceiver;
@@ -51,6 +56,9 @@ public class MapFragment extends Fragment {
     private FloatingActionButton fabMyLocation;
     private View loadingContainer;
     private DatabaseHelper databaseHelper;
+    private ImageView btnBackFromLocation;
+    private TextView tvCurrentLocation;
+    private boolean isFromSchedule = false;
 
     public MapFragment() {
         // Required empty public constructor
@@ -87,6 +95,15 @@ public class MapFragment extends Fragment {
             String time = getArguments().getString("pin_time");
             String budget = getArguments().getString("pin_budget");
             addTemporaryPin(lat, lng, title, snippet, time, budget);
+
+            // Show back button if coming from schedule
+            isFromSchedule = true;
+            if (btnBackFromLocation != null) {
+                btnBackFromLocation.setVisibility(View.VISIBLE);
+            }
+            if (tvCurrentLocation != null) {
+                tvCurrentLocation.setText(title);
+            }
         }
     }
 
@@ -129,6 +146,14 @@ public class MapFragment extends Fragment {
         mapView = view.findViewById(R.id.map);
         fabMyLocation = view.findViewById(R.id.fab_my_location);
         loadingContainer = view.findViewById(R.id.loading_container);
+        btnBackFromLocation = view.findViewById(R.id.btn_back_from_location);
+        tvCurrentLocation = view.findViewById(R.id.tv_current_location);
+
+        if (btnBackFromLocation != null) {
+            btnBackFromLocation.setOnClickListener(v -> {
+                requireActivity().onBackPressed();
+            });
+        }
 
         // Show loading indicator
         showLoading();
@@ -202,6 +227,22 @@ public class MapFragment extends Fragment {
         myLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(requireContext()), mapView);
         myLocationOverlay.enableMyLocation();
         myLocationOverlay.enableFollowLocation();
+
+        myLocationOverlay.runOnFirstFix(() -> {
+            GeoPoint myLocation = myLocationOverlay.getMyLocation();
+            if (myLocation != null) {
+                updateLocationText(myLocation.getLatitude(), myLocation.getLongitude());
+                try {
+                    requireActivity().runOnUiThread(() -> {
+                        mapView.getController().animateTo(myLocation);
+                        mapView.getController().setZoom(15.0);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         mapView.getOverlays().add(myLocationOverlay);
     }
 
@@ -233,6 +274,9 @@ public class MapFragment extends Fragment {
                             // Zoom to current location
                             mapView.getController().setZoom(15.0);
                             mapView.getController().animateTo(currentLocation);
+
+                            // Update location text if not showing a specific pin
+                            updateLocationText(location.getLatitude(), location.getLongitude());
 
                             Toast.makeText(requireContext(),
                                     String.format("Current Location:\nLat: %.4f, Lon: %.4f",
@@ -514,5 +558,68 @@ public class MapFragment extends Fragment {
             this.latitude = latitude;
             this.longitude = longitude;
         }
+    }
+
+    private void updateLocationText(double lat, double lng) {
+        if (isFromSchedule || tvCurrentLocation == null)
+            return;
+
+        new Thread(() -> {
+            Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    String addressText = "";
+                    if (address.getThoroughfare() != null) {
+                        addressText += address.getThoroughfare();
+                    }
+                    if (address.getLocality() != null) {
+                        if (!addressText.isEmpty())
+                            addressText += ", ";
+                        addressText += address.getLocality();
+                    } else if (address.getSubAdminArea() != null) {
+                        if (!addressText.isEmpty())
+                            addressText += ", ";
+                        addressText += address.getSubAdminArea();
+                    }
+
+                    if (addressText.isEmpty()) {
+                        addressText = address.getAddressLine(0);
+                    }
+
+                    final String finalText = addressText;
+                    try {
+                        requireActivity().runOnUiThread(() -> {
+                            if (tvCurrentLocation != null)
+                                tvCurrentLocation.setText(finalText);
+                        });
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    final String finalText = String.format(Locale.getDefault(), "Lat: %.4f, Lon: %.4f", lat, lng);
+                    try {
+                        requireActivity().runOnUiThread(() -> {
+                            if (tvCurrentLocation != null)
+                                tvCurrentLocation.setText(finalText);
+                        });
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                final String finalText = String.format(Locale.getDefault(), "Lat: %.4f, Lon: %.4f", lat, lng);
+                try {
+                    requireActivity().runOnUiThread(() -> {
+                        if (tvCurrentLocation != null)
+                            tvCurrentLocation.setText(finalText);
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
     }
 }

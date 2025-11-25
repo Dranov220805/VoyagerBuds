@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                     android:text="@string/trip_name"
-                android:textColor="@color/black"
+                android:textColor="@color/text_dark"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                     android:text="@string/destination"
-                android:textColor="@color/gray"
+                android:textColor="@color/text_medium"
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
                 android:maxLines="1"
@@ -78,7 +78,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                         android:text="@string/date_range_example"
-                    android:textColor="@color/darker_gray"
+                    android:textColor="@color/text_medium"
                     android:textSize="12sp"
                     android:layout_marginStart="4dp" />
 

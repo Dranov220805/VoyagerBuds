@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:background="@color/background_light"
     tools:context=".fragments.CaptureFragment">
 
     <LinearLayout
@@ -18,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/capture_header_title"
-            android:textColor="#000000"
+            android:textColor="@color/text_dark"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
@@ -27,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/capture_header_subtitle"
-            android:textColor="#666666"
+            android:textColor="@color/text_medium"
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
@@ -89,7 +90,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:background="#FFB74D"
+                    android:background="@color/orange_light"
                     android:padding="16dp">
 
                     <ImageView
@@ -120,6 +121,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/card_background"
             android:layout_marginBottom="20dp">
 
             <LinearLayout
@@ -140,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/travel_notes"
-                        android:textColor="#000000"
+                        android:textColor="@color/text_dark"
                         android:textSize="18sp"
                         android:textStyle="bold"/>
 
@@ -196,7 +198,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                     android:text="@string/recent_photos"
-                android:textColor="#000000"
+                android:textColor="@color/text_dark"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
@@ -234,7 +236,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#4DD4F1"
+                        android:background="@color/cyan_light"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/desc_photo_1"/>
 
@@ -252,7 +254,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#FFB74D"
+                        android:background="@color/orange_light"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/desc_photo_2"/>
 
@@ -269,7 +271,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#81C784"
+                        android:background="@color/green_light"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/desc_photo_3"/>
 
@@ -294,7 +296,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#BA68C8"
+                        android:background="@color/purple_light"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/desc_photo_4"/>
 
@@ -312,7 +314,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#E57373"
+                        android:background="@color/red_light"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/desc_photo_5"/>
 
@@ -333,7 +335,7 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="#64B5F6"
+                            android:background="@color/blue_light"
                             android:scaleType="centerCrop"
                             android:contentDescription="@string/desc_photo_6"/>
 

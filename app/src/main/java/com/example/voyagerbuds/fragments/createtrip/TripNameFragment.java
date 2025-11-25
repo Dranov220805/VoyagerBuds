@@ -10,6 +10,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ImageView;
+import com.example.voyagerbuds.fragments.CreateTripFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,6 +54,18 @@ public class TripNameFragment extends Fragment {
                 }
             }
         });
+
+        // Back arrow should ask parent to handle back press
+        ImageView btnBack = view.findViewById(R.id.btn_back_arrow);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> {
+                if (getParentFragment() instanceof CreateTripFragment) {
+                    ((CreateTripFragment) getParentFragment()).handleBackPress();
+                } else if (getActivity() != null) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
 
         // Handle keyboard "Done" button
         etTripName.setOnEditorActionListener((v, actionId, event) -> {
