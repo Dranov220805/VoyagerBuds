@@ -37,7 +37,7 @@ public class EditTripFragment extends Fragment {
     private DatabaseHelper databaseHelper;
 
     private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etParticipants, etNotes;
-    private Button btnSave;
+    private Button btnSave, btnCancel;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -73,6 +73,7 @@ public class EditTripFragment extends Fragment {
         etParticipants = view.findViewById(R.id.et_participants);
         etNotes = view.findViewById(R.id.et_notes);
         btnSave = view.findViewById(R.id.btn_save);
+        btnCancel = view.findViewById(R.id.btn_cancel);
 
         // Load Trip Data
         loadTripData();
@@ -81,6 +82,7 @@ public class EditTripFragment extends Fragment {
         etStartDate.setOnClickListener(v -> showDatePicker(etStartDate));
         etEndDate.setOnClickListener(v -> showDatePicker(etEndDate));
         btnSave.setOnClickListener(v -> saveTrip());
+        btnCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
 
         return view;
     }

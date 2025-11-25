@@ -141,6 +141,7 @@
                         android:textSize="14sp"
                         android:textColor="@color/teal_primary"
                         android:drawableStart="@drawable/ic_edit"
+                        app:drawableTint="@color/teal_primary"
                         android:drawablePadding="4dp"
                         android:clickable="true"
                         android:focusable="true"

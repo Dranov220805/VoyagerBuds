@@ -14,8 +14,6 @@ public class ScheduleItem implements Serializable {
     // private String icon; // Removed as per requirement
     private String location; // location string
     private String participants; // comma-separated participant names
-    private double expenseAmount;
-    private String expenseCurrency;
     private String imagePaths; // JSON or comma-separated paths
     private int notifyBeforeMinutes; // 0 means no notification
     private long createdAt;
@@ -94,22 +92,6 @@ public class ScheduleItem implements Serializable {
 
     public void setParticipants(String participants) {
         this.participants = participants;
-    }
-
-    public double getExpenseAmount() {
-        return expenseAmount;
-    }
-
-    public void setExpenseAmount(double expenseAmount) {
-        this.expenseAmount = expenseAmount;
-    }
-
-    public String getExpenseCurrency() {
-        return expenseCurrency;
-    }
-
-    public void setExpenseCurrency(String expenseCurrency) {
-        this.expenseCurrency = expenseCurrency;
     }
 
     public String getImagePaths() {

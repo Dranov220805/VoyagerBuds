@@ -476,4 +476,6 @@
     <!-- Empty schedule state -->
     <string name="schedule_no_events_today">No schedule for today, create one in the trip detail</string>
     <string name="go_to_trip_detail">Go to Trip Detail</string>
+    <string name="loading">Loading</string>
+    <string name="rotate_image">Rotate image</string>
 </resources>
