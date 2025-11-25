@@ -1,17 +1,24 @@
 package com.example.voyagerbuds.database;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.voyagerbuds.models.Trip;
+import com.example.voyagerbuds.database.dao.ExpenseDao;
+import com.example.voyagerbuds.database.dao.ScheduleDao;
+import com.example.voyagerbuds.database.dao.TripDao;
 import com.example.voyagerbuds.models.Expense;
+import com.example.voyagerbuds.models.ScheduleItem;
+import com.example.voyagerbuds.models.Trip;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DatabaseHelper - Manages database schema, migrations, and provides access to
+ * DAOs.
+ * This class should only contain database structure logic, not business
+ * operations.
+ */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
     private static final int DATABASE_VERSION = 8;
@@ -178,393 +185,151 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    // Trip CRUD operations
+    // Trip CRUD operations - Delegate to DAO
     public long addTrip(Trip trip) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_USER_ID, trip.getUserId());
-        values.put(COLUMN_TRIP_NAME, trip.getTripName());
-        values.put(COLUMN_START_DATE, trip.getStartDate());
-        values.put(COLUMN_END_DATE, trip.getEndDate());
-        values.put(COLUMN_DESTINATION, trip.getDestination());
-        values.put(COLUMN_NOTES, trip.getNotes());
-        values.put(COLUMN_PHOTO_URL, trip.getPhotoUrl());
-        values.put(COLUMN_CREATED_AT, trip.getCreatedAt());
-        values.put(COLUMN_UPDATED_AT, trip.getUpdatedAt());
-        values.put(COLUMN_IS_GROUP_TRIP, trip.getIsGroupTrip());
-        values.put(COLUMN_MAP_LATITUDE, trip.getMapLatitude());
-        values.put(COLUMN_MAP_LONGITUDE, trip.getMapLongitude());
-        values.put(COLUMN_SYNC_STATUS, trip.getSyncStatus());
-        values.put(COLUMN_FIREBASE_ID, trip.getFirebaseId());
-        values.put(COLUMN_LAST_SYNCED_AT, trip.getLastSyncedAt());
-        values.put(COLUMN_BUDGET, trip.getBudget());
-        values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
-
-        long id = db.insert(TABLE_TRIPS, null, values);
+        TripDao dao = new TripDao(db);
+        long id = dao.insert(trip);
         db.close();
         return id;
     }
 
-    // Schedule CRUD
-    public long addSchedule(com.example.voyagerbuds.models.ScheduleItem item) {
+    // Schedule CRUD - Delegate to DAO
+    public long addSchedule(ScheduleItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
-        android.content.ContentValues values = new android.content.ContentValues();
-        values.put(COLUMN_SCHEDULE_TRIP_ID, item.getTripId());
-        values.put(COLUMN_SCHEDULE_DAY, item.getDay());
-        values.put(COLUMN_SCHEDULE_START_TIME, item.getStartTime());
-        values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
-        values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
-        values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
-        // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
-        values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
-        values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
-        // values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount()); //
-        // Removed
-        // values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency()); //
-        // Removed
-        values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
-        values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
-        values.put(COLUMN_SCHEDULE_CREATED_AT, item.getCreatedAt());
-        values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
-
-        long id = db.insert(TABLE_SCHEDULES, null, values);
+        ScheduleDao dao = new ScheduleDao(db);
+        long id = dao.insert(item);
         db.close();
         return id;
     }
 
-    public java.util.List<com.example.voyagerbuds.models.ScheduleItem> getSchedulesForTrip(int tripId) {
-        java.util.List<com.example.voyagerbuds.models.ScheduleItem> list = new java.util.ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_SCHEDULES + " WHERE " + COLUMN_SCHEDULE_TRIP_ID + " = ? ORDER BY "
-                + COLUMN_SCHEDULE_DAY + ", " + COLUMN_SCHEDULE_START_TIME;
+    public List<ScheduleItem> getSchedulesForTrip(int tripId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        android.database.Cursor cursor = db.rawQuery(query, new String[] { String.valueOf(tripId) });
-
-        if (cursor.moveToFirst()) {
-            do {
-                com.example.voyagerbuds.models.ScheduleItem it = new com.example.voyagerbuds.models.ScheduleItem();
-                it.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_ID)));
-                it.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TRIP_ID)));
-                it.setDay(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_DAY)));
-                it.setStartTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_START_TIME)));
-                it.setEndTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_END_TIME)));
-                it.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TITLE)));
-                it.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_NOTES)));
-
-                // Get new fields (may be null for older records)
-                /*
-                 * int iconIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_ICON);
-                 * if (iconIndex != -1) {
-                 * it.setIcon(cursor.getString(iconIndex));
-                 * }
-                 */
-                int locationIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LOCATION);
-                if (locationIndex != -1) {
-                    it.setLocation(cursor.getString(locationIndex));
-                }
-                int participantsIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_PARTICIPANTS);
-                if (participantsIndex != -1) {
-                    it.setParticipants(cursor.getString(participantsIndex));
-                }
-                // expense amount/currency fields were removed from the model in v8.
-                int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
-                if (imagesIndex != -1) {
-                    it.setImagePaths(cursor.getString(imagesIndex));
-                }
-                int notifyBeforeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_NOTIFY_BEFORE);
-                if (notifyBeforeIndex != -1) {
-                    it.setNotifyBeforeMinutes(cursor.getInt(notifyBeforeIndex));
-                }
-
-                it.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));
-                it.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_UPDATED_AT)));
-                list.add(it);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+        ScheduleDao dao = new ScheduleDao(db);
+        List<ScheduleItem> list = dao.getAllByTripId(tripId);
         db.close();
         return list;
     }
 
-    public int updateSchedule(com.example.voyagerbuds.models.ScheduleItem item) {
+    public int updateSchedule(ScheduleItem item) {
         SQLiteDatabase db = this.getWritableDatabase();
-        android.content.ContentValues values = new android.content.ContentValues();
-        values.put(COLUMN_SCHEDULE_DAY, item.getDay());
-        values.put(COLUMN_SCHEDULE_START_TIME, item.getStartTime());
-        values.put(COLUMN_SCHEDULE_END_TIME, item.getEndTime());
-        values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
-        values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
-        // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
-        values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
-        values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
-        values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
-        values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
-        values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
-
-        int result = db.update(TABLE_SCHEDULES, values, COLUMN_SCHEDULE_ID + " = ?",
-                new String[] { String.valueOf(item.getId()) });
+        ScheduleDao dao = new ScheduleDao(db);
+        int result = dao.update(item);
         db.close();
         return result;
     }
 
     public void deleteSchedule(int scheduleId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_SCHEDULES, COLUMN_SCHEDULE_ID + " = ?", new String[] { String.valueOf(scheduleId) });
+        ScheduleDao dao = new ScheduleDao(db);
+        dao.delete(scheduleId);
         db.close();
     }
 
     public List<Trip> getAllTrips(int userId) {
-        List<Trip> tripList = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_TRIPS + " WHERE " + COLUMN_USER_ID + " = ? ORDER BY "
-                + COLUMN_CREATED_AT + " DESC";
-
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, new String[] { String.valueOf(userId) });
-
-        if (cursor.moveToFirst()) {
-            do {
-                Trip trip = new Trip();
-                trip.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TRIP_ID)));
-                trip.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)));
-                trip.setTripName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TRIP_NAME)));
-                trip.setStartDate(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_START_DATE)));
-                trip.setEndDate(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_END_DATE)));
-                trip.setDestination(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESTINATION)));
-                trip.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTES)));
-                trip.setPhotoUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO_URL)));
-                trip.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)));
-                trip.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_UPDATED_AT)));
-                trip.setIsGroupTrip(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_GROUP_TRIP)));
-                trip.setMapLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_MAP_LATITUDE)));
-                trip.setMapLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_MAP_LONGITUDE)));
-                trip.setSyncStatus(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SYNC_STATUS)));
-                trip.setFirebaseId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FIREBASE_ID)));
-                trip.setLastSyncedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_LAST_SYNCED_AT)));
-                trip.setBudget(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BUDGET)));
-                trip.setParticipants(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PARTICIPANTS)));
-                tripList.add(trip);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+        TripDao dao = new TripDao(db);
+        List<Trip> list = dao.getAllByUserId(userId);
         db.close();
-        return tripList;
+        return list;
     }
 
     public Trip getTripById(int tripId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_TRIPS, null, COLUMN_TRIP_ID + "=?",
-                new String[] { String.valueOf(tripId) }, null, null, null);
-
-        Trip trip = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            trip = new Trip();
-            trip.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TRIP_ID)));
-            trip.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)));
-            trip.setTripName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TRIP_NAME)));
-            trip.setStartDate(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_START_DATE)));
-            trip.setEndDate(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_END_DATE)));
-            trip.setDestination(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESTINATION)));
-            trip.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTES)));
-            trip.setPhotoUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHOTO_URL)));
-            trip.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)));
-            trip.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_UPDATED_AT)));
-            trip.setIsGroupTrip(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_GROUP_TRIP)));
-            trip.setMapLatitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_MAP_LATITUDE)));
-            trip.setMapLongitude(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_MAP_LONGITUDE)));
-            trip.setSyncStatus(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SYNC_STATUS)));
-            trip.setFirebaseId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FIREBASE_ID)));
-            trip.setLastSyncedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_LAST_SYNCED_AT)));
-            trip.setBudget(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BUDGET)));
-            trip.setParticipants(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PARTICIPANTS)));
-            cursor.close();
-        }
+        TripDao dao = new TripDao(db);
+        Trip trip = dao.getById(tripId);
         db.close();
         return trip;
     }
 
     public double getTotalExpensesForTrip(int tripId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT SUM(" + COLUMN_AMOUNT + ") as total FROM " + TABLE_EXPENSES + " WHERE "
-                + COLUMN_EXPENSE_TRIP_ID + " = ?";
-        Cursor cursor = db.rawQuery(query, new String[] { String.valueOf(tripId) });
-
-        double total = 0.0;
-        if (cursor.moveToFirst()) {
-            total = cursor.getDouble(cursor.getColumnIndexOrThrow("total"));
-        }
-        cursor.close();
+        ExpenseDao dao = new ExpenseDao(db);
+        double total = dao.getTotalByTripId(tripId);
         db.close();
         return total;
     }
 
     public int updateTrip(Trip trip) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TRIP_NAME, trip.getTripName());
-        values.put(COLUMN_START_DATE, trip.getStartDate());
-        values.put(COLUMN_END_DATE, trip.getEndDate());
-        values.put(COLUMN_DESTINATION, trip.getDestination());
-        values.put(COLUMN_NOTES, trip.getNotes());
-        values.put(COLUMN_PHOTO_URL, trip.getPhotoUrl());
-        values.put(COLUMN_UPDATED_AT, System.currentTimeMillis());
-        values.put(COLUMN_MAP_LATITUDE, trip.getMapLatitude());
-        values.put(COLUMN_MAP_LONGITUDE, trip.getMapLongitude());
-        values.put(COLUMN_BUDGET, trip.getBudget());
-        values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
-        values.put(COLUMN_IS_GROUP_TRIP, trip.getIsGroupTrip());
-
-        int result = db.update(TABLE_TRIPS, values, COLUMN_TRIP_ID + " = ?",
-                new String[] { String.valueOf(trip.getTripId()) });
+        TripDao dao = new TripDao(db);
+        int result = dao.update(trip);
         db.close();
         return result;
     }
 
     public void deleteTrip(int tripId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_EXPENSES, COLUMN_EXPENSE_TRIP_ID + " = ?", new String[] { String.valueOf(tripId) });
-        db.delete(TABLE_TRIPS, COLUMN_TRIP_ID + " = ?", new String[] { String.valueOf(tripId) });
+        ExpenseDao expenseDao = new ExpenseDao(db);
+        ScheduleDao scheduleDao = new ScheduleDao(db);
+        TripDao tripDao = new TripDao(db);
+
+        // Delete related data first
+        expenseDao.deleteByTripId(tripId);
+        scheduleDao.deleteByTripId(tripId);
+        tripDao.delete(tripId);
         db.close();
     }
 
     public boolean isDateRangeAvailable(String startDate, String endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
-        // Check for overlap: (StartA <= EndB) and (EndA >= StartB)
-        // New trip: StartA, EndA
-        // Existing trip: StartB, EndB
-        // Query: SELECT * FROM Trips WHERE (newStart <= endDate) AND (newEnd >=
-        // startDate)
-
-        // Note: Dates are stored as strings in "yyyy-MM-dd" format, so string
-        // comparison works correctly.
-        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ?";
-        String[] selectionArgs = new String[] { endDate, startDate };
-
-        Cursor cursor = db.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
-        boolean isAvailable = cursor.getCount() == 0;
-        cursor.close();
+        TripDao dao = new TripDao(db);
+        List<Trip> overlappingTrips = dao.getTripsByDateRange(startDate, endDate);
         db.close();
-        return isAvailable;
+        return overlappingTrips.isEmpty();
     }
 
     public boolean isDateRangeAvailable(String startDate, String endDate, int excludeTripId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
-        String[] selectionArgs = new String[] { endDate, startDate, String.valueOf(excludeTripId) };
-
-        Cursor cursor = db.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
-        boolean isAvailable = cursor.getCount() == 0;
-        cursor.close();
+        TripDao dao = new TripDao(db);
+        List<Trip> overlappingTrips = dao.getTripsByDateRangeExcluding(startDate, endDate, excludeTripId);
         db.close();
-        return isAvailable;
+        return overlappingTrips.isEmpty();
     }
 
-    public com.example.voyagerbuds.models.ScheduleItem getScheduleById(int scheduleId) {
+    public ScheduleItem getScheduleById(int scheduleId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        android.database.Cursor cursor = db.query(TABLE_SCHEDULES, null, COLUMN_SCHEDULE_ID + "=?",
-                new String[] { String.valueOf(scheduleId) }, null, null, null);
-
-        com.example.voyagerbuds.models.ScheduleItem it = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            it = new com.example.voyagerbuds.models.ScheduleItem();
-            it.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_ID)));
-            it.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TRIP_ID)));
-            it.setDay(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_DAY)));
-            it.setStartTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_START_TIME)));
-            it.setEndTime(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_END_TIME)));
-            it.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_TITLE)));
-            it.setNotes(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_NOTES)));
-
-            int locationIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LOCATION);
-            if (locationIndex != -1)
-                it.setLocation(cursor.getString(locationIndex));
-
-            int participantsIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_PARTICIPANTS);
-            if (participantsIndex != -1)
-                it.setParticipants(cursor.getString(participantsIndex));
-
-            // expense amount/currency fields were removed from the model in v8.
-
-            int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
-            if (imagesIndex != -1)
-                it.setImagePaths(cursor.getString(imagesIndex));
-
-            int notifyBeforeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_NOTIFY_BEFORE);
-            if (notifyBeforeIndex != -1)
-                it.setNotifyBeforeMinutes(cursor.getInt(notifyBeforeIndex));
-
-            it.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));
-            it.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_UPDATED_AT)));
-        }
-        if (cursor != null)
-            cursor.close();
+        ScheduleDao dao = new ScheduleDao(db);
+        ScheduleItem item = dao.getById(scheduleId);
         db.close();
-        return it;
+        return item;
     }
 
     public void updateScheduleImages(int scheduleId, String imagesJson) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_SCHEDULE_IMAGES, imagesJson);
-        db.update(TABLE_SCHEDULES, values, COLUMN_SCHEDULE_ID + " = ?", new String[] { String.valueOf(scheduleId) });
+        ScheduleDao dao = new ScheduleDao(db);
+        dao.updateImages(scheduleId, imagesJson);
         db.close();
     }
 
     public List<Expense> getExpensesForTrip(int tripId) {
-        List<Expense> expenses = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_EXPENSES, null, COLUMN_EXPENSE_TRIP_ID + "=?",
-                new String[] { String.valueOf(tripId) }, null, null, COLUMN_SPENT_AT + " DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                Expense expense = new Expense();
-                expense.setExpenseId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXPENSE_ID)));
-                expense.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXPENSE_TRIP_ID)));
-                expense.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)));
-                expense.setAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT)));
-                expense.setCurrency(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CURRENCY)));
-                expense.setNote(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTE)));
-                expense.setSpentAt(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SPENT_AT)));
-                expenses.add(expense);
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
+        ExpenseDao dao = new ExpenseDao(db);
+        List<Expense> expenses = dao.getAllByTripId(tripId);
         db.close();
         return expenses;
     }
 
     public long addExpense(Expense expense) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_EXPENSE_TRIP_ID, expense.getTripId());
-        values.put(COLUMN_CATEGORY, expense.getCategory());
-        values.put(COLUMN_AMOUNT, expense.getAmount());
-        values.put(COLUMN_CURRENCY, expense.getCurrency());
-        values.put(COLUMN_NOTE, expense.getNote());
-        values.put(COLUMN_SPENT_AT, expense.getSpentAt());
-
-        long id = db.insert(TABLE_EXPENSES, null, values);
+        ExpenseDao dao = new ExpenseDao(db);
+        long id = dao.insert(expense);
         db.close();
         return id;
     }
 
     public int updateExpense(Expense expense) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_CATEGORY, expense.getCategory());
-        values.put(COLUMN_AMOUNT, expense.getAmount());
-        values.put(COLUMN_CURRENCY, expense.getCurrency());
-        values.put(COLUMN_NOTE, expense.getNote());
-        values.put(COLUMN_SPENT_AT, expense.getSpentAt());
-
-        int rows = db.update(TABLE_EXPENSES, values, COLUMN_EXPENSE_ID + " = ?",
-                new String[] { String.valueOf(expense.getExpenseId()) });
+        ExpenseDao dao = new ExpenseDao(db);
+        int rows = dao.update(expense);
         db.close();
         return rows;
     }
 
     public void deleteExpense(int expenseId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_EXPENSES, COLUMN_EXPENSE_ID + " = ?", new String[] { String.valueOf(expenseId) });
+        ExpenseDao dao = new ExpenseDao(db);
+        dao.delete(expenseId);
         db.close();
     }
 }
