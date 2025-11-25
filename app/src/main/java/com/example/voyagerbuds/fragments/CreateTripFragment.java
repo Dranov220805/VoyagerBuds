@@ -74,29 +74,29 @@ public class CreateTripFragment extends Fragment {
         updateProgress();
 
         // Show first fragment
-        showTripNameFragment();
+        showTripNameFragment(false);
 
         return view;
     }
 
-    private void showTripNameFragment() {
+    private void showTripNameFragment(boolean isBack) {
         currentStep = 1;
         updateProgress();
 
         TripNameFragment fragment = new TripNameFragment();
         fragment.setListener(name -> {
             tripName = name;
-            showTripDatesFragment();
+            showTripDatesFragment(false);
         });
 
         if (tripName != null) {
             fragment.setTripName(tripName);
         }
 
-        replaceChildFragment(fragment);
+        replaceChildFragment(fragment, isBack);
     }
 
-    private void showTripDatesFragment() {
+    private void showTripDatesFragment(boolean isBack) {
         currentStep = 2;
         updateProgress();
 
@@ -106,12 +106,12 @@ public class CreateTripFragment extends Fragment {
             public void onTripDatesEntered(String start, String end) {
                 startDate = start;
                 endDate = end;
-                showTripDestinationFragment();
+                showTripDestinationFragment(false);
             }
 
             @Override
             public void onBack() {
-                showTripNameFragment();
+                showTripNameFragment(true);
             }
         });
 
@@ -119,10 +119,10 @@ public class CreateTripFragment extends Fragment {
             fragment.setDates(startDate, endDate);
         }
 
-        replaceChildFragment(fragment);
+        replaceChildFragment(fragment, isBack);
     }
 
-    private void showTripDestinationFragment() {
+    private void showTripDestinationFragment(boolean isBack) {
         currentStep = 3;
         updateProgress();
 
@@ -140,7 +140,7 @@ public class CreateTripFragment extends Fragment {
 
             @Override
             public void onBack() {
-                showTripDatesFragment();
+                showTripDatesFragment(true);
             }
         });
 
@@ -148,7 +148,7 @@ public class CreateTripFragment extends Fragment {
             fragment.setDestination(destination, notes, friends, budget);
         }
 
-        replaceChildFragment(fragment);
+        replaceChildFragment(fragment, isBack);
     }
 
     private void saveTrip() {
@@ -235,9 +235,12 @@ public class CreateTripFragment extends Fragment {
         });
     }
 
-    private void replaceChildFragment(Fragment fragment) {
+    private void replaceChildFragment(Fragment fragment, boolean isBack) {
+        int enterAnim = isBack ? R.anim.slide_in_left : R.anim.slide_in_right;
+        int exitAnim = isBack ? R.anim.slide_out_right : R.anim.slide_out_left;
+
         getChildFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .setCustomAnimations(enterAnim, exitAnim)
                 .replace(R.id.create_trip_content_container, fragment)
                 .commit();
     }
@@ -256,9 +259,9 @@ public class CreateTripFragment extends Fragment {
 
         if (currentStep > 1) {
             if (currentStep == 2) {
-                showTripNameFragment();
+                showTripNameFragment(true);
             } else if (currentStep == 3) {
-                showTripDatesFragment();
+                showTripDatesFragment(true);
             }
             return true; // Back press handled
         } else {

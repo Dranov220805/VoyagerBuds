@@ -96,6 +96,7 @@
                 android:layout_marginEnd="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/card_background"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -114,8 +115,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/voyagerbuds"
-                            android:background="@color/dark_gray"
+                            android:src="@drawable/voyagerbuds_nobg"
+                            android:background="@color/card_background"
                             android:contentDescription="@string/desc_trip_image" />
 
                         <!-- Gradient Overlay -->

@@ -598,7 +598,7 @@ public class MapFragment extends Fragment {
                         ex.printStackTrace();
                     }
                 } else {
-                    final String finalText = String.format(Locale.getDefault(), "Lat: %.4f, Lon: %.4f", lat, lng);
+                    final String finalText = getString(R.string.unknown_location);
                     try {
                         requireActivity().runOnUiThread(() -> {
                             if (tvCurrentLocation != null)
@@ -610,7 +610,7 @@ public class MapFragment extends Fragment {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                final String finalText = String.format(Locale.getDefault(), "Lat: %.4f, Lon: %.4f", lat, lng);
+                final String finalText = getString(R.string.unknown_location);
                 try {
                     requireActivity().runOnUiThread(() -> {
                         if (tvCurrentLocation != null)

@@ -99,9 +99,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
                 // TODO: Load image using Glide or Picasso
                 // For now, use placeholder
-                holder.imgTrip.setImageResource(R.drawable.voyagerbuds);
+                holder.imgTrip.setImageResource(R.drawable.voyagerbuds_nobg);
             } else {
-                holder.imgTrip.setImageResource(R.drawable.voyagerbuds);
+                holder.imgTrip.setImageResource(R.drawable.voyagerbuds_nobg);
             }
         }
 

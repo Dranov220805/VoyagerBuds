@@ -385,6 +385,7 @@
     <string name="unknown_location">Unknown Location</string>
     <string name="no_schedule_items_yet">No schedule items yet.</string>
     <string name="no_dates_set">No dates set</string>
+    <string name="edit_from_trip_detail_screen">Edit from Trip Detail screen</string>
     <!-- Dashboard strings -->
     <string name="dashboard_subtitle">Track your travel statistics</string>
     <string name="emoji_plane">✈️</string>

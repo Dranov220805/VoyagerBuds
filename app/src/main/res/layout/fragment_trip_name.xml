@@ -9,50 +9,51 @@
 
 <LinearLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
+    android:gravity="top"
     android:minHeight="600dp">
 
+    <!-- Header: back arrow and title -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="32dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
 
-        <!-- Back Arrow and Title -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/btn_back_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/desc_back"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp"
+            app:tint="@color/text_dark" />
+
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_weight="1"
+            android:text="@string/trip_name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_dark"
+            android:gravity="center"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 
-            <ImageView
-                android:id="@+id/btn_back_arrow"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_back"
-                android:contentDescription="@string/desc_back"
-                android:clickable="true"
-                android:focusable="true"
-                android:padding="4dp"
-                app:tint="@color/text_dark" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/trip_name"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_dark"
-                android:gravity="center"
-                android:layout_marginStart="8dp" />
-
-            <!-- Progress indicator removed; parent fragment will show a top progress bar -->
-        </LinearLayout>
+    <!-- Body container to center content vertically below header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="32dp">
 
         <ImageView
             android:layout_width="100dp"
@@ -78,9 +79,8 @@
             android:text="@string/trip_name_description"
             android:textSize="14sp"
             android:textColor="@color/text_medium" />
-    </LinearLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/trip_name"
@@ -94,7 +94,7 @@
             android:maxLines="1"
             android:imeOptions="actionDone" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
         android:id="@+id/btn_next"
@@ -113,6 +113,7 @@
         android:autoSizeMinTextSize="12sp"
         android:autoSizeMaxTextSize="16sp" />
 
-</LinearLayout>
+    </LinearLayout>
+    </LinearLayout>
 
 </ScrollView>

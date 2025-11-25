@@ -387,6 +387,7 @@
     <string name="unknown_location">Vị trí không xác định</string>
     <string name="no_schedule_items_yet">Chưa có mục lịch trình nào.</string>
     <string name="no_dates_set">Chưa thiết lập ngày</string>
+    <string name="edit_from_trip_detail_screen">Chỉnh sửa trong màn hình chi tiết chuyến đi</string>
 
     <!-- Dashboard -->
     <string name="dashboard_subtitle">Theo dõi thống kê du lịch của bạn</string>
