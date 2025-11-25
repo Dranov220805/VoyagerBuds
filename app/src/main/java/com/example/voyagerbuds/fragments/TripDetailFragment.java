@@ -1,5 +1,6 @@
 package com.example.voyagerbuds.fragments;
 
+import android.annotation.SuppressLint;
 import android.view.animation.AnimationUtils;
 import androidx.transition.TransitionManager;
 import androidx.transition.AutoTransition;
@@ -765,6 +766,7 @@ public class TripDetailFragment extends Fragment {
                 });
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void getAddressFromLocation(Location location) {
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
