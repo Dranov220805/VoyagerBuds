@@ -14,7 +14,6 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.utils.PermissionUtils;
@@ -24,7 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PermissionActivity extends AppCompatActivity {
+public class PermissionActivity extends BaseActivity {
 
     private static final String PREFS_NAME = "VoyagerBudsPrefs";
     private static final String KEY_PERMISSIONS_REQUESTED = "permissions_requested";
@@ -40,27 +39,21 @@ public class PermissionActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // Handle the back button press using the recommended OnBackPressedDispatcher
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                // Prevent back press on permission screen, show dialog instead
                 showSkipDialog();
             }
         });
 
-        // Hide action bar if it exists
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
 
-        // Make status bar icons dark/black. Unnecessary SDK check removed as minSdk is
-        // 26.
-        getWindow().setStatusBarColor(0xFFFFFFFF); // White status bar
+        getWindow().setStatusBarColor(0xFFFFFFFF);
         getWindow().getDecorView().setSystemUiVisibility(
-                android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR); // Dark icons
+                android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
-        // Check if permissions are already granted
         if (checkIfShouldProceed()) {
             proceedToNextActivity();
             return;
@@ -86,7 +79,6 @@ public class PermissionActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         permissionsRequested = prefs.getBoolean(KEY_PERMISSIONS_REQUESTED, false);
 
-        // If all permissions are granted, proceed
         return PermissionUtils.areAllRequiredPermissionsGranted(this);
     }
 
@@ -95,10 +87,8 @@ public class PermissionActivity extends AppCompatActivity {
         List<String> deniedPermissions = PermissionUtils.getDeniedPermissions(this, permissions);
 
         if (deniedPermissions.isEmpty()) {
-            // All permissions already granted
             onAllPermissionsGranted();
         } else {
-            // Check if we should show rationale for any permission
             boolean shouldShowRationale = false;
             for (String permission : deniedPermissions) {
                 if (PermissionUtils.shouldShowRequestPermissionRationale(this, permission)) {
@@ -108,10 +98,8 @@ public class PermissionActivity extends AppCompatActivity {
             }
 
             if (shouldShowRationale && permissionsRequested) {
-                // User has denied before, show explanation
                 showPermissionRationaleDialog(deniedPermissions);
             } else {
-                // First time or user hasn't permanently denied
                 PermissionUtils.requestPermissions(
                         this,
                         deniedPermissions.toArray(new String[0]),
@@ -132,35 +120,37 @@ public class PermissionActivity extends AppCompatActivity {
         }
 
         new AlertDialog.Builder(this)
-                .setTitle(R.string.permissions_required_title)
+                .setTitle("Permissions Required")
                 .setMessage(message.toString())
-                .setPositiveButton(R.string.grant_permissions, (dialog, which) -> PermissionUtils.requestPermissions(
+                .setPositiveButton("Grant Permissions", (dialog, which) -> PermissionUtils.requestPermissions(
                         this,
                         deniedPermissions.toArray(new String[0]),
                         PermissionUtils.PERMISSION_REQUEST_CODE))
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .setCancelable(false)
                 .show();
     }
 
     private void showSkipDialog() {
         new AlertDialog.Builder(this)
-                .setTitle(R.string.skip_permissions_title)
-                .setMessage(R.string.skip_permissions_message)
-                .setPositiveButton(R.string.skip_anyway, (dialog, which) -> {
+                .setTitle("Skip Permissions?")
+                .setMessage(
+                        "Some features may not work properly without these permissions. You can grant them later in Settings.\n\nAre you sure you want to skip?")
+                .setPositiveButton("Skip Anyway", (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
-                .setNegativeButton(R.string.go_back, (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("Go Back", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
     private void showSettingsDialog() {
         new AlertDialog.Builder(this)
-                .setTitle(R.string.permissions_required_title)
-                .setMessage(R.string.permissions_denied_settings_message)
-                .setPositiveButton(R.string.open_settings, (dialog, which) -> openAppSettings())
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                .setTitle("Permissions Required")
+                .setMessage(
+                        "Some permissions have been permanently denied. Please enable them in Settings to use all features of the app.")
+                .setPositiveButton("Open Settings", (dialog, which) -> openAppSettings())
+                .setNegativeButton("Cancel", (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
@@ -188,7 +178,6 @@ public class PermissionActivity extends AppCompatActivity {
                 if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                     deniedPermissions.add(permissions[i]);
 
-                    // Check if permanently denied
                     if (!PermissionUtils.shouldShowRequestPermissionRationale(this, permissions[i])) {
                         permanentlyDeniedPermissions.add(permissions[i]);
                     }
@@ -196,15 +185,12 @@ public class PermissionActivity extends AppCompatActivity {
             }
 
             if (deniedPermissions.isEmpty()) {
-                // All permissions granted
                 onAllPermissionsGranted();
             } else if (!permanentlyDeniedPermissions.isEmpty()) {
-                // Some permissions permanently denied
                 showSettingsDialog();
             } else {
-                // Some permissions denied but not permanently
                 Toast.makeText(this,
-                        getString(R.string.some_permissions_denied_message),
+                        "Some permissions were denied. You can continue but some features may be limited.",
                         Toast.LENGTH_LONG).show();
                 savePermissionsRequested();
             }
@@ -212,7 +198,7 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
     private void onAllPermissionsGranted() {
-        Toast.makeText(this, getString(R.string.permission_all_granted_thanks), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "All permissions granted! Thank you.", Toast.LENGTH_SHORT).show();
         savePermissionsRequested();
         proceedToNextActivity();
     }
@@ -225,19 +211,16 @@ public class PermissionActivity extends AppCompatActivity {
     private void proceedToNextActivity() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // User is signed in
             startActivity(new Intent(this, HomeActivity.class));
         } else {
-            // No user is signed in
             startActivity(new Intent(this, LoginActivity.class));
         }
-        finish(); // Finish PermissionActivity so user can't go back to it
+        finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Re-check permissions when returning from Settings
         if (permissionsRequested && PermissionUtils.areAllRequiredPermissionsGranted(this)) {
             onAllPermissionsGranted();
         }
