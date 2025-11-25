@@ -1,5 +1,8 @@
 package com.example.voyagerbuds.fragments;
 
+import android.view.animation.AnimationUtils;
+import androidx.transition.TransitionManager;
+import androidx.transition.AutoTransition;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -17,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -46,6 +50,8 @@ import com.example.voyagerbuds.models.ScheduleDayGroup;
 import com.example.voyagerbuds.models.ScheduleItem;
 import com.example.voyagerbuds.models.Trip;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.example.voyagerbuds.fragments.TripGalleryFragment;
+import com.example.voyagerbuds.utils.ImageUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -53,9 +59,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,6 +76,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.example.voyagerbuds.adapters.ExpenseAdapter;
+import com.example.voyagerbuds.adapters.ExpenseDateAdapter;
+import com.example.voyagerbuds.models.Expense;
+import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Calendar;
+import java.util.TimeZone;
 
 public class TripDetailFragment extends Fragment {
 
@@ -95,6 +111,23 @@ public class TripDetailFragment extends Fragment {
     private View layoutSchedule;
     private View layoutExpenses;
     private View layoutNotes;
+
+    // Expense fields
+    private RecyclerView rvExpenseDates;
+    private RecyclerView rvExpenses;
+    private TextView tvExpenseDateHeader;
+    private TextView tvEmptyExpenses;
+    private ExpenseDateAdapter expenseDateAdapter;
+    private ExpenseAdapter expenseAdapter;
+    private List<Date> tripDates = new ArrayList<>();
+    private List<Expense> allExpenses = new ArrayList<>();
+    private Date selectedExpenseDate;
+    private Date previousExpenseDate;
+    private int lastTabPosition = 0;
+
+    private java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors
+            .newSingleThreadExecutor();
+    private android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     public static TripDetailFragment newInstance(long tripId) {
         TripDetailFragment fragment = new TripDetailFragment();
@@ -157,6 +190,11 @@ public class TripDetailFragment extends Fragment {
         layoutSchedule = view.findViewById(R.id.layout_schedule);
         layoutExpenses = view.findViewById(R.id.layout_expenses);
         layoutNotes = view.findViewById(R.id.layout_notes);
+
+        rvExpenseDates = view.findViewById(R.id.recycler_view_expense_dates);
+        rvExpenses = view.findViewById(R.id.recycler_view_expenses);
+        tvExpenseDateHeader = view.findViewById(R.id.tv_expense_date_header);
+        tvEmptyExpenses = view.findViewById(R.id.tv_empty_expenses);
 
         // Setup Toolbar
         toolbar.setNavigationOnClickListener(v -> {
@@ -222,12 +260,50 @@ public class TripDetailFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                layoutSchedule.setVisibility(position == 0 ? View.VISIBLE : View.GONE);
-                layoutExpenses.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
-                layoutNotes.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
+                boolean movingRight = position > lastTabPosition;
+                lastTabPosition = position;
+
+                // Animate views
+                View[] views = { layoutSchedule, layoutExpenses, layoutNotes };
+                for (int i = 0; i < views.length; i++) {
+                    if (i == position) {
+                        // Enter animation
+                        views[i].setVisibility(View.VISIBLE);
+                        views[i].startAnimation(AnimationUtils.loadAnimation(getContext(),
+                                movingRight ? R.anim.slide_in_right : R.anim.slide_in_left));
+                    } else {
+                        // Exit animation
+                        if (views[i].getVisibility() == View.VISIBLE) {
+                            android.view.animation.Animation exitAnim = AnimationUtils.loadAnimation(getContext(),
+                                    movingRight ? R.anim.slide_out_left : R.anim.slide_out_right);
+                            final View viewToHide = views[i];
+                            exitAnim.setAnimationListener(new android.view.animation.Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(android.view.animation.Animation animation) {
+                                }
+
+                                @Override
+                                public void onAnimationEnd(android.view.animation.Animation animation) {
+                                    viewToHide.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(android.view.animation.Animation animation) {
+                                }
+                            });
+                            views[i].startAnimation(exitAnim);
+                        }
+                    }
+                }
 
                 if (position == 0) {
                     fabAddSchedule.show();
+                    fabAddSchedule.setImageResource(R.drawable.ic_add);
+                    fabAddSchedule.setOnClickListener(v -> showAddEditDialog(null));
+                } else if (position == 1) {
+                    fabAddSchedule.show();
+                    fabAddSchedule.setImageResource(R.drawable.ic_add);
+                    fabAddSchedule.setOnClickListener(v -> showAddExpenseDialog());
                 } else {
                     fabAddSchedule.hide();
                 }
@@ -242,7 +318,116 @@ public class TripDetailFragment extends Fragment {
             }
         });
 
+        // Load Gallery Preview
+        loadGalleryPreview(view);
+
+        // Setup Expenses
+        setupExpenses();
+
         return view;
+    }
+
+    private void loadGalleryPreview(View view) {
+        android.widget.LinearLayout llGalleryPreview = view.findViewById(R.id.ll_gallery_preview);
+        TextView tvEmptyGallery = view.findViewById(R.id.tv_empty_gallery);
+        TextView btnViewAll = view.findViewById(R.id.btn_view_all_gallery);
+
+        btnViewAll.setOnClickListener(v -> {
+            TripGalleryFragment galleryFragment = TripGalleryFragment.newInstance((int) tripId);
+            getParentFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left,
+                            R.anim.slide_in_left, R.anim.slide_out_right)
+                    .replace(R.id.content_container, galleryFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        executorService.execute(() -> {
+            List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip((int) tripId);
+            List<String> allImages = new ArrayList<>();
+
+            for (ScheduleItem schedule : schedules) {
+                if (schedule.getImagePaths() != null && !schedule.getImagePaths().isEmpty()) {
+                    try {
+                        JSONArray jsonArray = new JSONArray(schedule.getImagePaths());
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            allImages.add(jsonArray.getString(i));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            Collections.reverse(allImages);
+            List<String> previewImages = allImages.subList(0, Math.min(allImages.size(), 5));
+
+            mainHandler.post(() -> {
+                llGalleryPreview.removeAllViews();
+                if (previewImages.isEmpty()) {
+                    llGalleryPreview.addView(tvEmptyGallery);
+                    tvEmptyGallery.setVisibility(View.VISIBLE);
+                } else {
+                    tvEmptyGallery.setVisibility(View.GONE);
+                    for (String path : previewImages) {
+                        android.widget.ImageView imageView = new android.widget.ImageView(getContext());
+                        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(
+                                (int) (120 * getResources().getDisplayMetrics().density),
+                                (int) (160 * getResources().getDisplayMetrics().density));
+                        params.setMargins(0, 0, (int) (12 * getResources().getDisplayMetrics().density), 0);
+                        imageView.setLayoutParams(params);
+                        imageView.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+                        imageView.setBackgroundResource(R.drawable.rounded_corner_bg);
+                        imageView.setClipToOutline(true);
+
+                        executorService.execute(() -> {
+                            android.graphics.Bitmap bitmap = null;
+                            try {
+                                Uri uri;
+                                if (path.startsWith("content://") || path.startsWith("file://")) {
+                                    uri = Uri.parse(path);
+                                } else {
+                                    uri = Uri.fromFile(new File(path));
+                                }
+                                android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                                options.inJustDecodeBounds = true;
+                                java.io.InputStream input = requireContext().getContentResolver().openInputStream(uri);
+                                android.graphics.BitmapFactory.decodeStream(input, null, options);
+                                if (input != null)
+                                    input.close();
+
+                                options.inSampleSize = com.example.voyagerbuds.utils.ImageUtils
+                                        .calculateInSampleSize(options, 300, 300);
+                                options.inJustDecodeBounds = false;
+
+                                input = requireContext().getContentResolver().openInputStream(uri);
+                                bitmap = android.graphics.BitmapFactory.decodeStream(input, null, options);
+                                if (input != null)
+                                    input.close();
+
+                                bitmap = com.example.voyagerbuds.utils.ImageUtils
+                                        .rotateImageIfRequired(requireContext(), bitmap, uri);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            android.graphics.Bitmap finalBitmap = bitmap;
+                            mainHandler.post(() -> {
+                                if (finalBitmap != null) {
+                                    imageView.setImageBitmap(finalBitmap);
+                                }
+                            });
+                        });
+
+                        imageView.setOnClickListener(v -> {
+                            showFullImageDialog(path);
+                        });
+
+                        llGalleryPreview.addView(imageView);
+                    }
+                }
+            });
+        });
     }
 
     private void loadSchedules() {
@@ -309,19 +494,11 @@ public class TripDetailFragment extends Fragment {
         ImageButton btnMyLocation = dialogView.findViewById(R.id.btn_my_location);
 
         // New fields
-        EditText etExpenseAmount = dialogView.findViewById(R.id.et_schedule_expense_amount);
-        Spinner spinnerCurrency = dialogView.findViewById(R.id.spinner_schedule_currency);
         EditText etParticipants = dialogView.findViewById(R.id.et_schedule_participants);
         EditText etNotifyBefore = dialogView.findViewById(R.id.et_schedule_notify_before);
         Button btnAddImage = dialogView.findViewById(R.id.btn_add_image);
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_schedule_images);
         Button btnSave = dialogView.findViewById(R.id.btn_save_schedule);
-
-        // Setup Currency Spinner
-        ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item, new String[] { "USD", "VND" });
-        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerCurrency.setAdapter(currencyAdapter);
 
         if (editing != null) {
             tempImagePaths = parseImagePaths(editing.getImagePaths());
@@ -333,6 +510,7 @@ public class TripDetailFragment extends Fragment {
             tempImagePaths.remove(position);
             tempImageAdapter.notifyItemRemoved(position);
         });
+        tempImageAdapter.setOnImageRotationListener(this::rotateImage);
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvImages.setAdapter(tempImageAdapter);
 
@@ -348,15 +526,6 @@ public class TripDetailFragment extends Fragment {
             etParticipants.setText(editing.getParticipants());
             if (editing.getNotifyBeforeMinutes() > 0) {
                 etNotifyBefore.setText(String.valueOf(editing.getNotifyBeforeMinutes()));
-            }
-            if (editing.getExpenseAmount() > 0) {
-                etExpenseAmount.setText(String.valueOf(editing.getExpenseAmount()));
-            }
-            if (editing.getExpenseCurrency() != null) {
-                int spinnerPosition = currencyAdapter.getPosition(editing.getExpenseCurrency());
-                if (spinnerPosition >= 0) {
-                    spinnerCurrency.setSelection(spinnerPosition);
-                }
             }
             tvDialogTitle.setText(R.string.schedule_edit_title);
         } else {
@@ -433,18 +602,7 @@ public class TripDetailFragment extends Fragment {
             String notes = etNotes.getText().toString().trim();
             String location = etLocation.getText().toString().trim();
             String participants = etParticipants.getText().toString().trim();
-            String expenseStr = etExpenseAmount.getText().toString().trim();
             String notifyBeforeStr = etNotifyBefore.getText().toString().trim();
-            String currency = spinnerCurrency.getSelectedItem().toString();
-
-            double expenseAmount = 0;
-            if (!expenseStr.isEmpty()) {
-                try {
-                    expenseAmount = Double.parseDouble(expenseStr);
-                } catch (NumberFormatException e) {
-                    // Ignore
-                }
-            }
 
             int notifyBeforeMinutes = 0;
             if (!notifyBeforeStr.isEmpty()) {
@@ -470,8 +628,6 @@ public class TripDetailFragment extends Fragment {
                 newItem.setNotes(notes);
                 newItem.setLocation(location);
                 newItem.setParticipants(participants);
-                newItem.setExpenseAmount(expenseAmount);
-                newItem.setExpenseCurrency(currency);
                 newItem.setImagePaths(serializeImagePaths(tempImagePaths));
                 newItem.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 newItem.setCreatedAt(System.currentTimeMillis());
@@ -489,8 +645,6 @@ public class TripDetailFragment extends Fragment {
                 editing.setNotes(notes);
                 editing.setLocation(location);
                 editing.setParticipants(participants);
-                editing.setExpenseAmount(expenseAmount);
-                editing.setExpenseCurrency(currency);
                 editing.setImagePaths(serializeImagePaths(tempImagePaths));
                 editing.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 editing.setUpdatedAt(System.currentTimeMillis());
@@ -740,17 +894,13 @@ public class TripDetailFragment extends Fragment {
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);
         EditText etLocation = dialogView.findViewById(R.id.et_detail_location);
+        TextInputLayout layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
         EditText etNotes = dialogView.findViewById(R.id.et_detail_notes);
+        TextInputLayout layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
+        TextInputLayout layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
         EditText etParticipants = dialogView.findViewById(R.id.et_detail_participants);
-        EditText etExpense = dialogView.findViewById(R.id.et_detail_expense);
+        TextInputLayout layoutNotify = dialogView.findViewById(R.id.layout_detail_notify_input);
         EditText etNotify = dialogView.findViewById(R.id.et_detail_notify);
-
-        View layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
-        View layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
-        View layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
-        View layoutExpense = dialogView.findViewById(R.id.layout_detail_expense_input);
-        View layoutNotify = dialogView.findViewById(R.id.layout_detail_notify_input);
-
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_detail_images);
         View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
         View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
@@ -792,13 +942,17 @@ public class TripDetailFragment extends Fragment {
             layoutParticipants.setVisibility(View.GONE);
         }
 
-        if (item.getExpenseAmount() > 0) {
-            String currency = item.getExpenseCurrency() != null ? item.getExpenseCurrency() : "USD";
-            etExpense.setText(String.format(Locale.getDefault(), "%.2f %s", item.getExpenseAmount(), currency));
-            layoutExpense.setVisibility(View.VISIBLE);
-        } else {
-            layoutExpense.setVisibility(View.GONE);
-        }
+        /*
+         * if (item.getExpenseAmount() > 0) {
+         * String currency = item.getExpenseCurrency() != null ?
+         * item.getExpenseCurrency() : "USD";
+         * etExpense.setText(String.format(Locale.getDefault(), "%.2f %s",
+         * item.getExpenseAmount(), currency));
+         * layoutExpense.setVisibility(View.VISIBLE);
+         * } else {
+         * layoutExpense.setVisibility(View.GONE);
+         * }
+         */
 
         if (item.getNotifyBeforeMinutes() > 0) {
             int mins = item.getNotifyBeforeMinutes();
@@ -821,6 +975,7 @@ public class TripDetailFragment extends Fragment {
         List<String> detailImagePaths = parseImagePaths(item.getImagePaths());
         if (!detailImagePaths.isEmpty()) {
             ScheduleImageAdapter detailAdapter = new ScheduleImageAdapter(getContext(), detailImagePaths, false, null);
+            detailAdapter.setOnImageClickListener(this::showFullImageDialog);
             rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
             rvImages.setAdapter(detailAdapter);
             rvImages.setVisibility(View.VISIBLE);
@@ -890,11 +1045,15 @@ public class TripDetailFragment extends Fragment {
                 }
                 args.putString("pin_time", time);
 
-                if (item.getExpenseAmount() > 0) {
-                    String currency = item.getExpenseCurrency() != null ? item.getExpenseCurrency() : "USD";
-                    String budget = String.format(Locale.getDefault(), "%.2f %s", item.getExpenseAmount(), currency);
-                    args.putString("pin_budget", budget);
-                }
+                /*
+                 * if (item.getExpenseAmount() > 0) {
+                 * String currency = item.getExpenseCurrency() != null ?
+                 * item.getExpenseCurrency() : "USD";
+                 * String budget = String.format(Locale.getDefault(), "%.2f %s",
+                 * item.getExpenseAmount(), currency);
+                 * args.putString("pin_budget", budget);
+                 * }
+                 */
 
                 mapFragment.setArguments(args);
 
@@ -988,5 +1147,363 @@ public class TripDetailFragment extends Fragment {
             jsonArray.put(path);
         }
         return jsonArray.toString();
+    }
+
+    private void showFullImageDialog(String imagePath) {
+        android.app.Dialog fullImageDialog = new android.app.Dialog(requireContext(),
+                android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        fullImageDialog.setContentView(R.layout.dialog_full_image);
+
+        com.example.voyagerbuds.views.ZoomableImageView ivFullImage = fullImageDialog.findViewById(R.id.iv_full_image);
+        android.widget.ImageButton btnClose = fullImageDialog.findViewById(R.id.btn_close_full_image);
+        android.widget.ImageButton btnRotate = fullImageDialog.findViewById(R.id.btn_rotate_full_image);
+        android.view.View loadingContainer = fullImageDialog.findViewById(R.id.loading_container);
+
+        loadingContainer.setVisibility(View.VISIBLE);
+
+        executorService.execute(() -> {
+            android.graphics.Bitmap bitmap = null;
+            try {
+                android.net.Uri uri;
+                if (imagePath.startsWith("content://") || imagePath.startsWith("file://")) {
+                    uri = android.net.Uri.parse(imagePath);
+                } else {
+                    uri = android.net.Uri.fromFile(new java.io.File(imagePath));
+                }
+
+                android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                int reqWidth = metrics.widthPixels;
+                int reqHeight = metrics.heightPixels;
+
+                android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                java.io.InputStream input = requireContext().getContentResolver().openInputStream(uri);
+                android.graphics.BitmapFactory.decodeStream(input, null, options);
+                if (input != null)
+                    input.close();
+
+                options.inSampleSize = com.example.voyagerbuds.utils.ImageUtils.calculateInSampleSize(options, reqWidth,
+                        reqHeight);
+                options.inJustDecodeBounds = false;
+
+                input = requireContext().getContentResolver().openInputStream(uri);
+                bitmap = android.graphics.BitmapFactory.decodeStream(input, null, options);
+                if (input != null)
+                    input.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            final android.graphics.Bitmap finalBitmap = bitmap;
+            mainHandler.post(() -> {
+                loadingContainer.setVisibility(View.GONE);
+                if (finalBitmap != null) {
+                    ivFullImage.setImageBitmap(finalBitmap);
+                } else {
+                    ivFullImage.setImageResource(android.R.drawable.ic_menu_report_image);
+                }
+            });
+        });
+
+        btnClose.setOnClickListener(v -> fullImageDialog.dismiss());
+        btnRotate.setOnClickListener(v -> ivFullImage.rotate());
+
+        fullImageDialog.show();
+    }
+
+    private void rotateImage(int position, String imagePath) {
+        executorService.execute(() -> {
+            try {
+                android.net.Uri uri;
+                if (imagePath.startsWith("content://") || imagePath.startsWith("file://")) {
+                    uri = android.net.Uri.parse(imagePath);
+                } else {
+                    uri = android.net.Uri.fromFile(new java.io.File(imagePath));
+                }
+
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(
+                        requireContext().getContentResolver().openInputStream(uri));
+
+                if (bitmap != null) {
+                    android.graphics.Matrix matrix = new android.graphics.Matrix();
+                    matrix.postRotate(90);
+                    android.graphics.Bitmap rotatedBitmap = android.graphics.Bitmap.createBitmap(
+                            bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                    // Save rotated bitmap to a new file
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                    String imageFileName = "ROTATED_" + timeStamp + "_";
+                    File storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                    File rotatedFile = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+                    java.io.FileOutputStream out = new java.io.FileOutputStream(rotatedFile);
+                    rotatedBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, out);
+                    out.flush();
+                    out.close();
+
+                    String newPath = Uri.fromFile(rotatedFile).toString();
+
+                    mainHandler.post(() -> {
+                        if (position >= 0 && position < tempImagePaths.size()) {
+                            tempImagePaths.set(position, newPath);
+                            tempImageAdapter.notifyItemChanged(position);
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                mainHandler
+                        .post(() -> Toast.makeText(getContext(), "Failed to rotate image", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void setupExpenses() {
+        if (trip == null)
+            return;
+
+        // Generate dates
+        tripDates.clear();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date start = sdf.parse(trip.getStartDate());
+            Date end = sdf.parse(trip.getEndDate());
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(start);
+
+            while (!calendar.getTime().after(end)) {
+                tripDates.add(calendar.getTime());
+                calendar.add(Calendar.DATE, 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (tripDates.isEmpty())
+            return;
+
+        selectedExpenseDate = tripDates.get(0);
+
+        // Setup Date Adapter
+        rvExpenseDates.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        expenseDateAdapter = new ExpenseDateAdapter(getContext(), tripDates, (date, position) -> {
+            previousExpenseDate = selectedExpenseDate;
+            selectedExpenseDate = date;
+            updateExpenseList();
+        });
+        rvExpenseDates.setAdapter(expenseDateAdapter);
+
+        // Setup Expense Adapter
+        rvExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvExpenses
+                .setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_slide_in));
+        expenseAdapter = new ExpenseAdapter(getContext(), new ArrayList<>(), expense -> {
+            showExpenseDetail(expense);
+        });
+        rvExpenses.setAdapter(expenseAdapter);
+
+        loadExpenses();
+    }
+
+    private void loadExpenses() {
+        executorService.execute(() -> {
+            allExpenses = databaseHelper.getExpensesForTrip((int) tripId);
+            mainHandler.post(this::updateExpenseList);
+        });
+    }
+
+    private void updateExpenseList() {
+        if (selectedExpenseDate == null)
+            return;
+
+        SimpleDateFormat headerFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
+        tvExpenseDateHeader.setText(headerFormat.format(selectedExpenseDate));
+
+        List<Expense> filteredExpenses = new ArrayList<>();
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(selectedExpenseDate);
+
+        for (Expense expense : allExpenses) {
+            // Convert timestamp to Date
+            Date expenseDate = new Date((long) expense.getSpentAt() * 1000);
+            cal2.setTime(expenseDate);
+
+            if (cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                    cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+                filteredExpenses.add(expense);
+            }
+        }
+
+        if (filteredExpenses.isEmpty()) {
+            rvExpenses.setVisibility(View.GONE);
+            tvEmptyExpenses.setVisibility(View.VISIBLE);
+        } else {
+            rvExpenses.setVisibility(View.VISIBLE);
+            tvEmptyExpenses.setVisibility(View.GONE);
+
+            // Determine direction (kept for reference or future use, but not used for fade)
+            // boolean movingRight = true;
+            // if (previousExpenseDate != null && selectedExpenseDate != null) {
+            // movingRight = selectedExpenseDate.after(previousExpenseDate);
+            // }
+
+            // Animate list change with Fade
+            rvExpenses.animate()
+                    .alpha(0f)
+                    .setDuration(150)
+                    .withEndAction(() -> {
+                        expenseAdapter.updateExpenses(filteredExpenses);
+                        rvExpenses.animate()
+                                .alpha(1f)
+                                .setDuration(150)
+                                .start();
+                    })
+                    .start();
+        }
+    }
+
+    private void showExpenseDetail(Expense expense) {
+        // TODO: Implement expense detail drawer
+        Toast.makeText(getContext(), "Expense: " + expense.getCategory(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showAddExpenseDialog() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_expense, null);
+        bottomSheetDialog.setContentView(dialogView);
+
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        View btnClose = dialogView.findViewById(R.id.btn_close_sheet);
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        EditText etName = dialogView.findViewById(R.id.et_expense_name);
+        EditText etAmount = dialogView.findViewById(R.id.et_expense_amount);
+        Spinner spinnerCurrency = dialogView.findViewById(R.id.spinner_expense_currency);
+        EditText etDate = dialogView.findViewById(R.id.et_expense_date);
+        EditText etNote = dialogView.findViewById(R.id.et_expense_note);
+        Button btnAddImage = dialogView.findViewById(R.id.btn_add_expense_image);
+        RecyclerView rvImages = dialogView.findViewById(R.id.rv_expense_images);
+        Button btnSave = dialogView.findViewById(R.id.btn_save_expense);
+
+        // Setup Currency Spinner
+        String[] currencies = new String[] { "USD", "VND" };
+        ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, currencies);
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCurrency.setAdapter(currencyAdapter);
+
+        // Auto-select currency based on language
+        String language = Locale.getDefault().getLanguage();
+        if ("vi".equals(language)) {
+            spinnerCurrency.setSelection(1); // VND
+        } else {
+            spinnerCurrency.setSelection(0); // USD
+        }
+
+        // Setup Images
+        if (tempImagePaths == null) {
+            tempImagePaths = new ArrayList<>();
+        } else {
+            tempImagePaths.clear();
+        }
+        tempImageAdapter = new ScheduleImageAdapter(getContext(), tempImagePaths, true, position -> {
+            tempImagePaths.remove(position);
+            tempImageAdapter.notifyItemRemoved(position);
+        });
+        tempImageAdapter.setOnImageRotationListener(this::rotateImage);
+        rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvImages.setAdapter(tempImageAdapter);
+
+        btnAddImage.setOnClickListener(v -> showImageSourceDialog());
+
+        // Default Date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        if (selectedExpenseDate != null) {
+            etDate.setText(sdf.format(selectedExpenseDate));
+        } else {
+            etDate.setText(sdf.format(new Date()));
+        }
+
+        etDate.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            try {
+                cal.setTime(sdf.parse(etDate.getText().toString()));
+            } catch (Exception e) {
+                cal.setTime(new Date());
+            }
+            int year = cal.get(Calendar.YEAR);
+            int month = cal.get(Calendar.MONTH);
+            int day = cal.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dp = new DatePickerDialog(requireContext(), android.R.style.Theme_DeviceDefault_Dialog,
+                    (view1, y, m, d) -> {
+                        Calendar picked = Calendar.getInstance();
+                        picked.set(y, m, d);
+                        etDate.setText(sdf.format(picked.getTime()));
+                    }, year, month, day);
+            dp.show();
+        });
+
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String amountStr = etAmount.getText().toString().trim();
+            String currency = spinnerCurrency.getSelectedItem().toString();
+            String dateStr = etDate.getText().toString().trim();
+            String noteText = etNote.getText().toString().trim();
+
+            if (name.isEmpty()) {
+                etName.setError("Name is required");
+                return;
+            }
+            if (amountStr.isEmpty()) {
+                etAmount.setError("Amount is required");
+                return;
+            }
+
+            double amount = Double.parseDouble(amountStr);
+            int spentAt = 0;
+            try {
+                Date date = sdf.parse(dateStr);
+                spentAt = (int) (date.getTime() / 1000);
+            } catch (Exception e) {
+                e.printStackTrace();
+                spentAt = (int) (new Date().getTime() / 1000);
+            }
+
+            // Serialize description (text, images) to JSON
+            JSONObject noteJson = new JSONObject();
+            try {
+                noteJson.put("text", noteText);
+                JSONArray imagesArray = new JSONArray();
+                for (String path : tempImagePaths) {
+                    imagesArray.put(path);
+                }
+                noteJson.put("images", imagesArray);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            Expense expense = new Expense();
+            expense.setTripId((int) tripId);
+            expense.setAmount(amount);
+            expense.setCategory(name); // Store Name in Category column
+            expense.setCurrency(currency);
+            expense.setNote(noteJson.toString());
+            expense.setSpentAt(spentAt);
+
+            executorService.execute(() -> {
+                databaseHelper.addExpense(expense);
+                mainHandler.post(() -> {
+                    bottomSheetDialog.dismiss();
+                    loadExpenses();
+                    Toast.makeText(getContext(), "Expense added", Toast.LENGTH_SHORT).show();
+                });
+            });
+        });
+
+        bottomSheetDialog.show();
     }
 }

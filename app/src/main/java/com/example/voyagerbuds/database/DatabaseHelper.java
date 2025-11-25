@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 8;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -46,6 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CURRENCY = "currency";
     private static final String COLUMN_NOTE = "note";
     private static final String COLUMN_SPENT_AT = "spent_at";
+    private static final String COLUMN_EXPENSE_IMAGES = "image_paths";
     // Schedules table
     private static final String TABLE_SCHEDULES = "Schedules";
     private static final String COLUMN_SCHEDULE_ID = "scheduleId";
@@ -58,8 +59,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // private static final String COLUMN_SCHEDULE_ICON = "icon"; // Removed
     private static final String COLUMN_SCHEDULE_LOCATION = "location";
     private static final String COLUMN_SCHEDULE_PARTICIPANTS = "participants";
-    private static final String COLUMN_SCHEDULE_EXPENSE_AMOUNT = "expense_amount";
-    private static final String COLUMN_SCHEDULE_EXPENSE_CURRENCY = "expense_currency";
+    // private static final String COLUMN_SCHEDULE_EXPENSE_AMOUNT =
+    // "expense_amount"; // Removed
+    // private static final String COLUMN_SCHEDULE_EXPENSE_CURRENCY =
+    // "expense_currency"; // Removed
     private static final String COLUMN_SCHEDULE_IMAGES = "image_paths";
     private static final String COLUMN_SCHEDULE_NOTIFY_BEFORE = "notify_before_minutes";
     private static final String COLUMN_SCHEDULE_CREATED_AT = "created_at";
@@ -117,8 +120,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // + COLUMN_SCHEDULE_ICON + " TEXT," // Removed
                 + COLUMN_SCHEDULE_LOCATION + " TEXT,"
                 + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT,"
-                + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL,"
-                + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT,"
+                // + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL," // Removed
+                // + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT," // Removed
                 + COLUMN_SCHEDULE_IMAGES + " TEXT,"
                 + COLUMN_SCHEDULE_NOTIFY_BEFORE + " INTEGER DEFAULT 0,"
                 + COLUMN_SCHEDULE_CREATED_AT + " INTEGER,"
@@ -161,12 +164,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT");
         }
         if (oldVersion < 5) {
-            // Add expense and images columns to Schedules table
-            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL");
-            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT");
+            // Add images column to Schedules table
+            // Previous versions added expense columns here, but those fields have been
+            // removed from the data model. We avoid reintroducing them during upgrade.
             db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_IMAGES + " TEXT");
-            // Note: We are not dropping the 'icon' column to avoid complex migration logic,
-            // but it will be unused in the code.
+            // Note: We are leaving the 'icon' column alone to avoid complex migration
+            // logic; it will remain unused in the code.
         }
         if (oldVersion < 6) {
             // Add notify_before_minutes column to Schedules table
@@ -215,8 +218,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
         values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
         values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
-        values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount());
-        values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency());
+        // values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount()); //
+        // Removed
+        // values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency()); //
+        // Removed
         values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
         values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
         values.put(COLUMN_SCHEDULE_CREATED_AT, item.getCreatedAt());
@@ -260,14 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 if (participantsIndex != -1) {
                     it.setParticipants(cursor.getString(participantsIndex));
                 }
-                int expenseAmountIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_AMOUNT);
-                if (expenseAmountIndex != -1) {
-                    it.setExpenseAmount(cursor.getDouble(expenseAmountIndex));
-                }
-                int expenseCurrencyIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_CURRENCY);
-                if (expenseCurrencyIndex != -1) {
-                    it.setExpenseCurrency(cursor.getString(expenseCurrencyIndex));
-                }
+                // expense amount/currency fields were removed from the model in v8.
                 int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
                 if (imagesIndex != -1) {
                     it.setImagePaths(cursor.getString(imagesIndex));
@@ -298,8 +296,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // values.put(COLUMN_SCHEDULE_ICON, item.getIcon()); // Removed
         values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
         values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
-        values.put(COLUMN_SCHEDULE_EXPENSE_AMOUNT, item.getExpenseAmount());
-        values.put(COLUMN_SCHEDULE_EXPENSE_CURRENCY, item.getExpenseCurrency());
         values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
         values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
         values.put(COLUMN_SCHEDULE_UPDATED_AT, item.getUpdatedAt());
@@ -485,13 +481,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (participantsIndex != -1)
                 it.setParticipants(cursor.getString(participantsIndex));
 
-            int expenseAmountIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_AMOUNT);
-            if (expenseAmountIndex != -1)
-                it.setExpenseAmount(cursor.getDouble(expenseAmountIndex));
-
-            int expenseCurrencyIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_EXPENSE_CURRENCY);
-            if (expenseCurrencyIndex != -1)
-                it.setExpenseCurrency(cursor.getString(expenseCurrencyIndex));
+            // expense amount/currency fields were removed from the model in v8.
 
             int imagesIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_IMAGES);
             if (imagesIndex != -1)
@@ -508,5 +498,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         db.close();
         return it;
+    }
+
+    public void updateScheduleImages(int scheduleId, String imagesJson) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_SCHEDULE_IMAGES, imagesJson);
+        db.update(TABLE_SCHEDULES, values, COLUMN_SCHEDULE_ID + " = ?", new String[] { String.valueOf(scheduleId) });
+        db.close();
+    }
+
+    public List<Expense> getExpensesForTrip(int tripId) {
+        List<Expense> expenses = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_EXPENSES, null, COLUMN_EXPENSE_TRIP_ID + "=?",
+                new String[] { String.valueOf(tripId) }, null, null, COLUMN_SPENT_AT + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Expense expense = new Expense();
+                expense.setExpenseId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXPENSE_ID)));
+                expense.setTripId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_EXPENSE_TRIP_ID)));
+                expense.setCategory(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY)));
+                expense.setAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT)));
+                expense.setCurrency(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CURRENCY)));
+                expense.setNote(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTE)));
+                expense.setSpentAt(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SPENT_AT)));
+                expenses.add(expense);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        db.close();
+        return expenses;
+    }
+
+    public long addExpense(Expense expense) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EXPENSE_TRIP_ID, expense.getTripId());
+        values.put(COLUMN_CATEGORY, expense.getCategory());
+        values.put(COLUMN_AMOUNT, expense.getAmount());
+        values.put(COLUMN_CURRENCY, expense.getCurrency());
+        values.put(COLUMN_NOTE, expense.getNote());
+        values.put(COLUMN_SPENT_AT, expense.getSpentAt());
+
+        long id = db.insert(TABLE_EXPENSES, null, values);
+        db.close();
+        return id;
+    }
+
+    public int updateExpense(Expense expense) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_CATEGORY, expense.getCategory());
+        values.put(COLUMN_AMOUNT, expense.getAmount());
+        values.put(COLUMN_CURRENCY, expense.getCurrency());
+        values.put(COLUMN_NOTE, expense.getNote());
+        values.put(COLUMN_SPENT_AT, expense.getSpentAt());
+
+        int rows = db.update(TABLE_EXPENSES, values, COLUMN_EXPENSE_ID + " = ?",
+                new String[] { String.valueOf(expense.getExpenseId()) });
+        db.close();
+        return rows;
+    }
+
+    public void deleteExpense(int expenseId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_EXPENSES, COLUMN_EXPENSE_ID + " = ?", new String[] { String.valueOf(expenseId) });
+        db.close();
     }
 }

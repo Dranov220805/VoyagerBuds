@@ -307,7 +307,7 @@
     <string name="desc_photo_6">Ảnh 6</string>
 
     <!-- Capture screen -->
-    <string name="capture_header_title">Nhật ký &amp; Truyền thông du lịch</string>
+    <string name="capture_header_title">Nhật ký du lịch &amp; Thư viện</string>
     <string name="capture_header_subtitle">Ghi lại kỷ niệm và trải nghiệm của bạn</string>
     <string name="take_photo">Chụp ảnh</string>
     <string name="add_video">Thêm video</string>
@@ -482,4 +482,6 @@
     <!-- Empty schedule state -->
     <string name="schedule_no_events_today">Không có lịch trình vào hôm nay. Vui lòng tạo mới trong chuyến đi chi tiết</string>
     <string name="go_to_trip_detail">Đi tới chuyến đi chi tiết</string>
+    <string name="loading">Đang tải</string>
+    <string name="rotate_image">Xoay ảnh</string>
 </resources>
