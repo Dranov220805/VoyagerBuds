@@ -471,4 +471,8 @@
     <string name="expense">Expense</string>
     <string name="notify_before">Notify before</string>
     <string name="confirm">Confirm</string>
+
+    <!-- Empty schedule state -->
+    <string name="schedule_no_events_today">No schedule for today, create one in the trip detail</string>
+    <string name="go_to_trip_detail">Go to Trip Detail</string>
 </resources>

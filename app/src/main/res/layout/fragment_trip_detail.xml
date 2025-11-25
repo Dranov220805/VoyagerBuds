@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/background_light">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="@color/background_light"
         app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -93,8 +93,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:tabIndicatorColor="@color/main_color_voyager"
-                app:tabSelectedTextColor="@color/black"
-                app:tabTextColor="@color/gray">
+                app:tabSelectedTextColor="@color/text_dark"
+                app:tabTextColor="@color/text_medium">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
@@ -182,7 +182,7 @@
                     android:text="@string/trip_gallery"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/text_dark"/>
 
                 <TextView
                     android:layout_width="wrap_content"

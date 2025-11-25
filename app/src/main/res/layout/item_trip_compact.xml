@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/trip_name"
-                android:textColor="@color/black"
+                android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/date_range_example"
-                android:textColor="@color/gray"
+                android:textColor="@color/text_medium"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp"
                 android:maxLines="1"
@@ -63,7 +63,7 @@
             android:src="@android:drawable/ic_menu_more"
             android:rotation="270"
                 android:contentDescription="@string/more"
-            app:tint="@color/gray" />
+            app:tint="@color/text_medium" />
 
     </LinearLayout>
 

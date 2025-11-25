@@ -119,6 +119,16 @@ public class HomeFragment extends Fragment
         tvHeroTripExpenses = view.findViewById(R.id.tv_hero_trip_expenses);
         fabAddTrip = view.findViewById(R.id.fab_add_trip);
 
+        // Initialize profile icon
+        ImageView profileIcon = view.findViewById(R.id.profile_icon);
+        if (profileIcon != null) {
+            profileIcon.setOnClickListener(v -> {
+                if (getActivity() instanceof HomeActivity) {
+                    ((HomeActivity) getActivity()).onProfileClicked();
+                }
+            });
+        }
+
         // Initialize new sections
         recyclerViewUpcomingTrips = view.findViewById(R.id.recycler_view_upcoming_trips);
         tvUpcomingTripsHeader = view.findViewById(R.id.tv_upcoming_trips_header);

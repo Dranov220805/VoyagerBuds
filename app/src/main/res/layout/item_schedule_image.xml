@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:background="#E0E0E0"
+        android:background="@color/divider_light"
         android:contentDescription="@string/schedule_image_desc" />
 
     <ImageButton
@@ -20,7 +20,7 @@
         android:layout_gravity="top|end"
         android:background="@drawable/bg_circle_semitransparent"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:tint="#F44336"
+        app:tint="@color/error"
         android:contentDescription="@string/remove_image"
         android:padding="4dp"
         android:scaleType="fitCenter" />

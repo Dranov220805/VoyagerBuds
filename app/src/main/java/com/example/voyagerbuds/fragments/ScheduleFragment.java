@@ -6,6 +6,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -39,6 +40,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,6 +69,8 @@ public class ScheduleFragment extends Fragment {
     private ImageView ivScheduleMenu;
     private Spinner spinnerTripSelector;
     private TextView tvEmptyState;
+    private LinearLayout layoutEmptyState;
+    private com.google.android.material.button.MaterialButton btnGoToTripDetail;
     private RecyclerView recyclerView;
     private HorizontalScrollView scrollDateChips;
     private LinearLayout layoutDateChips;
@@ -130,9 +136,26 @@ public class ScheduleFragment extends Fragment {
         // ivScheduleMenu = view.findViewById(R.id.iv_schedule_menu);
         spinnerTripSelector = view.findViewById(R.id.spinner_trip_selector);
         tvEmptyState = view.findViewById(R.id.tv_schedule_empty_state);
+        layoutEmptyState = view.findViewById(R.id.layout_schedule_empty_state);
+        btnGoToTripDetail = view.findViewById(R.id.btn_go_to_trip_detail);
         recyclerView = view.findViewById(R.id.recycler_view_schedule);
         scrollDateChips = view.findViewById(R.id.scroll_date_chips);
         layoutDateChips = view.findViewById(R.id.layout_date_chips);
+
+        btnGoToTripDetail.setOnClickListener(v -> {
+            if (selectedTrip != null) {
+                TripDetailFragment fragment = TripDetailFragment.newInstance(selectedTrip.getTripId());
+                getParentFragmentManager().beginTransaction()
+                        .setCustomAnimations(
+                                R.anim.slide_in_right,
+                                R.anim.slide_out_left,
+                                R.anim.slide_in_left,
+                                R.anim.slide_out_right)
+                        .replace(R.id.content_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         dayAdapter = new ScheduleDayAdapter(requireContext(), new ArrayList<>(),
@@ -329,6 +352,11 @@ public class ScheduleFragment extends Fragment {
         // Filter by selected date if one is selected
         if (selectedDate != null) {
             scheduleItems = filterByDate(scheduleItems, selectedDate);
+            if (scheduleItems.isEmpty()) {
+                showEmptyState(getString(R.string.schedule_no_events_today));
+                dayAdapter.updateGroups(new ArrayList<>());
+                return;
+            }
         }
 
         List<ScheduleDayGroup> groups = groupSchedulesByDay(scheduleItems);
@@ -508,12 +536,19 @@ public class ScheduleFragment extends Fragment {
 
     private void showEmptyState(String message) {
         tvEmptyState.setText(message);
-        tvEmptyState.setVisibility(View.VISIBLE);
+        layoutEmptyState.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
+
+        // Show button only if we have a selected trip
+        if (selectedTrip != null) {
+            btnGoToTripDetail.setVisibility(View.VISIBLE);
+        } else {
+            btnGoToTripDetail.setVisibility(View.GONE);
+        }
     }
 
     private void showScheduleList() {
-        tvEmptyState.setVisibility(View.GONE);
+        layoutEmptyState.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         // No RecyclerView fade-in animation, static UI loading
     }
@@ -613,8 +648,27 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void showDetailDialog(ScheduleItem item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_detail, null);
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        bottomSheetDialog.getBehavior().setDraggable(false);
+
+        View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
+        if (dragHandle != null) {
+            dragHandle.setOnTouchListener((v, event) -> {
+                switch (event.getAction()) {
+                    case android.view.MotionEvent.ACTION_DOWN:
+                        bottomSheetDialog.getBehavior().setDraggable(true);
+                        break;
+                    case android.view.MotionEvent.ACTION_UP:
+                    case android.view.MotionEvent.ACTION_CANCEL:
+                        v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+                        break;
+                }
+                return false;
+            });
+        }
 
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);
@@ -632,6 +686,7 @@ public class ScheduleFragment extends Fragment {
         View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
         View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
         View btnClose = dialogView.findViewById(R.id.btn_detail_close);
+        View btnCloseSheet = dialogView.findViewById(R.id.btn_close_sheet);
 
         etTitle.setText(item.getTitle());
 
@@ -648,6 +703,7 @@ public class ScheduleFragment extends Fragment {
             etLocation.setText(item.getLocation());
             layoutLocation.setVisibility(View.VISIBLE);
             etLocation.setOnClickListener(v -> {
+                bottomSheetDialog.dismiss(); // Auto close the drawer
                 navigateToMapWithPin(item);
             });
         } else {
@@ -678,15 +734,13 @@ public class ScheduleFragment extends Fragment {
 
         // TODO: Load images into rvImages
 
-        AlertDialog dialog = builder.setView(dialogView).create();
-
         btnDelete.setOnClickListener(v -> {
-            dialog.dismiss();
+            bottomSheetDialog.dismiss();
             deleteSchedule(item);
         });
 
         btnEdit.setOnClickListener(v -> {
-            dialog.dismiss();
+            bottomSheetDialog.dismiss();
             // For now, we can't easily edit from here without duplicating the Add/Edit
             // dialog logic
             // or navigating to TripDetailFragment.
@@ -694,9 +748,12 @@ public class ScheduleFragment extends Fragment {
             Toast.makeText(getContext(), "Edit from Trip Detail screen", Toast.LENGTH_SHORT).show();
         });
 
-        btnClose.setOnClickListener(v -> dialog.dismiss());
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        if (btnCloseSheet != null) {
+            btnCloseSheet.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        }
 
-        dialog.show();
+        bottomSheetDialog.show();
     }
 
     private void showItemMenu(View view, ScheduleItem item) {

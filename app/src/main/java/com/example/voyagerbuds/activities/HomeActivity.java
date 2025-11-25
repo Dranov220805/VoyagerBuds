@@ -19,13 +19,9 @@ import com.example.voyagerbuds.utils.LocaleHelper;
 
 public class HomeActivity extends BaseActivity
         implements NavigationBarFragment.OnNavigationItemSelectedListener,
-        UpperBarFragment.OnProfileClickListener,
         CreateTripFragment.OnTripCreatedListener {
 
     private String currentFragment = "home";
-    // Keep a reference to the upper bar fragment so we can update its title
-    // dynamically
-    private com.example.voyagerbuds.fragments.UpperBarFragment upperBarFragment;
     private NavigationBarFragment navigationBarFragment;
     private static final String[] FRAGMENT_ORDER = { "home", "schedule", "capture", "map", "dashboard" };
     private CreateTripFragment createTripFragment;
@@ -61,12 +57,6 @@ public class HomeActivity extends BaseActivity
         setContentView(R.layout.activity_home);
 
         if (savedInstanceState == null) {
-            // Add upper bar fragment and keep reference so we can update title later
-            upperBarFragment = new com.example.voyagerbuds.fragments.UpperBarFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.upper_bar_container, upperBarFragment)
-                    .commit();
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content_container, new HomeFragment())
                     .commit();
@@ -75,19 +65,11 @@ public class HomeActivity extends BaseActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.navigation_container, navigationBarFragment)
                     .commit();
-
-            // Initialize the upper bar title to app name or "Home"
-            if (upperBarFragment != null) {
-                upperBarFragment.setAppName(getString(R.string.app_name));
-            }
-            updateUpperBarVisibility("home");
         } else {
             // Restore state
             currentFragment = savedInstanceState.getString("currentFragment", "home");
 
             // Restore fragment references
-            upperBarFragment = (com.example.voyagerbuds.fragments.UpperBarFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.upper_bar_container);
             navigationBarFragment = (NavigationBarFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.navigation_container);
 
@@ -98,10 +80,6 @@ public class HomeActivity extends BaseActivity
             }
 
             // Update UI based on restored state
-            updateUpperBarVisibility(currentFragment);
-            if (upperBarFragment != null) {
-                upperBarFragment.setAppName(getTitleForFragment(currentFragment));
-            }
         }
 
         handleNotificationIntent(getIntent());
@@ -136,12 +114,6 @@ public class HomeActivity extends BaseActivity
                     // We need to expose a method in NavigationBarFragment to set selection
                     // For now, we can just rely on the fragment change
                 }
-
-                // Update upper bar title
-                if (upperBarFragment != null) {
-                    upperBarFragment.setAppName(getString(R.string.schedule));
-                }
-                updateUpperBarVisibility("schedule");
             }
         }
     }
@@ -208,14 +180,6 @@ public class HomeActivity extends BaseActivity
                 .replace(R.id.content_container, fragment)
                 .commit();
 
-        // Update the upper bar title based on the selected page
-        if (upperBarFragment != null) {
-            String title = getTitleForFragment(fragmentKey);
-            upperBarFragment.setAppName(title);
-        }
-
-        updateUpperBarVisibility(fragmentKey);
-
         // Update navigation bar selection
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
@@ -254,7 +218,6 @@ public class HomeActivity extends BaseActivity
         return 0;
     }
 
-    @Override
     public void onProfileClicked() {
         // Check if we're in trip creation mode
         if (currentFragment.equals("create_trip") && createTripFragment != null) {
@@ -276,11 +239,6 @@ public class HomeActivity extends BaseActivity
 
         // Update current fragment tracker
         currentFragment = "profile";
-        // Update upper bar title
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.profile));
-        }
-        updateUpperBarVisibility("profile");
         createTripFragment = null;
     }
 
@@ -294,10 +252,6 @@ public class HomeActivity extends BaseActivity
                 .commit();
 
         currentFragment = "create_trip";
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.create_trip));
-        }
-        updateUpperBarVisibility("create_trip");
     }
 
     @Override
@@ -313,10 +267,6 @@ public class HomeActivity extends BaseActivity
                 .commit();
 
         currentFragment = "add_schedule";
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getString(R.string.schedule));
-        }
-        updateUpperBarVisibility("add_schedule");
         createTripFragment = null;
     }
 
@@ -335,10 +285,6 @@ public class HomeActivity extends BaseActivity
                     .addToBackStack(null)
                     .commit();
             currentFragment = "profile";
-            if (upperBarFragment != null) {
-                upperBarFragment.setAppName(getString(R.string.profile));
-            }
-            updateUpperBarVisibility("profile");
             createTripFragment = null;
             return;
         }
@@ -383,25 +329,10 @@ public class HomeActivity extends BaseActivity
      */
     public void setCurrentFragmentKey(String fragmentKey) {
         this.currentFragment = fragmentKey;
-        if (upperBarFragment != null) {
-            upperBarFragment.setAppName(getTitleForFragment(fragmentKey));
-        }
-        updateUpperBarVisibility(fragmentKey);
         if (navigationBarFragment != null) {
             navigationBarFragment.updateSelection(fragmentKey);
         }
         createTripFragment = null;
-    }
-
-    private void updateUpperBarVisibility(String fragmentKey) {
-        android.view.View upperBarContainer = findViewById(R.id.upper_bar_container);
-        if (upperBarContainer != null) {
-            if ("home".equals(fragmentKey)) {
-                upperBarContainer.setVisibility(android.view.View.VISIBLE);
-            } else {
-                upperBarContainer.setVisibility(android.view.View.GONE);
-            }
-        }
     }
 
     @Override

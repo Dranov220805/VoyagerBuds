@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_bar_height"
     android:orientation="horizontal"
-    android:background="@color/white"
+    android:background="@color/card_background"
     android:elevation="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp">

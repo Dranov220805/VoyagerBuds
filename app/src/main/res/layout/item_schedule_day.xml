@@ -20,7 +20,7 @@
             android:id="@+id/tv_day_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
+            android:textColor="@color/text_dark"
             android:textSize="16sp"
             android:textStyle="bold"
             android:text="@string/day_title_example" />
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="@string/day_events_example"
-            android:textColor="#777777"
+            android:textColor="@color/text_medium"
             android:textSize="13sp" />
 
     </LinearLayout>
@@ -57,7 +57,7 @@
                 android:layout_width="2dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
-                android:background="#E0E0E0" />
+                android:background="@color/divider_light" />
 
             <!-- Events Container -->
             <LinearLayout

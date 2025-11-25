@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@drawable/bottom_sheet_bg">
+    android:background="@drawable/bottom_sheet_bg"
+    android:backgroundTint="@color/card_background">
 
     <!-- Header -->
     <TextView
@@ -14,7 +15,7 @@
         android:text="@string/filter_sort_title"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:textColor="@color/text_dark"
         android:layout_marginBottom="20dp" />
 
     <!-- Sort By Section -->
@@ -24,7 +25,7 @@
         android:text="@string/sort_by_label"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:textColor="@color/text_dark"
         android:layout_marginBottom="12dp" />
 
     <RadioGroup
@@ -38,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_date_newest"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:checked="true"
             android:padding="8dp" />
 
@@ -47,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_date_oldest"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:padding="8dp" />
 
         <RadioButton
@@ -55,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_duration_longest"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:padding="8dp" />
 
         <RadioButton
@@ -63,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_duration_shortest"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:padding="8dp" />
 
         <RadioButton
@@ -71,7 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_name_az"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:padding="8dp" />
 
         <RadioButton
@@ -79,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_name_za"
-            android:textColor="@color/black"
+            android:textColor="@color/text_dark"
             android:padding="8dp" />
 
     </RadioGroup>
@@ -91,7 +92,7 @@
         android:text="@string/filter_by_date_range"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="@color/black"
+        android:textColor="@color/text_dark"
         android:layout_marginBottom="12dp" />
 
     <LinearLayout

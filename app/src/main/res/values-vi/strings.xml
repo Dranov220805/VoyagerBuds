@@ -477,4 +477,8 @@
     <string name="expense">Chi phí</string>
     <string name="notify_before">Thông báo trước bao lâu</string>
     <string name="confirm">Xác nhận</string>
+
+    <!-- Empty schedule state -->
+    <string name="schedule_no_events_today">Không có lịch trình vào hôm nay. Vui lòng tạo mới trong chuyến đi chi tiết</string>
+    <string name="go_to_trip_detail">Đi tới chuyến đi chi tiết</string>
 </resources>
