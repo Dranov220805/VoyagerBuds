@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="VoyageSync"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="24sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Welcome Back"
+            android:textColor="?android:attr/textColorPrimary"
             android:textSize="22sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -53,10 +55,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:hint="Email address"
-            app:startIconDrawable="@android:drawable/sym_action_email"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_welcome_back">
+            app:layout_constraintTop_toBottomOf="@+id/tv_welcome_back"
+            app:startIconDrawable="@android:drawable/sym_action_email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_email"
@@ -72,11 +74,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Password"
-            app:passwordToggleEnabled="true"
-            app:startIconDrawable="@android:drawable/ic_lock_lock"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_email">
+            app:layout_constraintTop_toBottomOf="@+id/til_email"
+            app:passwordToggleEnabled="true"
+            app:startIconDrawable="@android:drawable/ic_lock_lock">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_password"
@@ -91,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Forgot Password?"
-            android:textColor="@color/main_color_voyager"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="@+id/til_password"
             app:layout_constraintTop_toBottomOf="@+id/til_password" />
 
@@ -113,6 +115,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Or continue with"
+            android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_login" />
@@ -124,10 +127,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Sign in with Google"
-            android:textColor="@android:color/black"
+            android:textColor="?android:attr/textColorPrimary"
             app:icon="@drawable/googleg_standard_color_18"
             app:iconGravity="textStart"
-            app:strokeColor="@android:color/darker_gray"
+            app:strokeColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_or_divider" />
@@ -138,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:text="Don\'t have an account? Sign Up"
-            android:textColor="@color/main_color_voyager"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_google_login" />

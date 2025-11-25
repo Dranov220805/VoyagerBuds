@@ -17,7 +17,8 @@
             android:id="@+id/iv_back_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_previous" 
+            android:src="@android:drawable/ic_media_previous"
+            app:tint="?android:attr/textColorPrimary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,6 +29,7 @@
             android:text="Register"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintBottom_toBottomOf="@+id/iv_back_arrow"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +44,7 @@
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_register_title_center" />
@@ -53,6 +56,7 @@
             android:layout_marginTop="8dp"
             android:text="Create an account to start planning your adventures."
             android:textAlignment="center"
+            android:textColor="?android:attr/textColorSecondary"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,10 +80,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:hint="Full Name"
-            app:startIconDrawable="@android:drawable/ic_menu_myplaces"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/iv_adventure_image">
+            app:layout_constraintTop_toBottomOf="@+id/iv_adventure_image"
+            app:startIconDrawable="@android:drawable/ic_menu_myplaces">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_full_name"
@@ -94,10 +98,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Email Address"
-            app:startIconDrawable="@android:drawable/sym_action_email"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_full_name">
+            app:layout_constraintTop_toBottomOf="@+id/til_full_name"
+            app:startIconDrawable="@android:drawable/sym_action_email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_email"
@@ -115,9 +119,9 @@
             android:hint="Password"
             app:passwordToggleEnabled="true"
             app:startIconDrawable="@android:drawable/ic_lock_lock"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_email"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_email">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_password"
@@ -135,9 +139,9 @@
             android:hint="Confirm Password"
             app:passwordToggleEnabled="true"
             app:startIconDrawable="@android:drawable/ic_lock_lock"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_password"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_password">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_confirm_password"
@@ -164,6 +168,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Or"
+            android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_create_account" />
@@ -175,10 +180,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Sign up with Google"
-            android:textColor="@android:color/black"
+            android:textColor="?android:attr/textColorPrimary"
             app:icon="@drawable/googleg_standard_color_18"
             app:iconGravity="textStart"
-            app:strokeColor="@android:color/darker_gray"
+            app:strokeColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_or_divider" />
@@ -189,7 +194,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Already have an account? Log in"
-            android:textColor="@color/main_color_voyager"
+            android:textColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_google_signup" />
