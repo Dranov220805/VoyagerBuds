@@ -266,31 +266,36 @@ public class TripDetailFragment extends Fragment {
 
         // Configure BottomSheet Behavior
         bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-        bottomSheetDialog.getBehavior().setDraggable(false); // Disable default drag to prevent accidental dismissal
+        // bottomSheetDialog.getBehavior().setDraggable(false); // Removed to fix swipe
+        // issue
 
         View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
         View btnClose = dialogView.findViewById(R.id.btn_close_sheet);
 
-        // Enable dragging only when touching the handle
-        dragHandle.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    bottomSheetDialog.getBehavior().setDraggable(true);
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    // We keep it draggable until the gesture ends, but we can't easily reset it
-                    // here
-                    // because the behavior might still be processing the drag.
-                    // However, setting it to false here might stop the fling.
-                    // A better approach for "only handle" is usually complex, but let's try this:
-                    // If we set it to false, the next touch on content won't drag.
-                    // We delay it slightly or just set it.
-                    v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
-                    break;
-            }
-            return false; // Let the touch propagate to the behavior
-        });
+        /*
+         * Removed restrictive touch listener
+         * // Enable dragging only when touching the handle
+         * dragHandle.setOnTouchListener((v, event) -> {
+         * switch (event.getAction()) {
+         * case MotionEvent.ACTION_DOWN:
+         * bottomSheetDialog.getBehavior().setDraggable(true);
+         * break;
+         * case MotionEvent.ACTION_UP:
+         * case MotionEvent.ACTION_CANCEL:
+         * // We keep it draggable until the gesture ends, but we can't easily reset it
+         * // here
+         * // because the behavior might still be processing the drag.
+         * // However, setting it to false here might stop the fling.
+         * // A better approach for "only handle" is usually complex, but let's try
+         * this:
+         * // If we set it to false, the next touch on content won't drag.
+         * // We delay it slightly or just set it.
+         * v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+         * break;
+         * }
+         * return false; // Let the touch propagate to the behavior
+         * });
+         */
 
         btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
@@ -702,30 +707,35 @@ public class TripDetailFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_detail, null);
         bottomSheetDialog.setContentView(dialogView);
         bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-        bottomSheetDialog.getBehavior().setDraggable(false);
+        // bottomSheetDialog.getBehavior().setDraggable(false); // Removed to fix swipe
+        // issue
 
         View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
 
-        // Enable dragging only when touching the handle
-        dragHandle.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    bottomSheetDialog.getBehavior().setDraggable(true);
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    // We keep it draggable until the gesture ends, but we can't easily reset it
-                    // here
-                    // because the behavior might still be processing the drag.
-                    // However, setting it to false here might stop the fling.
-                    // A better approach for "only handle" is usually complex, but let's try this:
-                    // If we set it to false, the next touch on content won't drag.
-                    // We delay it slightly or just set it.
-                    v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
-                    break;
-            }
-            return false; // Let the touch propagate to the behavior
-        });
+        /*
+         * Removed restrictive touch listener
+         * // Enable dragging only when touching the handle
+         * dragHandle.setOnTouchListener((v, event) -> {
+         * switch (event.getAction()) {
+         * case MotionEvent.ACTION_DOWN:
+         * bottomSheetDialog.getBehavior().setDraggable(true);
+         * break;
+         * case MotionEvent.ACTION_UP:
+         * case MotionEvent.ACTION_CANCEL:
+         * // We keep it draggable until the gesture ends, but we can't easily reset it
+         * // here
+         * // because the behavior might still be processing the drag.
+         * // However, setting it to false here might stop the fling.
+         * // A better approach for "only handle" is usually complex, but let's try
+         * this:
+         * // If we set it to false, the next touch on content won't drag.
+         * // We delay it slightly or just set it.
+         * v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+         * break;
+         * }
+         * return false; // Let the touch propagate to the behavior
+         * });
+         */
 
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);

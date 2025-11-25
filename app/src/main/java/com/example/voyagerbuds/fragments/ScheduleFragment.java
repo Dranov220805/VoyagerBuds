@@ -474,8 +474,8 @@ public class ScheduleFragment extends Fragment {
 
         // Set initial style (unselected)
         chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
-        weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
-        dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+        weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_medium));
+        dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_dark));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -507,10 +507,10 @@ public class ScheduleFragment extends Fragment {
                     weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                     dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
                 } else {
-                    // Unselected style - white background
+                    // Unselected style - neutral background
                     chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
-                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray));
-                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_medium));
+                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_dark));
                 }
             }
         }
@@ -652,23 +652,27 @@ public class ScheduleFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_schedule_detail, null);
         bottomSheetDialog.setContentView(dialogView);
         bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
-        bottomSheetDialog.getBehavior().setDraggable(false);
+        // bottomSheetDialog.getBehavior().setDraggable(false); // Removed to fix swipe
+        // issue
 
         View dragHandle = dialogView.findViewById(R.id.layout_drag_handle);
-        if (dragHandle != null) {
-            dragHandle.setOnTouchListener((v, event) -> {
-                switch (event.getAction()) {
-                    case android.view.MotionEvent.ACTION_DOWN:
-                        bottomSheetDialog.getBehavior().setDraggable(true);
-                        break;
-                    case android.view.MotionEvent.ACTION_UP:
-                    case android.view.MotionEvent.ACTION_CANCEL:
-                        v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
-                        break;
-                }
-                return false;
-            });
-        }
+        /*
+         * Removed restrictive touch listener
+         * if (dragHandle != null) {
+         * dragHandle.setOnTouchListener((v, event) -> {
+         * switch (event.getAction()) {
+         * case android.view.MotionEvent.ACTION_DOWN:
+         * bottomSheetDialog.getBehavior().setDraggable(true);
+         * break;
+         * case android.view.MotionEvent.ACTION_UP:
+         * case android.view.MotionEvent.ACTION_CANCEL:
+         * v.post(() -> bottomSheetDialog.getBehavior().setDraggable(false));
+         * break;
+         * }
+         * return false;
+         * });
+         * }
+         */
 
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);
@@ -734,6 +738,16 @@ public class ScheduleFragment extends Fragment {
 
         // TODO: Load images into rvImages
 
+        // When this dialog is shown from the Schedule fragment, we do not want to allow
+        // editing or deleting directly from here. Allow these actions only from Trip
+        // Detail screen to prevent accidental modification from the schedule list.
+        if (btnDelete != null) {
+            btnDelete.setVisibility(View.GONE);
+        }
+        if (btnEdit != null) {
+            btnEdit.setVisibility(View.GONE);
+        }
+
         btnDelete.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             deleteSchedule(item);
@@ -745,7 +759,7 @@ public class ScheduleFragment extends Fragment {
             // dialog logic
             // or navigating to TripDetailFragment.
             // Let's show a toast or try to navigate.
-            Toast.makeText(getContext(), "Edit from Trip Detail screen", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.edit_from_trip_detail_screen, Toast.LENGTH_SHORT).show();
         });
 
         btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
@@ -764,7 +778,7 @@ public class ScheduleFragment extends Fragment {
         popup.setOnMenuItemClickListener(menuItem -> {
             if (menuItem.getItemId() == 1) {
                 // Edit
-                Toast.makeText(getContext(), "Edit from Trip Detail screen", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.edit_from_trip_detail_screen, Toast.LENGTH_SHORT).show();
                 return true;
             } else if (menuItem.getItemId() == 2) {
                 deleteSchedule(item);

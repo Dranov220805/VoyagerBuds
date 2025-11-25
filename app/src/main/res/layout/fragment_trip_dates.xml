@@ -2,13 +2,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+       android:layout_height="match_parent"
     android:background="@color/background_light"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+           android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="24dp">
 
@@ -45,16 +45,29 @@
             <!-- Progress indicator removed; parent fragment will show a top progress bar -->
         </LinearLayout>
 
-        <!-- When are you traveling? -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/when_traveling"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_dark"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
+        <!-- Header: page title remains above; body will contain the 'When are you traveling?' heading -->
+        
+            <!-- Body: center vertically below header -->
+            <LinearLayout
+                android:id="@+id/body_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+        
+                <!-- When are you traveling? -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/when_traveling"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_dark"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
 
         <!-- Start Date -->
         <TextView
@@ -141,6 +154,7 @@
             android:autoSizeTextType="uniform"
             android:autoSizeMinTextSize="12sp"
             android:autoSizeMaxTextSize="16sp" />
+            </LinearLayout>
 
     </LinearLayout>
 

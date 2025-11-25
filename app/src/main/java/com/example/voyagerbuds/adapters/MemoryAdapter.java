@@ -47,7 +47,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
         holder.tvTitle.setText(item.title);
         // holder.imgMemory.setImageResource(item.imageResId); // Use placeholder for
         // now if resource not available
-        holder.imgMemory.setImageResource(R.drawable.voyagerbuds); // Default
+        holder.imgMemory.setImageResource(R.drawable.voyagerbuds_nobg); // Default
     }
 
     @Override

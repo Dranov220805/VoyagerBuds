@@ -463,9 +463,9 @@ public class HomeFragment extends Fragment
             // TODO: Load image using Glide or Picasso
             // For now, use app icon as placeholder even if URL exists (until image loading
             // is implemented)
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
+            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
         } else {
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds);
+            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
         }
     }
 
