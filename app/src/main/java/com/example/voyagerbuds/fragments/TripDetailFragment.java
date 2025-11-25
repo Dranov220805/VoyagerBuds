@@ -709,7 +709,7 @@ public class TripDetailFragment extends Fragment {
                 .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     dialog.dismiss();
                 })
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(R.drawable.ic_warning)
                 .show();
     }
 
