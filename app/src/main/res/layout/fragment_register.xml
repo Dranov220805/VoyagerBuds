@@ -17,7 +17,7 @@
             android:id="@+id/iv_back_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@android:drawable/ic_media_previous" 
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -64,7 +64,7 @@
             android:layout_height="150dp"
             android:layout_marginTop="24dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/img_adventure" 
+            android:src="@mipmap/ic_launcher" 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_embark_subtitle" />
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:hint="Full Name"
-            app:startIconDrawable="@drawable/ic_person"
+            app:startIconDrawable="@android:drawable/ic_menu_myplaces"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/iv_adventure_image">
@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Email Address"
-            app:startIconDrawable="@drawable/ic_email"
+            app:startIconDrawable="@android:drawable/sym_action_email"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_full_name">
@@ -114,7 +114,7 @@
             android:layout_marginTop="16dp"
             android:hint="Password"
             app:passwordToggleEnabled="true"
-            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconDrawable="@android:drawable/ic_lock_lock"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_email">
@@ -134,7 +134,7 @@
             android:layout_marginTop="16dp"
             android:hint="Confirm Password"
             app:passwordToggleEnabled="true"
-            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconDrawable="@android:drawable/ic_lock_lock"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_password">
