@@ -56,7 +56,7 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textAllCaps="false"
-                    android:background="@color/main_color_voyager"
+                    android:background="@color/accent_blue"
                     android:drawableTop="@android:drawable/ic_menu_camera"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"/>
