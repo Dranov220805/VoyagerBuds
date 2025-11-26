@@ -325,6 +325,8 @@
     <string name="capture_header_subtitle">Ghi lại kỷ niệm và trải nghiệm của bạn</string>
     <string name="take_photo">Chụp ảnh</string>
     <string name="add_video">Thêm video</string>
+    <string name="upload">Tải lên</string>
+    <string name="recent">Gần đây</string>
     <string name="desc_close">Đóng</string>
     <string name="desc_my_location">Vị trí của tôi</string>
 

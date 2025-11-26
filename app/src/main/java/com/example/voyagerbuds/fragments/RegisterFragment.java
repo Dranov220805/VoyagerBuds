@@ -64,9 +64,13 @@ public class RegisterFragment extends Fragment {
                             firebaseAuthWithGoogle(account.getIdToken(), account.getEmail(), account.getDisplayName());
                         } catch (ApiException e) {
                             Log.w(TAG, "Google sign in failed", e);
+                            hideLoading();
                             Toast.makeText(getContext(), getString(R.string.toast_google_sign_in_failed),
                                     Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        // User cancelled the sign-up
+                        hideLoading();
                     }
                 });
     }

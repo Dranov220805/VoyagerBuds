@@ -23,6 +23,7 @@ import com.example.voyagerbuds.fragments.createtrip.TripDatesFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripDestinationFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripNameFragment;
 import com.example.voyagerbuds.models.Trip;
+import com.example.voyagerbuds.utils.ImageRandomizer;
 
 import java.util.List;
 import java.util.Locale;
@@ -238,6 +239,14 @@ public class CreateTripFragment extends Fragment {
                     progressBar.setIndeterminate(false);
 
                 if (result > 0) {
+                    // Set default random image after trip is created
+                    Trip createdTrip = databaseHelper.getTripById((int) result);
+                    if (createdTrip != null) {
+                        String defaultImageName = ImageRandomizer.getDefaultImageName(createdTrip.getTripId());
+                        createdTrip.setPhotoUrl(defaultImageName);
+                        databaseHelper.updateTrip(createdTrip);
+                    }
+
                     isTripCreationComplete = true;
                     Toast.makeText(getContext(), R.string.trip_created, Toast.LENGTH_SHORT).show();
                     if (listener != null) {

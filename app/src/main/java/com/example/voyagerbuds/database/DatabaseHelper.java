@@ -373,6 +373,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return expenses;
     }
 
+    public Expense getExpenseById(int expenseId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        Expense expense = dao.getById(expenseId);
+        db.close();
+        return expense;
+    }
+
     public long addExpense(Expense expense) {
         SQLiteDatabase db = this.getWritableDatabase();
         ExpenseDao dao = new ExpenseDao(db);
@@ -387,6 +395,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int rows = dao.update(expense);
         db.close();
         return rows;
+    }
+
+    public void updateExpenseImages(int expenseId, String imagesJson) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        dao.updateImages(expenseId, imagesJson);
+        db.close();
     }
 
     public void deleteExpense(int expenseId) {

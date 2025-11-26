@@ -323,24 +323,9 @@
     <string name="capture_header_subtitle">Capture your memories and experiences</string>
     <string name="take_photo">Take Photo</string>
     <string name="add_video">Add Video</string>
-    <string name="capture">Capture</string>
     <string name="upload">Upload</string>
     <string name="recent">Recent</string>
-    <string name="travel_notes">Travel Notes</string>
-    <string name="save_note">Save Note</string>
-    <string name="edit_note">Edit Note</string>
-    <string name="capture_experience_hint">Write your travel experiences here...</string>
-    <string name="view_all">View All</string>
-    <string name="recent_photos">Recent Photos</string>
     <string name="photo_extra_count">+6</string>
-    <string name="desc_camera">Camera</string>
-    <string name="desc_video">Video</string>
-    <string name="desc_photo_1">Photo 1</string>
-    <string name="desc_photo_2">Photo 2</string>
-    <string name="desc_photo_3">Photo 3</string>
-    <string name="desc_photo_4">Photo 4</string>
-    <string name="desc_photo_5">Photo 5</string>
-    <string name="desc_photo_6">Photo 6</string>
     <string name="desc_close">Close</string>
     <string name="desc_my_location">My Location</string>
 
@@ -445,7 +430,6 @@
     <string name="create_group_button">+ Create Group</string>
     <string name="join_group_button">Join Group</string>
     <string name="step_1_of_3">Step 1 of 3</string>
-    <string name="photo_extra_count">+12</string>
     <!-- Profile examples -->
     <string name="example_user_name">John Traveler</string>
     <string name="example_user_email">john.traveler@email.com</string>

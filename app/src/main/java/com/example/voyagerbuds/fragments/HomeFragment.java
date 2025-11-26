@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
 import com.example.voyagerbuds.utils.CurrencyHelper;
+import com.example.voyagerbuds.utils.ImageRandomizer;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.activities.HomeActivity;
@@ -142,6 +146,8 @@ public class HomeFragment extends Fragment
         // Setup Upcoming Trips RecyclerView
         recyclerViewUpcomingTrips
                 .setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewUpcomingTrips.setHasFixedSize(true);
+        recyclerViewUpcomingTrips.setItemViewCacheSize(20);
         upcomingTripList = new ArrayList<>();
         upcomingTripAdapter = new TripCardAdapter(getContext(), upcomingTripList, this);
         recyclerViewUpcomingTrips.setAdapter(upcomingTripAdapter);
@@ -149,12 +155,16 @@ public class HomeFragment extends Fragment
         // Setup Past Trips RecyclerView
         recyclerViewPastTrips
                 .setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewPastTrips.setHasFixedSize(true);
+        recyclerViewPastTrips.setItemViewCacheSize(20);
         pastTripList = new ArrayList<>();
         pastTripAdapter = new TripCardAdapter(getContext(), pastTripList, this);
         recyclerViewPastTrips.setAdapter(pastTripAdapter);
 
         // Setup Memories RecyclerView
         recyclerViewMemories.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 2));
+        recyclerViewMemories.setHasFixedSize(true);
+        recyclerViewMemories.setItemViewCacheSize(20);
         memoryList = new ArrayList<>();
         // Add dummy memories for now
         memoryList.add(new MemoryAdapter.MemoryItem("Eiffel Tower Sparkle", R.drawable.voyagerbuds));
@@ -418,6 +428,57 @@ public class HomeFragment extends Fragment
             tvCurrentTripHeader.setVisibility(View.VISIBLE);
         }
 
+        // Set random background image for hero trip
+        if (imgHeroTrip != null) {
+            String photoUrl = trip.getPhotoUrl();
+            int backgroundImage = 0;
+            boolean isCustomUri = false;
+
+            if (photoUrl != null && !photoUrl.isEmpty()) {
+                backgroundImage = ImageRandomizer.getDrawableFromName(photoUrl);
+                if (backgroundImage == 0) {
+                    // It's a custom URI
+                    isCustomUri = true;
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.voyagerbuds_nobg)
+                            .error(R.drawable.voyagerbuds_nobg);
+
+                    try {
+                        Glide.with(this)
+                                .load(android.net.Uri.parse(photoUrl))
+                                .apply(options)
+                                .into(imgHeroTrip);
+                    } catch (Exception e) {
+                        imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
+                    }
+                }
+            } else {
+                // No photoUrl, use trip ID based image
+                backgroundImage = ImageRandomizer.getConsistentRandomBackground(trip.getTripId());
+            }
+
+            // Only load drawable if it's not a custom URI
+            if (!isCustomUri && backgroundImage != 0) {
+                RequestOptions options = new RequestOptions()
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.voyagerbuds_nobg)
+                        .error(R.drawable.voyagerbuds_nobg);
+
+                try {
+                    Glide.with(this)
+                            .load(backgroundImage)
+                            .apply(options)
+                            .into(imgHeroTrip);
+                } catch (Exception e) {
+                    // Fallback if Glide fails
+                    imgHeroTrip.setImageResource(backgroundImage);
+                }
+            }
+        }
+
         // Set trip name
         tvHeroTripName.setText(trip.getTripName() != null ? trip.getTripName() : getString(R.string.default_trip_name));
 
@@ -490,16 +551,6 @@ public class HomeFragment extends Fragment
         String dateDisplay = formatTripDatesSimple(trip.getStartDate(), trip.getEndDate());
         if (tvHeroTripDates != null) {
             tvHeroTripDates.setText(dateDisplay);
-        }
-
-        // Load image from photoUrl if available, otherwise use app icon as placeholder
-        if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
-            // TODO: Load image using Glide or Picasso
-            // For now, use app icon as placeholder even if URL exists (until image loading
-            // is implemented)
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
-        } else {
-            imgHeroTrip.setImageResource(R.drawable.voyagerbuds_nobg);
         }
     }
 

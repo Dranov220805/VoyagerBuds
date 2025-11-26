@@ -55,6 +55,10 @@ import com.example.voyagerbuds.utils.DateUtils;
 import com.example.voyagerbuds.fragments.TripGalleryFragment;
 import com.example.voyagerbuds.utils.ImageUtils;
 import com.example.voyagerbuds.utils.DateValidatorWithinRange;
+import com.example.voyagerbuds.utils.ImageRandomizer;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -194,6 +198,7 @@ public class TripDetailFragment extends Fragment {
         TextView tvTitle = view.findViewById(R.id.tv_trip_title);
         TextView tvDates = view.findViewById(R.id.tv_trip_dates);
         TabLayout tabLayout = view.findViewById(R.id.tab_layout);
+        android.widget.ImageView imgTripCover = view.findViewById(R.id.img_trip_cover);
 
         recyclerView = view.findViewById(R.id.recycler_view_schedule);
         tvEmptyState = view.findViewById(R.id.tv_empty_schedule);
@@ -241,6 +246,57 @@ public class TripDetailFragment extends Fragment {
                 }
             } catch (Exception e) {
                 tvDates.setText(trip.getStartDate() + " - " + trip.getEndDate());
+            }
+
+            // Load random background image for trip cover
+            if (imgTripCover != null) {
+                String photoUrl = trip.getPhotoUrl();
+                int backgroundImage = 0;
+                boolean isCustomUri = false;
+
+                if (photoUrl != null && !photoUrl.isEmpty()) {
+                    backgroundImage = ImageRandomizer.getDrawableFromName(photoUrl);
+                    if (backgroundImage == 0) {
+                        // It's a custom URI
+                        isCustomUri = true;
+                        RequestOptions options = new RequestOptions()
+                                .centerCrop()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .placeholder(R.drawable.voyagerbuds_nobg)
+                                .error(R.drawable.voyagerbuds_nobg);
+
+                        try {
+                            Glide.with(this)
+                                    .load(android.net.Uri.parse(photoUrl))
+                                    .apply(options)
+                                    .into(imgTripCover);
+                        } catch (Exception e) {
+                            imgTripCover.setImageResource(R.drawable.voyagerbuds_nobg);
+                        }
+                    }
+                } else {
+                    // No photoUrl, use trip ID based image
+                    backgroundImage = ImageRandomizer.getConsistentRandomBackground(trip.getTripId());
+                }
+
+                // Only load drawable if it's not a custom URI
+                if (!isCustomUri && backgroundImage != 0) {
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.voyagerbuds_nobg)
+                            .error(R.drawable.voyagerbuds_nobg);
+
+                    try {
+                        Glide.with(this)
+                                .load(backgroundImage)
+                                .apply(options)
+                                .into(imgTripCover);
+                    } catch (Exception e) {
+                        // Fallback if Glide fails
+                        imgTripCover.setImageResource(backgroundImage);
+                    }
+                }
             }
         }
 
@@ -656,6 +712,12 @@ public class TripDetailFragment extends Fragment {
                 return;
             }
 
+            // Show loading
+            View loadingView = dialogView.findViewById(R.id.loading_container);
+            if (loadingView != null)
+                loadingView.setVisibility(View.VISIBLE);
+            btnSave.setEnabled(false);
+
             if (editing == null) {
                 ScheduleItem newItem = new ScheduleItem();
                 newItem.setTripId((int) tripId);
@@ -670,11 +732,33 @@ public class TripDetailFragment extends Fragment {
                 newItem.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 newItem.setCreatedAt(System.currentTimeMillis());
                 newItem.setUpdatedAt(System.currentTimeMillis());
-                long id = databaseHelper.addSchedule(newItem);
-                newItem.setId((int) id);
-                com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
-                        newItem);
-                Toast.makeText(getContext(), R.string.schedule_added, Toast.LENGTH_SHORT).show();
+
+                executorService.execute(() -> {
+                    try {
+                        long id = databaseHelper.addSchedule(newItem);
+                        newItem.setId((int) id);
+                        com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
+                                newItem);
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), R.string.schedule_added, Toast.LENGTH_SHORT).show();
+                            loadSchedules();
+                            loadGalleryPreview(rootView);
+                            notifyGalleryRefresh();
+                            bottomSheetDialog.dismiss();
+                        });
+                    } catch (Exception e) {
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), "Error saving schedule: " + e.getMessage(), Toast.LENGTH_LONG)
+                                    .show();
+                        });
+                    }
+                });
             } else {
                 editing.setDay(day);
                 editing.setStartTime(start);
@@ -686,16 +770,33 @@ public class TripDetailFragment extends Fragment {
                 editing.setImagePaths(serializeImagePaths(tempImagePaths));
                 editing.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 editing.setUpdatedAt(System.currentTimeMillis());
-                databaseHelper.updateSchedule(editing);
-                com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
-                        editing);
-                Toast.makeText(getContext(), R.string.schedule_updated, Toast.LENGTH_SHORT).show();
-            }
 
-            loadSchedules();
-            loadGalleryPreview(rootView);
-            notifyGalleryRefresh();
-            bottomSheetDialog.dismiss();
+                executorService.execute(() -> {
+                    try {
+                        databaseHelper.updateSchedule(editing);
+                        com.example.voyagerbuds.utils.NotificationHelper.scheduleNotification(requireContext(),
+                                editing);
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), R.string.schedule_updated, Toast.LENGTH_SHORT).show();
+                            loadSchedules();
+                            loadGalleryPreview(rootView);
+                            notifyGalleryRefresh();
+                            bottomSheetDialog.dismiss();
+                        });
+                    } catch (Exception e) {
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), "Error updating schedule: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        });
+                    }
+                });
+            }
         });
 
         bottomSheetDialog.show();
@@ -1705,6 +1806,12 @@ public class TripDetailFragment extends Fragment {
                 e.printStackTrace();
             }
 
+            // Show loading
+            View loadingView = dialogView.findViewById(R.id.loading_container);
+            if (loadingView != null)
+                loadingView.setVisibility(View.VISIBLE);
+            btnSave.setEnabled(false);
+
             if (editing == null) {
                 // Add new expense
                 Expense expense = new Expense();
@@ -1717,14 +1824,27 @@ public class TripDetailFragment extends Fragment {
                 expense.setImagePaths(imagesArray.toString());
 
                 executorService.execute(() -> {
-                    databaseHelper.addExpense(expense);
-                    mainHandler.post(() -> {
-                        bottomSheetDialog.dismiss();
-                        loadExpenses();
-                        loadGalleryPreview(rootView);
-                        notifyGalleryRefresh();
-                        Toast.makeText(getContext(), R.string.expense_added, Toast.LENGTH_SHORT).show();
-                    });
+                    try {
+                        databaseHelper.addExpense(expense);
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            bottomSheetDialog.dismiss();
+                            loadExpenses();
+                            loadGalleryPreview(rootView);
+                            notifyGalleryRefresh();
+                            Toast.makeText(getContext(), R.string.expense_added, Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (Exception e) {
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), "Error saving expense: " + e.getMessage(), Toast.LENGTH_LONG)
+                                    .show();
+                        });
+                    }
                 });
             } else {
                 // Update existing expense
@@ -1736,14 +1856,27 @@ public class TripDetailFragment extends Fragment {
                 editing.setImagePaths(imagesArray.toString());
 
                 executorService.execute(() -> {
-                    databaseHelper.updateExpense(editing);
-                    mainHandler.post(() -> {
-                        bottomSheetDialog.dismiss();
-                        loadExpenses();
-                        loadGalleryPreview(rootView);
-                        notifyGalleryRefresh();
-                        Toast.makeText(getContext(), R.string.expense_updated, Toast.LENGTH_SHORT).show();
-                    });
+                    try {
+                        databaseHelper.updateExpense(editing);
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            bottomSheetDialog.dismiss();
+                            loadExpenses();
+                            loadGalleryPreview(rootView);
+                            notifyGalleryRefresh();
+                            Toast.makeText(getContext(), R.string.expense_updated, Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (Exception e) {
+                        mainHandler.post(() -> {
+                            if (loadingView != null)
+                                loadingView.setVisibility(View.GONE);
+                            btnSave.setEnabled(true);
+                            Toast.makeText(getContext(), "Error updating expense: " + e.getMessage(), Toast.LENGTH_LONG)
+                                    .show();
+                        });
+                    }
                 });
             }
         });
