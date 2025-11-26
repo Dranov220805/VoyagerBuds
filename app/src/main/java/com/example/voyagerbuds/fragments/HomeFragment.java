@@ -214,8 +214,16 @@ public class HomeFragment extends Fragment
     }
 
     private void loadTrips() {
-        // For now, use userId = 1 (in production, get from logged-in user)
-        int userId = 1;
+        // Get the current logged-in user's ID
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId == -1) {
+            // No user logged in, show empty list
+            tripList = new ArrayList<>();
+            upcomingTripList.clear();
+            pastTripList.clear();
+            updateTripDisplay(null);
+            return;
+        }
         tripList = databaseHelper.getAllTrips(userId);
 
         // Sort by start_date ascending so earliest upcoming trip appears first
@@ -313,7 +321,9 @@ public class HomeFragment extends Fragment
     }
 
     private Trip findCurrentTrip() {
-        int userId = 1;
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId == -1)
+            return null;
         List<Trip> allTrips = databaseHelper.getAllTrips(userId);
         java.time.LocalDate currentDate = DateUtils.todayLocalDate();
 

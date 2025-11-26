@@ -132,12 +132,12 @@ public class TripDao {
     }
 
     /**
-     * Get trips by date range (for checking overlaps)
+     * Get trips by date range for a specific user (for checking overlaps)
      */
-    public List<Trip> getTripsByDateRange(String startDate, String endDate) {
+    public List<Trip> getTripsByDateRange(int userId, String startDate, String endDate) {
         List<Trip> tripList = new ArrayList<>();
-        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ?";
-        String[] selectionArgs = new String[] { endDate, startDate };
+        String selection = COLUMN_USER_ID + " = ? AND " + COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ?";
+        String[] selectionArgs = new String[] { String.valueOf(userId), endDate, startDate };
 
         Cursor cursor = database.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
 
@@ -151,12 +151,14 @@ public class TripDao {
     }
 
     /**
-     * Get trips by date range excluding a specific trip
+     * Get trips by date range for a specific user, excluding a specific trip
      */
-    public List<Trip> getTripsByDateRangeExcluding(String startDate, String endDate, int excludeTripId) {
+    public List<Trip> getTripsByDateRangeExcluding(int userId, String startDate, String endDate, int excludeTripId) {
         List<Trip> tripList = new ArrayList<>();
-        String selection = COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
-        String[] selectionArgs = new String[] { endDate, startDate, String.valueOf(excludeTripId) };
+        String selection = COLUMN_USER_ID + " = ? AND " + COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE
+                + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
+        String[] selectionArgs = new String[] { String.valueOf(userId), endDate, startDate,
+                String.valueOf(excludeTripId) };
 
         Cursor cursor = database.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
 

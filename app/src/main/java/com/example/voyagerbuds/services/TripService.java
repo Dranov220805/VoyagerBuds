@@ -106,33 +106,36 @@ public class TripService {
     }
 
     /**
-     * Check if a date range is available (no conflicting trips)
+     * Check if a date range is available for a specific user (no conflicting trips)
      * 
+     * @param userId    User ID to check conflicts for
      * @param startDate Start date in yyyy-MM-dd format
      * @param endDate   End date in yyyy-MM-dd format
      * @return true if available, false if conflicts exist
      */
-    public boolean isDateRangeAvailable(String startDate, String endDate) {
+    public boolean isDateRangeAvailable(int userId, String startDate, String endDate) {
         // Additional validation
         if (!isValidDateRange(startDate, endDate)) {
             return false;
         }
-        return databaseHelper.isDateRangeAvailable(startDate, endDate);
+        return databaseHelper.isDateRangeAvailable(userId, startDate, endDate);
     }
 
     /**
-     * Check if a date range is available, excluding a specific trip
+     * Check if a date range is available for a specific user, excluding a specific
+     * trip
      * 
+     * @param userId        User ID to check conflicts for
      * @param startDate     Start date in yyyy-MM-dd format
      * @param endDate       End date in yyyy-MM-dd format
      * @param excludeTripId Trip ID to exclude from conflict check
      * @return true if available, false if conflicts exist
      */
-    public boolean isDateRangeAvailable(String startDate, String endDate, int excludeTripId) {
+    public boolean isDateRangeAvailable(int userId, String startDate, String endDate, int excludeTripId) {
         if (!isValidDateRange(startDate, endDate)) {
             return false;
         }
-        return databaseHelper.isDateRangeAvailable(startDate, endDate, excludeTripId);
+        return databaseHelper.isDateRangeAvailable(userId, startDate, endDate, excludeTripId);
     }
 
     /**

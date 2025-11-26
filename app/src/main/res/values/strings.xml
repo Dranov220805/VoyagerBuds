@@ -169,9 +169,21 @@
     <string name="lets_get_started">Let s get you started!</string>
     <string name="full_name">Full Name</string>
     <string name="email_address">Email Address</string>
+    <string name="confirm_password">Confirm Password</string>
     <string name="sign_up_with_google">Sign Up with Google</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="sign_in">Sign In</string>
+    <string name="app_name_voyagerbuds">VoyagerBuds</string>
+    <string name="embark_journey">Embark on Your Next Journey!</string>
+    <string name="create_account_description">Create an account to start planning your adventures.</string>
+    <string name="or_continue_with">Or continue with</string>
+    <string name="password_no_match">Passwords do not match.</string>
+    <string name="error_fill_all_fields">Please fill all fields.</string>
+    <string name="error_password_min_length">Password must be at least 6 characters.</string>
+    <string name="email_already_registered">This email is already registered.</string>
+    <string name="registration_failed_detail">Registration failed: %1$s</string>
+    <string name="authentication_successful">Authentication Successful.</string>
+    <string name="authentication_failed">Authentication Failed.</string>
 
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Forgot Password?</string>
@@ -197,6 +209,8 @@
     <string name="trip_details_title">Trip Details</string>
     <string name="when_traveling">When are you traveling?</string>
     <string name="select_date">Select date</string>
+    <string name="select_schedule_date">Select Schedule Date</string>
+    <string name="error_email_exists_different_provider">Email has already exist</string>
     <string name="who_traveling_with">Who are you traveling with?</string>
     <string name="invite_friends">Invite Friends</string>
     <string name="estimated_budget">What s your estimated budget?</string>

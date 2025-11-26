@@ -48,6 +48,13 @@ public class BookedDateDecorator extends DayViewDecorator {
     @Override
     public Drawable getCompoundDrawableBottom(@NonNull Context context, int year, int month, int day, boolean valid,
             boolean selected) {
+        // If the date is invalid (marked by DateValidator), don't add any additional
+        // styling
+        // Let the Material DatePicker's default disabled styling take effect
+        if (!valid) {
+            return null;
+        }
+
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(year, month, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -74,6 +81,13 @@ public class BookedDateDecorator extends DayViewDecorator {
     @Override
     public ColorStateList getTextColor(@NonNull Context context, int year, int month, int day, boolean valid,
             boolean selected) {
+        // If the date is invalid (marked by DateValidator), don't override text color
+        // Let the Material DatePicker's default disabled styling (grayed out) take
+        // effect
+        if (!valid) {
+            return null;
+        }
+
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(year, month, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);

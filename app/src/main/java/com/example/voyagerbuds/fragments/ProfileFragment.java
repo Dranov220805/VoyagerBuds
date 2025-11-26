@@ -111,6 +111,8 @@ public class ProfileFragment extends Fragment {
 
         // Set up logout button
         btnLogout.setOnClickListener(v -> {
+            // Clear user session data
+            com.example.voyagerbuds.utils.UserSessionManager.clearSession(requireContext());
             mAuth.signOut();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             // Clear the back stack and start a new task
@@ -198,28 +200,50 @@ public class ProfileFragment extends Fragment {
         if (mAuth == null) {
             mAuth = FirebaseAuth.getInstance();
         }
+
+        // Read from SharedPreferences first (fast, no network call)
+        android.content.SharedPreferences prefs = requireContext()
+                .getSharedPreferences("VoyagerBudsPrefs", android.content.Context.MODE_PRIVATE);
+        String email = prefs.getString("user_email", null);
+        String displayName = prefs.getString("user_display_name", null);
+
+        // If not in SharedPreferences, try Firebase (but this should rarely happen now)
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            String displayName = currentUser.getDisplayName();
-            String email = currentUser.getEmail();
-            if (displayName != null && !displayName.isEmpty()) {
-                tvUserName.setText(displayName);
-            } else if (email != null && !email.isEmpty()) {
-                // If there's no display name, use the email's local part as a fallback
-                int atIndex = email.indexOf('@');
-                String fallback = atIndex > 0 ? email.substring(0, atIndex) : email;
-                tvUserName.setText(fallback);
-            } else {
-                tvUserName.setText(R.string.unknown_user);
+            if (email == null) {
+                email = currentUser.getEmail();
+                // Try provider data if still null
+                if (email == null && !currentUser.getProviderData().isEmpty()) {
+                    for (var profile : currentUser.getProviderData()) {
+                        if (profile.getEmail() != null && !profile.getEmail().isEmpty()) {
+                            email = profile.getEmail();
+                            break;
+                        }
+                    }
+                }
             }
-            if (email != null && !email.isEmpty()) {
-                tvUserEmail.setText(email);
-            } else {
-                tvUserEmail.setText(R.string.email_not_available);
+            if (displayName == null) {
+                displayName = currentUser.getDisplayName();
             }
+        }
+
+        android.util.Log.d("ProfileFragment", "Display - Email: " + email + ", Name: " + displayName);
+
+        // Update UI immediately from cached data
+        if (displayName != null && !displayName.isEmpty()) {
+            tvUserName.setText(displayName);
+        } else if (email != null && !email.isEmpty()) {
+            // If there's no display name, use the email's local part as a fallback
+            int atIndex = email.indexOf('@');
+            String fallback = atIndex > 0 ? email.substring(0, atIndex) : email;
+            tvUserName.setText(fallback);
         } else {
-            // No logged-in user
-            tvUserName.setText(R.string.guest);
+            tvUserName.setText(R.string.unknown_user);
+        }
+
+        if (email != null && !email.isEmpty()) {
+            tvUserEmail.setText(email);
+        } else {
             tvUserEmail.setText(R.string.email_not_available);
         }
     }

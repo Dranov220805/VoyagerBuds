@@ -271,18 +271,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public boolean isDateRangeAvailable(String startDate, String endDate) {
+    public boolean isDateRangeAvailable(int userId, String startDate, String endDate) {
         SQLiteDatabase db = this.getReadableDatabase();
         TripDao dao = new TripDao(db);
-        List<Trip> overlappingTrips = dao.getTripsByDateRange(startDate, endDate);
+        List<Trip> overlappingTrips = dao.getTripsByDateRange(userId, startDate, endDate);
         db.close();
         return overlappingTrips.isEmpty();
     }
 
-    public boolean isDateRangeAvailable(String startDate, String endDate, int excludeTripId) {
+    public boolean isDateRangeAvailable(int userId, String startDate, String endDate, int excludeTripId) {
         SQLiteDatabase db = this.getReadableDatabase();
         TripDao dao = new TripDao(db);
-        List<Trip> overlappingTrips = dao.getTripsByDateRangeExcluding(startDate, endDate, excludeTripId);
+        List<Trip> overlappingTrips = dao.getTripsByDateRangeExcluding(userId, startDate, endDate, excludeTripId);
         db.close();
         return overlappingTrips.isEmpty();
     }

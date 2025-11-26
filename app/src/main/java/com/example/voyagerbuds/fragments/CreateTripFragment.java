@@ -188,8 +188,17 @@ public class CreateTripFragment extends Fragment {
             double finalLon = lon;
 
             handler.post(() -> {
+                // Get the current logged-in user's ID from Firebase
+                int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+                if (userId == -1) {
+                    if (progressBar != null)
+                        progressBar.setIndeterminate(false);
+                    Toast.makeText(getContext(), "Error: User not logged in", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Trip trip = new Trip();
-                trip.setUserId(1); // TODO: Get from logged-in user
+                trip.setUserId(userId);
                 trip.setTripName(tripName);
                 trip.setStartDate(startDate);
                 trip.setEndDate(endDate);

@@ -196,8 +196,10 @@ public class ScheduleFragment extends Fragment {
 
     private void loadCurrentTrip() {
         trips.clear();
-        // TODO replace with logged-in user id when authentication is ready
-        trips.addAll(databaseHelper.getAllTrips(1));
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId != -1) {
+            trips.addAll(databaseHelper.getAllTrips(userId));
+        }
 
         // Sort trips by start date in ascending order (earliest upcoming trips first)
         Collections.sort(trips, new Comparator<Trip>() {

@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.Trip;
+import com.example.voyagerbuds.utils.UserSessionManager;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
@@ -161,7 +162,12 @@ public class EditTripFragment extends Fragment {
         }
 
         // Check for overlapping trips (excluding current trip)
-        if (!databaseHelper.isDateRangeAvailable(start, end, (int) tripId)) {
+        int userId = UserSessionManager.getCurrentUserId(getContext());
+        if (userId == -1) {
+            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!databaseHelper.isDateRangeAvailable(userId, start, end, (int) tripId)) {
             Toast.makeText(getContext(), getString(R.string.toast_trip_date_conflict), Toast.LENGTH_LONG).show();
             return;
         }

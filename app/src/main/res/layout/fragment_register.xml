@@ -9,86 +9,80 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:padding="24dp">
 
-        <!-- Back Arrow -->
-        <ImageView
-            android:id="@+id/iv_back_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_media_previous"
-            app:tint="?android:attr/textColorPrimary"
+        <!-- Spacer to push content down -->
+        <Space
+            android:id="@+id/space_top"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_embark_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_register_title_center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Register"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_back_arrow"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/iv_back_arrow" />
+            app:layout_constraintVertical_weight="1"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/tv_embark_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="Embark on Your Next Journey!"
+            android:text="@string/embark_journey"
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tv_embark_subtitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_register_title_center" />
+            app:layout_constraintTop_toBottomOf="@+id/space_top" />
 
         <TextView
             android:id="@+id/tv_embark_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Create an account to start planning your adventures."
+            android:text="@string/create_account_description"
             android:textAlignment="center"
             android:textColor="?android:attr/textColorSecondary"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_embark_title" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_embark_title"
+            app:layout_constraintBottom_toTopOf="@+id/iv_adventure_image" />
 
         <ImageView
             android:id="@+id/iv_adventure_image"
-            android:layout_width="332dp"
-            android:layout_height="131dp"
-            android:layout_marginTop="24dp"
+            android:layout_width="280dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dp"
             android:scaleType="centerCrop"
             android:src="@drawable/voyager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_embark_subtitle" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_embark_subtitle"
+            app:layout_constraintBottom_toTopOf="@+id/til_full_name"
+            android:contentDescription="@string/app_name" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_full_name"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:hint="Full Name"
+            android:layout_marginTop="16dp"
+            android:hint="@string/full_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/iv_adventure_image"
-            app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+            app:layout_constraintBottom_toTopOf="@+id/til_email"
+            app:startIconDrawable="@drawable/ic_account_circle">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_full_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -97,7 +91,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Email Address"
+            android:hint="@string/email_address"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_full_name"
@@ -116,7 +110,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Password"
+            android:hint="@string/password"
             app:passwordToggleEnabled="true"
             app:startIconDrawable="@android:drawable/ic_lock_lock"
             app:layout_constraintTop_toBottomOf="@+id/til_email"
@@ -136,7 +130,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Confirm Password"
+            android:hint="@string/confirm_password"
             app:passwordToggleEnabled="true"
             app:startIconDrawable="@android:drawable/ic_lock_lock"
             app:layout_constraintTop_toBottomOf="@+id/til_password"
@@ -154,10 +148,10 @@
             android:id="@+id/btn_create_account"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:padding="12dp"
-            android:text="Create Account"
-            android:backgroundTint="#48D1CC"
+            android:text="@string/create_account"
+            android:backgroundTint="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_confirm_password" />
@@ -166,8 +160,8 @@
             android:id="@+id/tv_or_divider"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Or"
+            android:layout_marginTop="12dp"
+            android:text="@string/or"
             android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -178,8 +172,8 @@
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Sign up with Google"
+            android:layout_marginTop="12dp"
+            android:text="@string/sign_up_with_google"
             android:textColor="?android:attr/textColorPrimary"
             app:icon="@drawable/googleg_standard_color_18"
             app:iconGravity="textStart"
@@ -192,12 +186,24 @@
             android:id="@+id/tv_go_to_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Already have an account? Log in"
+            android:layout_marginTop="16dp"
+            android:text="@string/already_have_account_login"
             android:textColor="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_google_signup" />
+            app:layout_constraintTop_toBottomOf="@+id/btn_google_signup"
+            app:layout_constraintBottom_toTopOf="@+id/space_bottom" />
+
+        <!-- Spacer to balance content -->
+        <Space
+            android:id="@+id/space_bottom"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_go_to_login"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_weight="1" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

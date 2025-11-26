@@ -170,9 +170,21 @@
     <string name="full_name">Họ và tên</string>
     <string name="error_full_name_required">Vui lòng nhập họ và tên</string>
     <string name="email_address">Địa chỉ email</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
     <string name="sign_up_with_google">Đăng ký với Google</string>
     <string name="already_have_account">Đã có tài khoản?</string>
     <string name="sign_in">Đăng nhập</string>
+    <string name="app_name_voyagerbuds">VoyagerBuds</string>
+    <string name="embark_journey">Bắt đầu hành trình tiếp theo!</string>
+    <string name="create_account_description">Tạo tài khoản để bắt đầu lên kế hoạch cho các cuộc phiêu lưu của bạn.</string>
+    <string name="or_continue_with">Hoặc tiếp tục với</string>
+    <string name="password_no_match">Mật khẩu không khớp.</string>
+    <string name="error_fill_all_fields">Vui lòng điền đầy đủ các trường.</string>
+    <string name="error_password_min_length">Mật khẩu phải có ít nhất 6 ký tự.</string>
+    <string name="email_already_registered">Email này đã được đăng ký.</string>
+    <string name="registration_failed_detail">Đăng ký thất bại: %1$s</string>
+    <string name="authentication_successful">Xác thực thành công.</string>
+    <string name="authentication_failed">Xác thực thất bại.</string>
 
     <!-- Forgot Password -->
     <string name="forgot_password_title">Quên mật khẩu?</string>
@@ -198,6 +210,8 @@
     <!-- Add Trip Screens -->
     <string name="trip_details_title">Chi tiết chuyến đi</string>
     <string name="when_traveling">Bạn đi du lịch khi nào?</string>
+    <string name="select_schedule_date">Chọn ngày lịch trình</string>
+    <string name="error_email_exists_different_provider">Email đã tồn tại</string>
     <string name="select_date">Chọn ngày</string>
     <string name="who_traveling_with">Bạn đi cùng ai?</string>
     <string name="invite_friends">Mời bạn bè</string>

@@ -53,11 +53,14 @@ import com.example.voyagerbuds.models.Trip;
 import com.example.voyagerbuds.utils.DateUtils;
 import com.example.voyagerbuds.fragments.TripGalleryFragment;
 import com.example.voyagerbuds.utils.ImageUtils;
+import com.example.voyagerbuds.utils.DateValidatorWithinRange;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
@@ -69,6 +72,10 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -539,16 +546,8 @@ public class TripDetailFragment extends Fragment {
         });
 
         etDay.setOnClickListener(v -> {
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            int year = cal.get(java.util.Calendar.YEAR);
-            int month = cal.get(java.util.Calendar.MONTH);
-            int day = cal.get(java.util.Calendar.DAY_OF_MONTH);
-            DatePickerDialog dp = new DatePickerDialog(requireContext(), (view1, y, m, d) -> {
-                java.util.Calendar picked = java.util.Calendar.getInstance();
-                picked.set(y, m, d);
-                etDay.setText(DB_DATE_FORMAT.format(picked.getTime()));
-            }, year, month, day);
-            dp.show();
+            // Use Material Date Picker with trip date constraints
+            showScheduleDatePicker(etDay, editing);
         });
 
         etStartTime.setOnClickListener(v -> {
@@ -1507,5 +1506,69 @@ public class TripDetailFragment extends Fragment {
         });
 
         bottomSheetDialog.show();
+    }
+
+    /**
+     * Show Material Date Picker with constraints to only allow dates within the trip's date range
+     * Dates outside the trip range will be shown in red and cannot be selected
+     */
+    private void showScheduleDatePicker(EditText targetEditText, ScheduleItem editing) {
+        if (trip == null) {
+            Toast.makeText(getContext(), "Trip data not loaded", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Parse trip start and end dates
+            LocalDate tripStart = LocalDate.parse(trip.getStartDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+            LocalDate tripEnd = LocalDate.parse(trip.getEndDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+
+            // Convert to UTC milliseconds for MaterialDatePicker
+            long startMillis = tripStart.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli();
+            long endMillis = tripEnd.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli();
+
+            // Build calendar constraints
+            CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+            constraintsBuilder.setStart(startMillis);
+            constraintsBuilder.setEnd(endMillis);
+            
+            // Add validator to make dates outside range invalid (red and untouchable)
+            DateValidatorWithinRange validator = new DateValidatorWithinRange(startMillis, endMillis);
+            constraintsBuilder.setValidator(validator);
+
+            // Build date picker
+            MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
+            builder.setTitleText(getString(R.string.select_schedule_date));
+            builder.setCalendarConstraints(constraintsBuilder.build());
+
+            // Set initial selection if editing
+            if (editing != null && editing.getDay() != null && !editing.getDay().isEmpty()) {
+                try {
+                    LocalDate currentDate = LocalDate.parse(editing.getDay(), DateTimeFormatter.ISO_LOCAL_DATE);
+                    long currentMillis = currentDate.atStartOfDay(ZoneId.of("UTC")).toInstant().toEpochMilli();
+                    builder.setSelection(currentMillis);
+                } catch (Exception e) {
+                    // If parsing fails, no initial selection
+                }
+            }
+
+            MaterialDatePicker<Long> picker = builder.build();
+            
+            picker.addOnPositiveButtonClickListener(selection -> {
+                // Convert UTC millis back to local date
+                Instant instant = Instant.ofEpochMilli(selection);
+                LocalDate selectedLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+                
+                // Format as yyyy-MM-dd for database
+                String formattedDate = selectedLocalDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                targetEditText.setText(formattedDate);
+            });
+
+            picker.show(getParentFragmentManager(), "SCHEDULE_DATE_PICKER");
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error loading trip dates", Toast.LENGTH_SHORT).show();
+        }
     }
 }
