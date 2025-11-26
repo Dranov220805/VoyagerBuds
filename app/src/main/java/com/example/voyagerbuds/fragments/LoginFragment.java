@@ -39,6 +39,7 @@ public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment";
     private FragmentLoginBinding binding;
+    private View loadingContainer;
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
@@ -86,6 +87,8 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        loadingContainer = view.findViewById(R.id.loading_container);
+
         // Apply fade-in animation
         view.setAlpha(0f);
         view.animate()
@@ -98,13 +101,17 @@ public class LoginFragment extends Fragment {
             String email = binding.tilEmail.getEditText().getText().toString().trim();
             String password = binding.tilPassword.getEditText().getText().toString().trim();
             if (!email.isEmpty() && !password.isEmpty()) {
+                showLoading();
                 signInWithEmailPassword(email, password);
             } else {
                 Toast.makeText(getContext(), getString(R.string.toast_enter_email_password), Toast.LENGTH_SHORT).show();
             }
         });
 
-        binding.btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+        binding.btnGoogleLogin.setOnClickListener(v -> {
+            showLoading();
+            signInWithGoogle();
+        });
 
         binding.tvGoToRegister.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
@@ -141,12 +148,15 @@ public class LoginFragment extends Fragment {
                                     Log.d(TAG, "User logged in - Email: " + refreshedUser.getEmail()
                                             + ", Name: " + refreshedUser.getDisplayName());
                                 }
+                                hideLoading();
                                 navigateToHome();
                             });
                         } else {
+                            hideLoading();
                             navigateToHome();
                         }
                     } else {
+                        hideLoading();
                         Toast.makeText(getContext(), getString(R.string.toast_auth_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -217,10 +227,12 @@ public class LoginFragment extends Fragment {
                                                 Log.d(TAG, "Google login - Email: " + refreshedUser.getEmail()
                                                         + ", Name: " + refreshedUser.getDisplayName());
                                             }
+                                            hideLoading();
                                             navigateToHome();
                                         });
                                     } else {
                                         Log.e(TAG, "Failed to update profile", profileTask.getException());
+                                        hideLoading();
                                         navigateToHome();
                                     }
                                 });
@@ -233,12 +245,15 @@ public class LoginFragment extends Fragment {
                                     Log.d(TAG, "Google login (existing name) - Email: " + refreshedUser.getEmail()
                                             + ", Name: " + refreshedUser.getDisplayName());
                                 }
+                                hideLoading();
                                 navigateToHome();
                             });
                             return;
                         }
+                        hideLoading();
                         navigateToHome();
                     } else {
+                        hideLoading();
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             promptForPasswordAndLink(email, credential);
                         } else {
@@ -294,6 +309,18 @@ public class LoginFragment extends Fragment {
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    private void showLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.GONE);
+        }
     }
 
     private void navigateToHome() {

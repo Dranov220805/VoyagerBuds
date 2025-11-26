@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -42,6 +42,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_FIREBASE_ID = "firebase_id";
     private static final String COLUMN_LAST_SYNCED_AT = "last_synced_at";
     private static final String COLUMN_BUDGET = "budget";
+    private static final String COLUMN_BUDGET_CURRENCY = "budget_currency";
     private static final String COLUMN_PARTICIPANTS = "participants";
 
     // Expenses table
@@ -99,6 +100,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_FIREBASE_ID + " INTEGER,"
                 + COLUMN_LAST_SYNCED_AT + " INTEGER,"
                 + COLUMN_BUDGET + " REAL,"
+                + COLUMN_BUDGET_CURRENCY + " TEXT DEFAULT 'USD',"
                 + COLUMN_PARTICIPANTS + " TEXT"
                 + ")";
         db.execSQL(CREATE_TRIPS_TABLE);
@@ -188,6 +190,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Add image_paths column to Expenses table
             db.execSQL("ALTER TABLE " + TABLE_EXPENSES + " ADD COLUMN " + COLUMN_EXPENSE_IMAGES + " TEXT");
         }
+
+        // Version 10: Add budget_currency to Trips table
+        if (oldVersion < 10) {
+            db.execSQL("ALTER TABLE " + TABLE_TRIPS + " ADD COLUMN " + COLUMN_BUDGET_CURRENCY
+                    + " TEXT DEFAULT 'USD'");
+        }
     }
 
     // Trip CRUD operations - Delegate to DAO
@@ -253,6 +261,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         double total = dao.getTotalByTripId(tripId);
         db.close();
         return total;
+    }
+
+    public java.util.Map<String, Double> getTotalExpensesByCurrency(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        java.util.Map<String, Double> totals = dao.getTotalsByCurrency(tripId);
+        db.close();
+        return totals;
     }
 
     public int updateTrip(Trip trip) {
@@ -335,6 +351,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ExpenseDao dao = new ExpenseDao(db);
         dao.delete(expenseId);
+        db.close();
+    }
+
+    public Expense getExpenseById(int expenseId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        Expense expense = dao.getById(expenseId);
+        db.close();
+        return expense;
+    }
+
+    public void updateExpenseImages(int expenseId, String imagesJson) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        dao.updateImages(expenseId, imagesJson);
         db.close();
     }
 }

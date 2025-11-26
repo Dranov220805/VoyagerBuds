@@ -500,10 +500,18 @@
     <string name="delete_expense_title">Xóa Chi Phí</string>
     <string name="delete_expense_confirm">Bạn có chắc chắn muốn xóa chi phí này không?</string>
     <string name="expense_deleted">Đã xóa chi phí thành công</string>
+    <string name="add_expense">Thêm Chi Phí</string>
+    <string name="edit_expense">Sửa Chi Phí</string>
+    <string name="expense_added">Đã thêm chi phí thành công</string>
+    <string name="expense_updated">Đã cập nhật chi phí thành công</string>
 
     <!-- Empty schedule state -->
     <string name="schedule_no_events_today">Không có lịch trình vào hôm nay. Vui lòng tạo mới trong chuyến đi chi tiết</string>
     <string name="go_to_trip_detail">Đi tới chuyến đi chi tiết</string>
     <string name="loading">Đang tải</string>
     <string name="rotate_image">Xoay ảnh</string>
+    
+    <!-- Loading messages -->
+    <string name="logging_in">Đang đăng nhập...</string>
+    <string name="registering">Đang tạo tài khoản...</string>
 </resources>

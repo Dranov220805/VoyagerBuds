@@ -33,6 +33,7 @@ public class TripDao {
     private static final String COLUMN_FIREBASE_ID = "firebase_id";
     private static final String COLUMN_LAST_SYNCED_AT = "last_synced_at";
     private static final String COLUMN_BUDGET = "budget";
+    private static final String COLUMN_BUDGET_CURRENCY = "budget_currency";
     private static final String COLUMN_PARTICIPANTS = "participants";
 
     private final SQLiteDatabase database;
@@ -62,6 +63,7 @@ public class TripDao {
         values.put(COLUMN_FIREBASE_ID, trip.getFirebaseId());
         values.put(COLUMN_LAST_SYNCED_AT, trip.getLastSyncedAt());
         values.put(COLUMN_BUDGET, trip.getBudget());
+        values.put(COLUMN_BUDGET_CURRENCY, trip.getBudgetCurrency());
         values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
 
         return database.insert(TABLE_TRIPS, null, values);
@@ -82,6 +84,7 @@ public class TripDao {
         values.put(COLUMN_MAP_LATITUDE, trip.getMapLatitude());
         values.put(COLUMN_MAP_LONGITUDE, trip.getMapLongitude());
         values.put(COLUMN_BUDGET, trip.getBudget());
+        values.put(COLUMN_BUDGET_CURRENCY, trip.getBudgetCurrency());
         values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
         values.put(COLUMN_IS_GROUP_TRIP, trip.getIsGroupTrip());
 
@@ -193,6 +196,15 @@ public class TripDao {
         trip.setFirebaseId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FIREBASE_ID)));
         trip.setLastSyncedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_LAST_SYNCED_AT)));
         trip.setBudget(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BUDGET)));
+
+        // Handle budget_currency with null check for backward compatibility
+        int currencyIndex = cursor.getColumnIndex(COLUMN_BUDGET_CURRENCY);
+        if (currencyIndex != -1 && !cursor.isNull(currencyIndex)) {
+            trip.setBudgetCurrency(cursor.getString(currencyIndex));
+        } else {
+            trip.setBudgetCurrency("USD"); // Default value
+        }
+
         trip.setParticipants(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PARTICIPANTS)));
         return trip;
     }

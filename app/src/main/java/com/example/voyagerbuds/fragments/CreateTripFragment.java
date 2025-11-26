@@ -43,6 +43,7 @@ public class CreateTripFragment extends Fragment {
     private String notes;
     private String friends;
     private String budget;
+    private String budgetCurrency;
 
     private int currentStep = 1;
     private static final int TOTAL_STEPS = 3;
@@ -130,11 +131,12 @@ public class CreateTripFragment extends Fragment {
         fragment.setListener(new TripDestinationFragment.OnTripDestinationEnteredListener() {
             @Override
             public void onTripDestinationEntered(String dest, String tripNotes, String friendList,
-                    String budgetAmount) {
+                    String budgetAmount, String currency) {
                 destination = dest;
                 notes = tripNotes;
                 friends = friendList;
                 budget = budgetAmount;
+                budgetCurrency = currency;
                 saveTrip();
             }
 
@@ -145,7 +147,7 @@ public class CreateTripFragment extends Fragment {
         });
 
         if (destination != null) {
-            fragment.setDestination(destination, notes, friends, budget);
+            fragment.setDestination(destination, notes, friends, budget, budgetCurrency);
         }
 
         replaceChildFragment(fragment, isBack);
@@ -217,9 +219,13 @@ public class CreateTripFragment extends Fragment {
                 if (budget != null && !budget.isEmpty()) {
                     try {
                         trip.setBudget(Double.parseDouble(budget));
+                        trip.setBudgetCurrency(budgetCurrency != null ? budgetCurrency : "USD");
                     } catch (NumberFormatException e) {
                         trip.setBudget(0.0);
+                        trip.setBudgetCurrency("USD");
                     }
+                } else {
+                    trip.setBudgetCurrency(budgetCurrency != null ? budgetCurrency : "USD");
                 }
 
                 trip.setCreatedAt(System.currentTimeMillis());

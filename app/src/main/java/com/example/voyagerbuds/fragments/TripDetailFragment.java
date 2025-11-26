@@ -38,6 +38,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -119,6 +120,7 @@ public class TripDetailFragment extends Fragment {
     private View layoutSchedule;
     private View layoutExpenses;
     private View layoutNotes;
+    private View rootView; // Store root view for gallery refresh
 
     // Expense fields
     private RecyclerView rvExpenseDates;
@@ -185,6 +187,7 @@ public class TripDetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trip_detail, container, false);
+        rootView = view; // Store for later use
 
         // Initialize Views
         MaterialToolbar toolbar = view.findViewById(R.id.toolbar);
@@ -336,9 +339,17 @@ public class TripDetailFragment extends Fragment {
     }
 
     private void loadGalleryPreview(View view) {
+        if (view == null || !isAdded() || getContext() == null) {
+            return;
+        }
+
         android.widget.LinearLayout llGalleryPreview = view.findViewById(R.id.ll_gallery_preview);
         TextView tvEmptyGallery = view.findViewById(R.id.tv_empty_gallery);
         TextView btnViewAll = view.findViewById(R.id.btn_view_all_gallery);
+
+        if (llGalleryPreview == null || tvEmptyGallery == null || btnViewAll == null) {
+            return;
+        }
 
         btnViewAll.setOnClickListener(v -> {
             TripGalleryFragment galleryFragment = TripGalleryFragment.newInstance((int) tripId);
@@ -352,8 +363,10 @@ public class TripDetailFragment extends Fragment {
 
         executorService.execute(() -> {
             List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip((int) tripId);
+            List<Expense> expenses = databaseHelper.getExpensesForTrip((int) tripId);
             List<String> allImages = new ArrayList<>();
 
+            // Add images from schedules
             for (ScheduleItem schedule : schedules) {
                 if (schedule.getImagePaths() != null && !schedule.getImagePaths().isEmpty()) {
                     try {
@@ -367,10 +380,29 @@ public class TripDetailFragment extends Fragment {
                 }
             }
 
+            // Add images from expenses
+            for (Expense expense : expenses) {
+                if (expense.getImagePaths() != null && !expense.getImagePaths().isEmpty()) {
+                    try {
+                        JSONArray jsonArray = new JSONArray(expense.getImagePaths());
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            allImages.add(jsonArray.getString(i));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             Collections.reverse(allImages);
             List<String> previewImages = allImages.subList(0, Math.min(allImages.size(), 5));
 
             mainHandler.post(() -> {
+                // Check if fragment is still valid
+                if (!isAdded() || getContext() == null || llGalleryPreview == null || tvEmptyGallery == null) {
+                    return;
+                }
+
                 llGalleryPreview.removeAllViews();
                 if (previewImages.isEmpty()) {
                     llGalleryPreview.addView(tvEmptyGallery);
@@ -436,6 +468,12 @@ public class TripDetailFragment extends Fragment {
                 }
             });
         });
+    }
+
+    private void notifyGalleryRefresh() {
+        // Send broadcast to notify TripGalleryFragment to refresh
+        Intent intent = new Intent(TripGalleryFragment.ACTION_GALLERY_REFRESH);
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
     }
 
     private void loadSchedules() {
@@ -655,6 +693,8 @@ public class TripDetailFragment extends Fragment {
             }
 
             loadSchedules();
+            loadGalleryPreview(rootView);
+            notifyGalleryRefresh();
             bottomSheetDialog.dismiss();
         });
 
@@ -670,6 +710,8 @@ public class TripDetailFragment extends Fragment {
                     databaseHelper.deleteSchedule(item.getId());
                     Toast.makeText(getContext(), R.string.schedule_deleted, Toast.LENGTH_SHORT).show();
                     loadSchedules();
+                    loadGalleryPreview(rootView);
+                    notifyGalleryRefresh();
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -1474,6 +1516,8 @@ public class TripDetailFragment extends Fragment {
                         mainHandler.post(() -> {
                             Toast.makeText(getContext(), R.string.expense_deleted, Toast.LENGTH_SHORT).show();
                             loadExpenses();
+                            loadGalleryPreview(rootView);
+                            notifyGalleryRefresh();
                         });
                     });
                 })
@@ -1482,11 +1526,14 @@ public class TripDetailFragment extends Fragment {
     }
 
     private void showEditExpenseDialog(Expense expense) {
-        // TODO: Implement edit expense functionality similar to edit schedule
-        Toast.makeText(getContext(), "Edit expense feature coming soon", Toast.LENGTH_SHORT).show();
+        showAddEditExpenseDialog(expense);
     }
 
     private void showAddExpenseDialog() {
+        showAddEditExpenseDialog(null);
+    }
+
+    private void showAddEditExpenseDialog(@Nullable Expense editing) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_expense, null);
         bottomSheetDialog.setContentView(dialogView);
@@ -1496,6 +1543,7 @@ public class TripDetailFragment extends Fragment {
         View btnClose = dialogView.findViewById(R.id.btn_close_sheet);
         btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
+        TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etName = dialogView.findViewById(R.id.et_expense_name);
         EditText etAmount = dialogView.findViewById(R.id.et_expense_amount);
         Spinner spinnerCurrency = dialogView.findViewById(R.id.spinner_expense_currency);
@@ -1512,20 +1560,29 @@ public class TripDetailFragment extends Fragment {
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerCurrency.setAdapter(currencyAdapter);
 
-        // Auto-select currency based on language
-        String language = Locale.getDefault().getLanguage();
-        if ("vi".equals(language)) {
-            spinnerCurrency.setSelection(1); // VND
+        // Setup Images
+        if (editing != null) {
+            // Load existing images
+            tempImagePaths = new ArrayList<>();
+            String paths = editing.getImagePaths();
+            if (paths != null && !paths.isEmpty()) {
+                try {
+                    JSONArray jsonArray = new JSONArray(paths);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        tempImagePaths.add(jsonArray.getString(i));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
-            spinnerCurrency.setSelection(0); // USD
+            if (tempImagePaths == null) {
+                tempImagePaths = new ArrayList<>();
+            } else {
+                tempImagePaths.clear();
+            }
         }
 
-        // Setup Images
-        if (tempImagePaths == null) {
-            tempImagePaths = new ArrayList<>();
-        } else {
-            tempImagePaths.clear();
-        }
         tempImageAdapter = new ScheduleImageAdapter(getContext(), tempImagePaths, true, position -> {
             tempImagePaths.remove(position);
             tempImageAdapter.notifyItemRemoved(position);
@@ -1536,12 +1593,58 @@ public class TripDetailFragment extends Fragment {
 
         btnAddImage.setOnClickListener(v -> showImageSourceDialog());
 
-        // Default Date
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        if (selectedExpenseDate != null) {
-            etDate.setText(sdf.format(selectedExpenseDate));
+
+        // Populate fields if editing
+        if (editing != null) {
+            tvDialogTitle.setText(R.string.edit_expense);
+            etName.setText(editing.getCategory());
+            etAmount.setText(String.format(Locale.getDefault(), "%.2f", editing.getAmount()));
+
+            // Set currency
+            String currency = editing.getCurrency();
+            if ("VND".equals(currency)) {
+                spinnerCurrency.setSelection(1);
+            } else {
+                spinnerCurrency.setSelection(0);
+            }
+
+            // Set date
+            if (editing.getSpentAt() > 0) {
+                etDate.setText(sdf.format(new Date(editing.getSpentAt() * 1000L)));
+            }
+
+            // Extract note text from JSON
+            String noteText = "";
+            String rawNote = editing.getNote();
+            if (rawNote != null && !rawNote.isEmpty()) {
+                try {
+                    JSONObject json = new JSONObject(rawNote);
+                    if (json.has("text")) {
+                        noteText = json.getString("text");
+                    }
+                } catch (JSONException e) {
+                    noteText = rawNote;
+                }
+            }
+            etNote.setText(noteText);
         } else {
-            etDate.setText(sdf.format(new Date()));
+            tvDialogTitle.setText(R.string.add_expense);
+
+            // Auto-select currency based on language
+            String language = Locale.getDefault().getLanguage();
+            if ("vi".equals(language)) {
+                spinnerCurrency.setSelection(1); // VND
+            } else {
+                spinnerCurrency.setSelection(0); // USD
+            }
+
+            // Default Date
+            if (selectedExpenseDate != null) {
+                etDate.setText(sdf.format(selectedExpenseDate));
+            } else {
+                etDate.setText(sdf.format(new Date()));
+            }
         }
 
         etDate.setOnClickListener(v -> {
@@ -1602,30 +1705,55 @@ public class TripDetailFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            Expense expense = new Expense();
-            expense.setTripId((int) tripId);
-            expense.setAmount(amount);
-            expense.setCategory(name); // Store Name in Category column
-            expense.setCurrency(currency);
-            expense.setNote(noteJson.toString());
-            expense.setSpentAt(spentAt);
-            expense.setImagePaths(imagesArray.toString()); // Save image paths separately
+            if (editing == null) {
+                // Add new expense
+                Expense expense = new Expense();
+                expense.setTripId((int) tripId);
+                expense.setAmount(amount);
+                expense.setCategory(name);
+                expense.setCurrency(currency);
+                expense.setNote(noteJson.toString());
+                expense.setSpentAt(spentAt);
+                expense.setImagePaths(imagesArray.toString());
 
-            executorService.execute(() -> {
-                databaseHelper.addExpense(expense);
-                mainHandler.post(() -> {
-                    bottomSheetDialog.dismiss();
-                    loadExpenses();
-                    Toast.makeText(getContext(), "Expense added", Toast.LENGTH_SHORT).show();
+                executorService.execute(() -> {
+                    databaseHelper.addExpense(expense);
+                    mainHandler.post(() -> {
+                        bottomSheetDialog.dismiss();
+                        loadExpenses();
+                        loadGalleryPreview(rootView);
+                        notifyGalleryRefresh();
+                        Toast.makeText(getContext(), R.string.expense_added, Toast.LENGTH_SHORT).show();
+                    });
                 });
-            });
+            } else {
+                // Update existing expense
+                editing.setAmount(amount);
+                editing.setCategory(name);
+                editing.setCurrency(currency);
+                editing.setNote(noteJson.toString());
+                editing.setSpentAt(spentAt);
+                editing.setImagePaths(imagesArray.toString());
+
+                executorService.execute(() -> {
+                    databaseHelper.updateExpense(editing);
+                    mainHandler.post(() -> {
+                        bottomSheetDialog.dismiss();
+                        loadExpenses();
+                        loadGalleryPreview(rootView);
+                        notifyGalleryRefresh();
+                        Toast.makeText(getContext(), R.string.expense_updated, Toast.LENGTH_SHORT).show();
+                    });
+                });
+            }
         });
 
         bottomSheetDialog.show();
     }
 
     /**
-     * Show Material Date Picker with constraints to only allow dates within the trip's date range
+     * Show Material Date Picker with constraints to only allow dates within the
+     * trip's date range
      * Dates outside the trip range will be shown in red and cannot be selected
      */
     private void showScheduleDatePicker(EditText targetEditText, ScheduleItem editing) {
@@ -1647,7 +1775,7 @@ public class TripDetailFragment extends Fragment {
             CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
             constraintsBuilder.setStart(startMillis);
             constraintsBuilder.setEnd(endMillis);
-            
+
             // Add validator to make dates outside range invalid (red and untouchable)
             DateValidatorWithinRange validator = new DateValidatorWithinRange(startMillis, endMillis);
             constraintsBuilder.setValidator(validator);
@@ -1669,19 +1797,19 @@ public class TripDetailFragment extends Fragment {
             }
 
             MaterialDatePicker<Long> picker = builder.build();
-            
+
             picker.addOnPositiveButtonClickListener(selection -> {
                 // Convert UTC millis back to local date
                 Instant instant = Instant.ofEpochMilli(selection);
                 LocalDate selectedLocalDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
-                
+
                 // Format as yyyy-MM-dd for database
                 String formattedDate = selectedLocalDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
                 targetEditText.setText(formattedDate);
             });
 
             picker.show(getParentFragmentManager(), "SCHEDULE_DATE_PICKER");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Error loading trip dates", Toast.LENGTH_SHORT).show();
