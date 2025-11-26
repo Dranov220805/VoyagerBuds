@@ -4,9 +4,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.voyagerbuds.database.dao.CaptureDao;
 import com.example.voyagerbuds.database.dao.ExpenseDao;
 import com.example.voyagerbuds.database.dao.ScheduleDao;
 import com.example.voyagerbuds.database.dao.TripDao;
+import com.example.voyagerbuds.models.Capture;
 import com.example.voyagerbuds.models.Expense;
 import com.example.voyagerbuds.models.ScheduleItem;
 import com.example.voyagerbuds.models.Trip;
@@ -55,6 +57,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NOTE = "note";
     private static final String COLUMN_SPENT_AT = "spent_at";
     private static final String COLUMN_EXPENSE_IMAGES = "image_paths";
+
+    // Captures table
+    private static final String TABLE_CAPTURES = "Captures";
+    private static final String COLUMN_CAPTURE_ID = "captureId";
+    private static final String COLUMN_CAPTURE_USER_ID = "userId";
+    private static final String COLUMN_CAPTURE_TRIP_ID = "tripId";
+    private static final String COLUMN_MEDIA_PATH = "media_path";
+    private static final String COLUMN_MEDIA_TYPE = "media_type";
+    private static final String COLUMN_CAPTURE_DESCRIPTION = "description";
+    private static final String COLUMN_CAPTURED_AT = "captured_at";
+    private static final String COLUMN_CAPTURE_CREATED_AT = "created_at";
+    private static final String COLUMN_CAPTURE_UPDATED_AT = "updated_at";
     // Schedules table
     private static final String TABLE_SCHEDULES = "Schedules";
     private static final String COLUMN_SCHEDULE_ID = "scheduleId";
@@ -140,6 +154,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
                 + ")";
         db.execSQL(CREATE_SCHEDULES_TABLE);
+
+        String CREATE_CAPTURES_TABLE = "CREATE TABLE " + TABLE_CAPTURES + "("
+                + COLUMN_CAPTURE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_CAPTURE_USER_ID + " INTEGER,"
+                + COLUMN_CAPTURE_TRIP_ID + " INTEGER,"
+                + COLUMN_MEDIA_PATH + " TEXT NOT NULL,"
+                + COLUMN_MEDIA_TYPE + " TEXT,"
+                + COLUMN_CAPTURE_DESCRIPTION + " TEXT,"
+                + COLUMN_CAPTURED_AT + " INTEGER,"
+                + COLUMN_CAPTURE_CREATED_AT + " INTEGER,"
+                + COLUMN_CAPTURE_UPDATED_AT + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_CAPTURE_TRIP_ID + ") REFERENCES "
+                + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
+                + ")";
+        db.execSQL(CREATE_CAPTURES_TABLE);
     }
 
     @Override
@@ -190,11 +219,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Add image_paths column to Expenses table
             db.execSQL("ALTER TABLE " + TABLE_EXPENSES + " ADD COLUMN " + COLUMN_EXPENSE_IMAGES + " TEXT");
         }
-
-        // Version 10: Add budget_currency to Trips table
         if (oldVersion < 10) {
-            db.execSQL("ALTER TABLE " + TABLE_TRIPS + " ADD COLUMN " + COLUMN_BUDGET_CURRENCY
-                    + " TEXT DEFAULT 'USD'");
+            // Create Captures table for photo/video diary entries
+            String CREATE_CAPTURES_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_CAPTURES + "("
+                    + COLUMN_CAPTURE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_CAPTURE_USER_ID + " INTEGER,"
+                    + COLUMN_CAPTURE_TRIP_ID + " INTEGER,"
+                    + COLUMN_MEDIA_PATH + " TEXT NOT NULL,"
+                    + COLUMN_MEDIA_TYPE + " TEXT,"
+                    + COLUMN_CAPTURE_DESCRIPTION + " TEXT,"
+                    + COLUMN_CAPTURED_AT + " INTEGER,"
+                    + COLUMN_CAPTURE_CREATED_AT + " INTEGER,"
+                    + COLUMN_CAPTURE_UPDATED_AT + " INTEGER,"
+                    + "FOREIGN KEY(" + COLUMN_CAPTURE_TRIP_ID + ") REFERENCES "
+                    + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
+                    + ")";
+            db.execSQL(CREATE_CAPTURES_TABLE);
         }
     }
 
@@ -283,11 +323,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ExpenseDao expenseDao = new ExpenseDao(db);
         ScheduleDao scheduleDao = new ScheduleDao(db);
+        CaptureDao captureDao = new CaptureDao(db);
         TripDao tripDao = new TripDao(db);
 
         // Delete related data first
         expenseDao.deleteByTripId(tripId);
         scheduleDao.deleteByTripId(tripId);
+        captureDao.deleteByTripId(tripId);
         tripDao.delete(tripId);
         db.close();
     }
@@ -354,18 +396,98 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public Expense getExpenseById(int expenseId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        ExpenseDao dao = new ExpenseDao(db);
-        Expense expense = dao.getById(expenseId);
+    // Capture CRUD operations - Delegate to DAO
+    public long addCapture(Capture capture) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        long id = dao.insert(capture);
         db.close();
-        return expense;
+        return id;
     }
 
-    public void updateExpenseImages(int expenseId, String imagesJson) {
+    public int updateCapture(Capture capture) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ExpenseDao dao = new ExpenseDao(db);
-        dao.updateImages(expenseId, imagesJson);
+        CaptureDao dao = new CaptureDao(db);
+        int rows = dao.update(capture);
+        db.close();
+        return rows;
+    }
+
+    public void deleteCapture(int captureId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        dao.delete(captureId);
+        db.close();
+    }
+
+    public Capture getCaptureById(int captureId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        Capture capture = dao.getById(captureId);
+        db.close();
+        return capture;
+    }
+
+    public List<Capture> getCapturesForTrip(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        List<Capture> captures = dao.getAllByTripId(tripId);
+        db.close();
+        return captures;
+    }
+
+    public List<Capture> getRecentCapturesForTrip(int tripId, int limit) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        List<Capture> captures = dao.getRecentByTripId(tripId, limit);
+        db.close();
+        return captures;
+    }
+
+    public List<Capture> getCapturesForUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        List<Capture> captures = dao.getAllByUserId(userId);
+        db.close();
+        return captures;
+    }
+
+    public List<Capture> getCapturesByMediaType(int tripId, String mediaType) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        List<Capture> captures = dao.getByTripIdAndMediaType(tripId, mediaType);
+        db.close();
+        return captures;
+    }
+
+    public int getCaptureCountForTrip(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        int count = dao.getCountByTripId(tripId);
+        db.close();
+        return count;
+    }
+
+    public int getPhotoCountForTrip(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        int count = dao.getPhotoCountByTripId(tripId);
+        db.close();
+        return count;
+    }
+
+    public int getVideoCountForTrip(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        int count = dao.getVideoCountByTripId(tripId);
+        db.close();
+        return count;
+    }
+
+    public void deleteAllCapturesForTrip(int tripId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        dao.deleteByTripId(tripId);
         db.close();
     }
 }

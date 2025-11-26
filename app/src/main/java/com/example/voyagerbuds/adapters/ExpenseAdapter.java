@@ -25,7 +25,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     public interface OnExpenseClickListener {
         void onExpenseClick(Expense expense);
     }
-
+    //test
     public ExpenseAdapter(Context context, List<Expense> expenses, OnExpenseClickListener listener) {
         this.context = context;
         this.expenses = expenses;
