@@ -39,37 +39,53 @@
             android:orientation="horizontal"
             android:layout_marginBottom="24dp">
 
-            <Button
-                android:id="@+id/btn_capture"
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
-                android:text="@string/capture"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                android:background="@color/main_color_voyager"
-                android:drawableTop="@android:drawable/ic_menu_camera"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
 
-            <Button
-                android:id="@+id/btn_upload"
+                <Button
+                    android:id="@+id/btn_capture"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/capture"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:background="@color/main_color_voyager"
+                    android:drawableTop="@android:drawable/ic_menu_camera"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="@string/upload"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                android:background="@color/orange_light"
-                android:drawableTop="@android:drawable/ic_menu_gallery"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"/>
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <Button
+                    android:id="@+id/btn_upload"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/upload"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:background="@color/orange_light"
+                    android:drawableTop="@android:drawable/ic_menu_gallery"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
@@ -131,7 +147,8 @@
                     android:layout_height="40dp"
                     android:text="@string/save_note"
                     android:textColor="@android:color/white"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
                     android:textAllCaps="false"
                     android:background="@drawable/button_primary"
                     android:paddingStart="24dp"
