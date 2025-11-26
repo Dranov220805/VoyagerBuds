@@ -164,6 +164,29 @@ public class ExpenseDao {
     }
 
     /**
+     * Get total expenses grouped by currency for a trip
+     * Returns a map of currency -> total amount
+     */
+    public java.util.Map<String, Double> getTotalsByCurrency(int tripId) {
+        java.util.Map<String, Double> totals = new java.util.HashMap<>();
+        String query = "SELECT " + COLUMN_CURRENCY + ", SUM(" + COLUMN_AMOUNT + ") as total FROM " + TABLE_EXPENSES
+                + " WHERE " + COLUMN_EXPENSE_TRIP_ID + " = ? GROUP BY " + COLUMN_CURRENCY;
+        Cursor cursor = database.rawQuery(query, new String[] { String.valueOf(tripId) });
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                String currency = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CURRENCY));
+                double total = cursor.getDouble(cursor.getColumnIndexOrThrow("total"));
+                if (currency != null && !currency.isEmpty()) {
+                    totals.put(currency, total);
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return totals;
+    }
+
+    /**
      * Convert cursor to Expense object
      */
     private Expense cursorToExpense(Cursor cursor) {
@@ -175,12 +198,23 @@ public class ExpenseDao {
         expense.setCurrency(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CURRENCY)));
         expense.setNote(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTE)));
         expense.setSpentAt(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SPENT_AT)));
-        
+
         int imageColIndex = cursor.getColumnIndex(COLUMN_EXPENSE_IMAGES);
         if (imageColIndex != -1) {
             expense.setImagePaths(cursor.getString(imageColIndex));
         }
-        
+
         return expense;
+    }
+
+    /**
+     * Update only the image paths for an expense
+     */
+    public int updateImages(int expenseId, String imagesJson) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EXPENSE_IMAGES, imagesJson);
+
+        return database.update(TABLE_EXPENSES, values, COLUMN_EXPENSE_ID + " = ?",
+                new String[] { String.valueOf(expenseId) });
     }
 }

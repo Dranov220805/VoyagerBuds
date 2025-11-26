@@ -20,6 +20,7 @@ public class Trip implements Serializable {
     private int firebaseId;
     private long lastSyncedAt;
     private double budget;
+    private String budgetCurrency;
     private String participants;
 
     public Trip() {
@@ -28,7 +29,8 @@ public class Trip implements Serializable {
     public Trip(int tripId, int userId, String tripName, String startDate, String endDate,
             String destination, String notes, String photoUrl, long createdAt,
             long updatedAt, int isGroupTrip, double mapLatitude, double mapLongitude,
-            String syncStatus, int firebaseId, long lastSyncedAt, double budget, String participants) {
+            String syncStatus, int firebaseId, long lastSyncedAt, double budget, String budgetCurrency,
+            String participants) {
         this.tripId = tripId;
         this.userId = userId;
         this.tripName = tripName;
@@ -46,6 +48,7 @@ public class Trip implements Serializable {
         this.firebaseId = firebaseId;
         this.lastSyncedAt = lastSyncedAt;
         this.budget = budget;
+        this.budgetCurrency = budgetCurrency;
         this.participants = participants;
     }
 
@@ -184,6 +187,14 @@ public class Trip implements Serializable {
 
     public void setBudget(double budget) {
         this.budget = budget;
+    }
+
+    public String getBudgetCurrency() {
+        return budgetCurrency;
+    }
+
+    public void setBudgetCurrency(String budgetCurrency) {
+        this.budgetCurrency = budgetCurrency;
     }
 
     public String getParticipants() {

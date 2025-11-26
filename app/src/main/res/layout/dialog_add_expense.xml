@@ -93,12 +93,21 @@
                         app:drawableTint="@color/text_dark" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+<!--                <Spinner-->
+<!--                    android:id="@+id/spinner_expense_currency"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:layout_marginStart="8dp"-->
+<!--                    android:minWidth="80dp" />-->
+
                 <Spinner
                     android:id="@+id/spinner_expense_currency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_width="100dp"
+                    android:layout_height="56dp"
                     android:layout_marginStart="8dp"
-                    android:minWidth="80dp" />
+                    android:background="@drawable/spinner_background"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp" />
             </LinearLayout>
 
             <!-- Date -->

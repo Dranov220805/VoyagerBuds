@@ -2,15 +2,17 @@ package com.example.voyagerbuds.models;
 
 public class GalleryItem {
     private String imagePath;
-    private int scheduleId;
+    private int itemId; // Can be scheduleId or expenseId
+    private int itemType; // 0 = schedule, 1 = expense
     private long date;
     private String dayLabel;
     private boolean isSelected;
 
-    public GalleryItem(String imagePath, int scheduleId, long date, String dayLabel) {
+    public GalleryItem(String imagePath, int itemId, int itemType, String dayLabel) {
         this.imagePath = imagePath;
-        this.scheduleId = scheduleId;
-        this.date = date;
+        this.itemId = itemId;
+        this.itemType = itemType;
+        this.date = 0;
         this.dayLabel = dayLabel;
         this.isSelected = false;
     }
@@ -19,8 +21,16 @@ public class GalleryItem {
         return imagePath;
     }
 
+    public int getItemId() {
+        return itemId;
+    }
+
     public int getScheduleId() {
-        return scheduleId;
+        return itemId; // For backward compatibility
+    }
+
+    public int getItemType() {
+        return itemType;
     }
 
     public long getDate() {

@@ -36,6 +36,7 @@ public class RegisterFragment extends Fragment {
 
     private static final String TAG = "RegisterFragment";
     private FragmentRegisterBinding binding;
+    private View loadingContainer;
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -82,6 +83,8 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        loadingContainer = view.findViewById(R.id.loading_container);
+
         // Apply fade-in animation
         view.setAlpha(0f);
         view.animate()
@@ -91,7 +94,10 @@ public class RegisterFragment extends Fragment {
                 .start();
 
         binding.btnCreateAccount.setOnClickListener(v -> validateAndRegister());
-        binding.btnGoogleSignup.setOnClickListener(v -> signInWithGoogle());
+        binding.btnGoogleSignup.setOnClickListener(v -> {
+            showLoading();
+            signInWithGoogle();
+        });
 
         binding.tvGoToLogin.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
@@ -120,6 +126,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
+        showLoading();
         registerUser(email, password, fullName);
     }
 
@@ -149,17 +156,21 @@ public class RegisterFragment extends Fragment {
                                             Log.d(TAG, "User registered - Email: " + refreshedUser.getEmail()
                                                     + ", Name: " + refreshedUser.getDisplayName());
                                         }
+                                        hideLoading();
                                         navigateToHome();
                                     });
                                 } else {
                                     Log.e(TAG, "Failed to update profile", profileTask.getException());
+                                    hideLoading();
                                     navigateToHome();
                                 }
                             });
                         } else {
+                            hideLoading();
                             navigateToHome();
                         }
                     } else {
+                        hideLoading();
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             Toast.makeText(getContext(), getString(R.string.email_already_registered),
                                     Toast.LENGTH_SHORT).show();
@@ -237,10 +248,12 @@ public class RegisterFragment extends Fragment {
                                                 Log.d(TAG, "Google signup - Email: " + refreshedUser.getEmail()
                                                         + ", Name: " + refreshedUser.getDisplayName());
                                             }
+                                            hideLoading();
                                             navigateToHome();
                                         });
                                     } else {
                                         Log.e(TAG, "Failed to update profile", profileTask.getException());
+                                        hideLoading();
                                         navigateToHome();
                                     }
                                 });
@@ -253,12 +266,15 @@ public class RegisterFragment extends Fragment {
                                     Log.d(TAG, "Google signup (existing name) - Email: " + refreshedUser.getEmail()
                                             + ", Name: " + refreshedUser.getDisplayName());
                                 }
+                                hideLoading();
                                 navigateToHome();
                             });
                             return;
                         }
+                        hideLoading();
                         navigateToHome();
                     } else {
+                        hideLoading();
                         // Check if it's an account collision (email already exists with different
                         // provider)
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -271,6 +287,18 @@ public class RegisterFragment extends Fragment {
                         }
                     }
                 });
+    }
+
+    private void showLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.GONE);
+        }
     }
 
     private void navigateToHome() {

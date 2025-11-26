@@ -44,6 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_FIREBASE_ID = "firebase_id";
     private static final String COLUMN_LAST_SYNCED_AT = "last_synced_at";
     private static final String COLUMN_BUDGET = "budget";
+    private static final String COLUMN_BUDGET_CURRENCY = "budget_currency";
     private static final String COLUMN_PARTICIPANTS = "participants";
 
     // Expenses table
@@ -113,6 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_FIREBASE_ID + " INTEGER,"
                 + COLUMN_LAST_SYNCED_AT + " INTEGER,"
                 + COLUMN_BUDGET + " REAL,"
+                + COLUMN_BUDGET_CURRENCY + " TEXT DEFAULT 'USD',"
                 + COLUMN_PARTICIPANTS + " TEXT"
                 + ")";
         db.execSQL(CREATE_TRIPS_TABLE);
@@ -299,6 +301,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         double total = dao.getTotalByTripId(tripId);
         db.close();
         return total;
+    }
+
+    public java.util.Map<String, Double> getTotalExpensesByCurrency(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        ExpenseDao dao = new ExpenseDao(db);
+        java.util.Map<String, Double> totals = dao.getTotalsByCurrency(tripId);
+        db.close();
+        return totals;
     }
 
     public int updateTrip(Trip trip) {

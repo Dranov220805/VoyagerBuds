@@ -1,5 +1,9 @@
 package com.example.voyagerbuds.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -11,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +38,8 @@ import java.util.Map;
 public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnItemClickListener {
 
     private static final String ARG_TRIP_ID = "trip_id";
+    public static final String ACTION_GALLERY_REFRESH = "com.example.voyagerbuds.GALLERY_REFRESH";
+
     private int tripId;
     private DatabaseHelper databaseHelper;
     private RecyclerView recyclerView;
@@ -42,6 +49,7 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
     private boolean isSelectionMode = false;
     private MaterialToolbar toolbar;
     private TextView tvEmptyState;
+    private BroadcastReceiver galleryRefreshReceiver;
 
     public static TripGalleryFragment newInstance(int tripId) {
         TripGalleryFragment fragment = new TripGalleryFragment();
@@ -80,6 +88,35 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
 
         setupRecyclerView();
         loadGalleryItems();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Register broadcast receiver
+        galleryRefreshReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                loadGalleryItems();
+            }
+        };
+        LocalBroadcastManager.getInstance(requireContext())
+                .registerReceiver(galleryRefreshReceiver, new IntentFilter(ACTION_GALLERY_REFRESH));
+
+        // Reload gallery items when returning to this fragment
+        loadGalleryItems();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Unregister broadcast receiver
+        if (galleryRefreshReceiver != null) {
+            LocalBroadcastManager.getInstance(requireContext())
+                    .unregisterReceiver(galleryRefreshReceiver);
+        }
     }
 
     private void setupRecyclerView() {
@@ -219,15 +256,27 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
     }
 
     private void deleteSelectedItems() {
-        Map<Integer, List<String>> imagesToDelete = new HashMap<>();
+        Map<Integer, List<String>> scheduleImagesToDelete = new HashMap<>();
+        Map<Integer, List<String>> expenseImagesToDelete = new HashMap<>();
+
         for (GalleryItem item : selectedItems) {
-            if (!imagesToDelete.containsKey(item.getScheduleId())) {
-                imagesToDelete.put(item.getScheduleId(), new ArrayList<>());
+            if (item.getItemType() == 0) {
+                // Schedule image
+                if (!scheduleImagesToDelete.containsKey(item.getItemId())) {
+                    scheduleImagesToDelete.put(item.getItemId(), new ArrayList<>());
+                }
+                scheduleImagesToDelete.get(item.getItemId()).add(item.getImagePath());
+            } else {
+                // Expense image
+                if (!expenseImagesToDelete.containsKey(item.getItemId())) {
+                    expenseImagesToDelete.put(item.getItemId(), new ArrayList<>());
+                }
+                expenseImagesToDelete.get(item.getItemId()).add(item.getImagePath());
             }
-            imagesToDelete.get(item.getScheduleId()).add(item.getImagePath());
         }
 
-        for (Map.Entry<Integer, List<String>> entry : imagesToDelete.entrySet()) {
+        // Delete schedule images
+        for (Map.Entry<Integer, List<String>> entry : scheduleImagesToDelete.entrySet()) {
             int scheduleId = entry.getKey();
             List<String> pathsToRemove = entry.getValue();
 
@@ -243,6 +292,29 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
                         }
                     }
                     databaseHelper.updateScheduleImages(scheduleId, newArray.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Delete expense images
+        for (Map.Entry<Integer, List<String>> entry : expenseImagesToDelete.entrySet()) {
+            int expenseId = entry.getKey();
+            List<String> pathsToRemove = entry.getValue();
+
+            Expense expense = databaseHelper.getExpenseById(expenseId);
+            if (expense != null) {
+                try {
+                    JSONArray currentArray = new JSONArray(expense.getImagePaths());
+                    JSONArray newArray = new JSONArray();
+                    for (int i = 0; i < currentArray.length(); i++) {
+                        String path = currentArray.getString(i);
+                        if (!pathsToRemove.contains(path)) {
+                            newArray.put(path);
+                        }
+                    }
+                    databaseHelper.updateExpenseImages(expenseId, newArray.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
