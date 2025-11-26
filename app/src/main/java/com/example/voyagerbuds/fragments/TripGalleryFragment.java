@@ -19,6 +19,7 @@ import com.example.voyagerbuds.adapters.GalleryAdapter;
 import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.GalleryItem;
 import com.example.voyagerbuds.models.ScheduleItem;
+import com.example.voyagerbuds.models.Expense;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import org.json.JSONArray;
@@ -94,8 +95,10 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
     private void loadGalleryItems() {
         galleryItems.clear();
         List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip(tripId);
+        List<com.example.voyagerbuds.models.Expense> expenses = databaseHelper.getExpensesForTrip(tripId);
         List<GalleryItem> allImages = new ArrayList<>();
 
+        // Add images from schedules
         for (ScheduleItem schedule : schedules) {
             if (schedule.getImagePaths() != null && !schedule.getImagePaths().isEmpty()) {
                 try {
@@ -111,6 +114,27 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
                 }
             }
         }
+
+        // Add images from expenses
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+        for (com.example.voyagerbuds.models.Expense expense : expenses) {
+            if (expense.getImagePaths() != null && !expense.getImagePaths().isEmpty()) {
+                try {
+                    JSONArray jsonArray = new JSONArray(expense.getImagePaths());
+                    String dateStr = sdf.format(new java.util.Date(expense.getSpentAt() * 1000L));
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String path = jsonArray.getString(i);
+                        allImages.add(new GalleryItem(path, expense.getExpenseId(), 1, dateStr));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Sort by date
+        java.util.Collections.sort(allImages, (a, b) -> a.getDayLabel().compareTo(b.getDayLabel()));
 
         // Group by Day
         String currentDay = "";

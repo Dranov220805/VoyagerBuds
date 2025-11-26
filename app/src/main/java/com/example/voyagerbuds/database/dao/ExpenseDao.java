@@ -23,6 +23,7 @@ public class ExpenseDao {
     private static final String COLUMN_CURRENCY = "currency";
     private static final String COLUMN_NOTE = "note";
     private static final String COLUMN_SPENT_AT = "spent_at";
+    private static final String COLUMN_EXPENSE_IMAGES = "image_paths";
 
     private final SQLiteDatabase database;
 
@@ -41,6 +42,7 @@ public class ExpenseDao {
         values.put(COLUMN_CURRENCY, expense.getCurrency());
         values.put(COLUMN_NOTE, expense.getNote());
         values.put(COLUMN_SPENT_AT, expense.getSpentAt());
+        values.put(COLUMN_EXPENSE_IMAGES, expense.getImagePaths());
 
         return database.insert(TABLE_EXPENSES, null, values);
     }
@@ -55,6 +57,7 @@ public class ExpenseDao {
         values.put(COLUMN_CURRENCY, expense.getCurrency());
         values.put(COLUMN_NOTE, expense.getNote());
         values.put(COLUMN_SPENT_AT, expense.getSpentAt());
+        values.put(COLUMN_EXPENSE_IMAGES, expense.getImagePaths());
 
         return database.update(TABLE_EXPENSES, values, COLUMN_EXPENSE_ID + " = ?",
                 new String[] { String.valueOf(expense.getExpenseId()) });
@@ -172,6 +175,12 @@ public class ExpenseDao {
         expense.setCurrency(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CURRENCY)));
         expense.setNote(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NOTE)));
         expense.setSpentAt(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SPENT_AT)));
+        
+        int imageColIndex = cursor.getColumnIndex(COLUMN_EXPENSE_IMAGES);
+        if (imageColIndex != -1) {
+            expense.setImagePaths(cursor.getString(imageColIndex));
+        }
+        
         return expense;
     }
 }

@@ -1367,8 +1367,123 @@ public class TripDetailFragment extends Fragment {
     }
 
     private void showExpenseDetail(Expense expense) {
-        // TODO: Implement expense detail drawer
-        Toast.makeText(getContext(), "Expense: " + expense.getCategory(), Toast.LENGTH_SHORT).show();
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_expense_detail, null);
+        bottomSheetDialog.setContentView(dialogView);
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        EditText etCategory = dialogView.findViewById(R.id.et_detail_category);
+        EditText etAmount = dialogView.findViewById(R.id.et_detail_amount);
+        EditText etCurrency = dialogView.findViewById(R.id.et_detail_currency);
+        EditText etDate = dialogView.findViewById(R.id.et_detail_date);
+        EditText etNotes = dialogView.findViewById(R.id.et_detail_notes);
+        TextInputLayout layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
+        RecyclerView rvImages = dialogView.findViewById(R.id.rv_detail_images);
+        View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
+        View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
+        View btnClose = dialogView.findViewById(R.id.btn_detail_close);
+        View btnCloseSheet = dialogView.findViewById(R.id.btn_close_sheet);
+
+        etCategory.setText(expense.getCategory());
+        etAmount.setText(String.format(Locale.getDefault(), "%.2f", expense.getAmount()));
+        etCurrency.setText(expense.getCurrency());
+
+        // Format date
+        if (expense.getSpentAt() > 0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            etDate.setText(sdf.format(new Date(expense.getSpentAt() * 1000L)));
+        }
+
+        // Parse and display note
+        String noteDisplay = "";
+        String rawNote = expense.getNote();
+        if (rawNote != null && !rawNote.isEmpty()) {
+            try {
+                JSONObject json = new JSONObject(rawNote);
+                if (json.has("text")) {
+                    noteDisplay = json.getString("text");
+                }
+            } catch (JSONException e) {
+                noteDisplay = rawNote;
+            }
+        }
+
+        if (noteDisplay != null && !noteDisplay.isEmpty()) {
+            etNotes.setText(noteDisplay);
+            layoutNotes.setVisibility(View.VISIBLE);
+        } else {
+            layoutNotes.setVisibility(View.GONE);
+        }
+
+        // Handle images
+        List<String> imagePathList = new ArrayList<>();
+        String paths = expense.getImagePaths();
+        if (paths != null && !paths.isEmpty()) {
+            try {
+                JSONArray jsonArray = new JSONArray(paths);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    imagePathList.add(jsonArray.getString(i));
+                }
+            } catch (Exception e) {
+                // Try comma separated
+                String[] parts = paths.split(",");
+                for (String part : parts) {
+                    if (!part.trim().isEmpty()) {
+                        imagePathList.add(part.trim());
+                    }
+                }
+            }
+        }
+
+        if (!imagePathList.isEmpty()) {
+            rvImages.setVisibility(View.VISIBLE);
+            rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            ScheduleImageAdapter imageAdapter = new ScheduleImageAdapter(
+                    requireContext(), imagePathList, false, null);
+            imageAdapter.setOnImageClickListener(this::showFullImageDialog);
+            rvImages.setAdapter(imageAdapter);
+        } else {
+            rvImages.setVisibility(View.GONE);
+        }
+
+        btnDelete.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            deleteExpense(expense);
+        });
+
+        btnEdit.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            showEditExpenseDialog(expense);
+        });
+
+        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        if (btnCloseSheet != null) {
+            btnCloseSheet.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        }
+
+        bottomSheetDialog.show();
+    }
+
+    private void deleteExpense(Expense expense) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_expense_title)
+                .setMessage(R.string.delete_expense_confirm)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    executorService.execute(() -> {
+                        databaseHelper.deleteExpense(expense.getExpenseId());
+                        mainHandler.post(() -> {
+                            Toast.makeText(getContext(), R.string.expense_deleted, Toast.LENGTH_SHORT).show();
+                            loadExpenses();
+                        });
+                    });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showEditExpenseDialog(Expense expense) {
+        // TODO: Implement edit expense functionality similar to edit schedule
+        Toast.makeText(getContext(), "Edit expense feature coming soon", Toast.LENGTH_SHORT).show();
     }
 
     private void showAddExpenseDialog() {
@@ -1476,9 +1591,9 @@ public class TripDetailFragment extends Fragment {
 
             // Serialize description (text, images) to JSON
             JSONObject noteJson = new JSONObject();
+            JSONArray imagesArray = new JSONArray();
             try {
                 noteJson.put("text", noteText);
-                JSONArray imagesArray = new JSONArray();
                 for (String path : tempImagePaths) {
                     imagesArray.put(path);
                 }
@@ -1494,6 +1609,7 @@ public class TripDetailFragment extends Fragment {
             expense.setCurrency(currency);
             expense.setNote(noteJson.toString());
             expense.setSpentAt(spentAt);
+            expense.setImagePaths(imagesArray.toString()); // Save image paths separately
 
             executorService.execute(() -> {
                 databaseHelper.addExpense(expense);

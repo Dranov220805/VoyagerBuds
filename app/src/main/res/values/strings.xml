@@ -487,6 +487,14 @@
     <string name="notify_before">Notify before</string>
     <string name="confirm">Confirm</string>
 
+    <!-- Expense Details Dialog -->
+    <string name="expense_details">Expense Details</string>
+    <string name="category">Category</string>
+    <string name="spent_date">Spent Date</string>
+    <string name="delete_expense_title">Delete Expense</string>
+    <string name="delete_expense_confirm">Are you sure you want to delete this expense?</string>
+    <string name="expense_deleted">Expense deleted successfully</string>
+
     <!-- Empty schedule state -->
     <string name="schedule_no_events_today">No schedule for today, create one in the trip detail</string>
     <string name="go_to_trip_detail">Go to Trip Detail</string>

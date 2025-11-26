@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -111,6 +111,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_CURRENCY + " TEXT,"
                 + COLUMN_NOTE + " TEXT,"
                 + COLUMN_SPENT_AT + " INTEGER,"
+                + COLUMN_EXPENSE_IMAGES + " TEXT,"
                 + "FOREIGN KEY(" + COLUMN_EXPENSE_TRIP_ID + ") REFERENCES "
                 + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
                 + ")";
@@ -182,6 +183,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Add notify_before_minutes column to Schedules table
             db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_NOTIFY_BEFORE
                     + " INTEGER DEFAULT 0");
+        }
+        if (oldVersion < 9) {
+            // Add image_paths column to Expenses table
+            db.execSQL("ALTER TABLE " + TABLE_EXPENSES + " ADD COLUMN " + COLUMN_EXPENSE_IMAGES + " TEXT");
         }
     }
 
