@@ -50,6 +50,34 @@ public class FirebaseBackupManager {
         void onFailure(String error);
     }
 
+    public interface PreviewCallback {
+        void onPreview(BackupPreview preview);
+
+        void onFailure(String error);
+    }
+
+    public static class BackupPreview {
+        public int tripCount;
+        public int scheduleCount;
+        public int expenseCount;
+        public int captureCount;
+        public List<TripSummary> trips = new ArrayList<>();
+    }
+
+    public static class TripSummary {
+        public int originalId;
+        public String tripName;
+        public int scheduleCount;
+        public int expenseCount;
+        public int captureCount;
+    }
+
+    public enum RestoreStrategy {
+        APPEND,
+        OVERWRITE,
+        MERGE
+    }
+
     public static void backupAllData(Context context, FirebaseAuth mAuth, DatabaseHelper dbHelper, Callback callback) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
@@ -211,7 +239,74 @@ public class FirebaseBackupManager {
         });
     }
 
+    public static void fetchBackupPreview(Context context, FirebaseAuth mAuth, DatabaseHelper dbHelper,
+            PreviewCallback callback) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            callback.onFailure("Please sign in to check backup data");
+            return;
+        }
+        String uid = user.getUid();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        CollectionReference tripsRef = firestore.collection(USERS_COLLECTION).document(uid).collection(TRIPS_COLLECTION);
+
+        tripsRef.get().addOnSuccessListener(querySnapshot -> {
+            List<com.google.firebase.firestore.DocumentSnapshot> docs = querySnapshot.getDocuments();
+            if (docs == null || docs.isEmpty()) {
+                callback.onFailure("No backup data found");
+                return;
+            }
+            BackupPreview preview = new BackupPreview();
+            preview.tripCount = docs.size();
+            List<com.google.android.gms.tasks.Task<?>> tasks = new ArrayList<>();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : docs) {
+                TripSummary ts = new TripSummary();
+                try {
+                    ts.originalId = Integer.parseInt(doc.getId());
+                } catch (Exception ignored) {
+                    ts.originalId = -1;
+                }
+                ts.tripName = (String) doc.getData().getOrDefault("tripName", "");
+                preview.trips.add(ts);
+
+                // count child collections
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> schTask = doc.getReference()
+                        .collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(qs -> {
+                            int c = qs.getDocuments().size();
+                            ts.scheduleCount = c;
+                            preview.scheduleCount += c;
+                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to count schedules for " + doc.getId(), e));
+                tasks.add(schTask);
+
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> expTask = doc.getReference()
+                        .collection(EXPENSES_COLLECTION).get().addOnSuccessListener(qs -> {
+                            int c = qs.getDocuments().size();
+                            ts.expenseCount = c;
+                            preview.expenseCount += c;
+                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to count expenses for " + doc.getId(), e));
+                tasks.add(expTask);
+
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> capTask = doc.getReference()
+                        .collection(CAPTURES_COLLECTION).get().addOnSuccessListener(qs -> {
+                            int c = qs.getDocuments().size();
+                            ts.captureCount = c;
+                            preview.captureCount += c;
+                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to count captures for " + doc.getId(), e));
+                tasks.add(capTask);
+            }
+
+            com.google.android.gms.tasks.Tasks.whenAllComplete(tasks).addOnSuccessListener(aVoid -> {
+                callback.onPreview(preview);
+            }).addOnFailureListener(e -> callback.onFailure("Failed to fetch backup preview: " + e.getMessage()));
+        }).addOnFailureListener(e -> callback.onFailure("Failed to fetch backup trips: " + e.getMessage()));
+    }
+
     public static void restoreAllData(Context context, FirebaseAuth mAuth, DatabaseHelper dbHelper, Callback callback) {
+        restoreAllData(context, mAuth, dbHelper, RestoreStrategy.APPEND, callback);
+    }
+
+    public static void restoreAllData(Context context, FirebaseAuth mAuth, DatabaseHelper dbHelper,
+            RestoreStrategy strategy, Callback callback) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             callback.onFailure("Please sign in to restore your data");
@@ -221,6 +316,16 @@ public class FirebaseBackupManager {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         com.google.firebase.firestore.CollectionReference tripsRef = firestore.collection(USERS_COLLECTION)
                 .document(uid).collection(TRIPS_COLLECTION);
+
+        // If overwrite strategy, clear local data first
+        int localUserId = UserSessionManager.getCurrentUserId(context);
+        if (localUserId == -1) {
+            callback.onFailure("Cannot find local user id");
+            return;
+        }
+        if (strategy == RestoreStrategy.OVERWRITE) {
+            dbHelper.clearUserData(localUserId);
+        }
 
         // Get all trips
         tripsRef.get().addOnCompleteListener(task -> {
@@ -240,9 +345,10 @@ public class FirebaseBackupManager {
             // Note: This basic restore does not delete existing local data — to keep safer
             // we append by default
             // Advanced behavior (merge/overwrite/clear) can be added later
-            int localUserId = UserSessionManager.getCurrentUserId(context);
+            // localUserId already computed
 
             List<Task<?>> writeTasks = new ArrayList<>();
+            List<com.google.android.gms.tasks.Task<?>> readTasks = new ArrayList<>();
 
             for (com.google.firebase.firestore.DocumentSnapshot doc : snapshotList) {
                 Map<String, Object> tripData = doc.getData();
@@ -252,6 +358,7 @@ public class FirebaseBackupManager {
                     // tripId is saved as original local trip id in backup doc id
                     int originalTripId = Integer.parseInt(doc.getId());
                     trip.setTripId(originalTripId);
+                    trip.setFirebaseId(originalTripId);
                 } catch (Exception e) {
                     // ignore
                 }
@@ -271,12 +378,44 @@ public class FirebaseBackupManager {
                 trip.setBudgetCurrency((String) tripData.getOrDefault("budgetCurrency", "USD"));
                 trip.setParticipants((String) tripData.getOrDefault("participants", ""));
 
-                // Insert locally
-                long newId = dbHelper.addTrip(trip);
-                int insertedTripId = (int) newId;
+                // Check merge strategy: if MERGE, try to find existing trip by firebase id or by name/date
+                long newIdLong;
+                if (strategy == RestoreStrategy.MERGE) {
+                    Trip existing = null;
+                    if (trip.getFirebaseId() > 0) {
+                        existing = dbHelper.getTripByFirebaseId(trip.getFirebaseId(), localUserId);
+                    }
+                    if (existing == null) {
+                        // Fallback, try matching by name and startDate
+                        List<Trip> localTrips = dbHelper.getAllTrips(localUserId);
+                        for (Trip lt : localTrips) {
+                            if (lt.getTripName() != null && lt.getTripName().equals(trip.getTripName())
+                                    && lt.getStartDate() != null && lt.getStartDate().equals(trip.getStartDate())) {
+                                existing = lt;
+                                break;
+                            }
+                        }
+                    }
+                    if (existing != null) {
+                        // Merge: update existing trip then use its id for children
+                        trip.setTripId(existing.getTripId());
+                        trip.setFirebaseId(existing.getFirebaseId() == 0 ? trip.getFirebaseId() : existing.getFirebaseId());
+                        dbHelper.updateTrip(trip);
+                        newIdLong = existing.getTripId();
+                    } else {
+                        // Add as new trip
+                        long newId = dbHelper.addTrip(trip);
+                        newIdLong = newId;
+                    }
+                } else {
+                    // Append or overwrite: simply add
+                    long newId = dbHelper.addTrip(trip);
+                    newIdLong = newId;
+                }
+                int insertedTripId = (int) newIdLong;
 
                 // Now child collections: schedules
-                doc.getReference().collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> sTask = doc.getReference().collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
                     for (com.google.firebase.firestore.DocumentSnapshot scheduleDoc : querySnapshot.getDocuments()) {
                         Map<String, Object> scheduleData = scheduleDoc.getData();
                         ScheduleItem item = new ScheduleItem();
@@ -293,13 +432,33 @@ public class FirebaseBackupManager {
                                 ((Number) scheduleData.getOrDefault("notifyBeforeMinutes", 0)).intValue());
                         item.setCreatedAt(((Number) scheduleData.getOrDefault("createdAt", 0)).longValue());
                         item.setUpdatedAt(((Number) scheduleData.getOrDefault("updatedAt", 0)).longValue());
-                        dbHelper.addSchedule(item);
+                        // For MERGE, try to avoid duplicates for schedules: minimal heuristic
+                        if (strategy == RestoreStrategy.MERGE) {
+                            List<ScheduleItem> existingSchedules = dbHelper.getSchedulesForTrip(insertedTripId);
+                            boolean found = false;
+                                    for (ScheduleItem es : existingSchedules) {
+                                if ((es.getTitle() != null && es.getTitle().equals(item.getTitle()))
+                                        && (es.getStartTime() != null && es.getStartTime().equals(item.getStartTime()))) {
+                                    // candidate for update
+                                    item.setId(es.getId());
+                                    dbHelper.updateSchedule(item);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                dbHelper.addSchedule(item);
+                            }
+                        } else {
+                            dbHelper.addSchedule(item);
+                        }
                     }
                 }).addOnFailureListener(
                         e -> Log.w(TAG, "Failed to restore schedules for trip: " + trip.getTripName(), e));
+                readTasks.add(sTask);
 
                 // expenses
-                doc.getReference().collection(EXPENSES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> eTask = doc.getReference().collection(EXPENSES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
                     for (com.google.firebase.firestore.DocumentSnapshot expenseDoc : querySnapshot.getDocuments()) {
                         Map<String, Object> expenseData = expenseDoc.getData();
                         Expense expense = new Expense();
@@ -310,13 +469,31 @@ public class FirebaseBackupManager {
                         expense.setNote((String) expenseData.getOrDefault("note", null));
                         expense.setSpentAt(((Number) expenseData.getOrDefault("spentAt", 0)).intValue());
                         expense.setImagePaths((String) expenseData.getOrDefault("imagePaths", null));
-                        dbHelper.addExpense(expense);
+                        if (strategy == RestoreStrategy.MERGE) {
+                            List<Expense> existingExpenses = dbHelper.getExpensesForTrip(insertedTripId);
+                            boolean found = false;
+                            for (Expense ee : existingExpenses) {
+                                if (ee.getAmount() == expense.getAmount() && ee.getSpentAt() == expense.getSpentAt()
+                                        && (ee.getCategory() != null && ee.getCategory().equals(expense.getCategory()))) {
+                                    expense.setExpenseId(ee.getExpenseId());
+                                    dbHelper.updateExpense(expense);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                dbHelper.addExpense(expense);
+                            }
+                        } else {
+                            dbHelper.addExpense(expense);
+                        }
                     }
                 }).addOnFailureListener(
                         e -> Log.w(TAG, "Failed to restore expenses for trip: " + trip.getTripName(), e));
+                readTasks.add(eTask);
 
                 // captures
-                doc.getReference().collection(CAPTURES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> cTask = doc.getReference().collection(CAPTURES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
                     for (com.google.firebase.firestore.DocumentSnapshot captureDoc : querySnapshot.getDocuments()) {
                         Map<String, Object> captureData = captureDoc.getData();
                         Capture capture = new Capture();
@@ -328,15 +505,35 @@ public class FirebaseBackupManager {
                         capture.setCapturedAt(((Number) captureData.getOrDefault("capturedAt", 0)).longValue());
                         capture.setCreatedAt(((Number) captureData.getOrDefault("createdAt", 0)).longValue());
                         capture.setUpdatedAt(((Number) captureData.getOrDefault("updatedAt", 0)).longValue());
-                        dbHelper.addCapture(capture);
+                        if (strategy == RestoreStrategy.MERGE) {
+                            List<Capture> existingCaptures = dbHelper.getCapturesForTrip(insertedTripId);
+                            boolean found = false;
+                            for (Capture ec : existingCaptures) {
+                                if (ec.getMediaPath() != null && ec.getMediaPath().equals(capture.getMediaPath())
+                                        && ec.getCapturedAt() == capture.getCapturedAt()) {
+                                    capture.setCaptureId(ec.getCaptureId());
+                                    dbHelper.updateCapture(capture);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                dbHelper.addCapture(capture);
+                            }
+                        } else {
+                            dbHelper.addCapture(capture);
+                        }
                     }
                 }).addOnFailureListener(
                         e -> Log.w(TAG, "Failed to restore captures for trip: " + trip.getTripName(), e));
+                readTasks.add(cTask);
 
             }
 
-            // restore completed
-            callback.onSuccess();
+            // Wait for all child reads to complete
+            com.google.android.gms.tasks.Tasks.whenAllComplete(readTasks).addOnSuccessListener(aVoid -> {
+                callback.onSuccess();
+            }).addOnFailureListener(e -> callback.onFailure("Failed to complete restore reads: " + e.getMessage()));
         }).addOnFailureListener(e -> callback.onFailure("Failed to read backup data: " + e.getMessage()));
     }
 

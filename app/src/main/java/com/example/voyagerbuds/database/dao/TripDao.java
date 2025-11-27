@@ -87,6 +87,7 @@ public class TripDao {
         values.put(COLUMN_BUDGET_CURRENCY, trip.getBudgetCurrency());
         values.put(COLUMN_PARTICIPANTS, trip.getParticipants());
         values.put(COLUMN_IS_GROUP_TRIP, trip.getIsGroupTrip());
+        values.put(COLUMN_FIREBASE_ID, trip.getFirebaseId());
 
         return database.update(TABLE_TRIPS, values, COLUMN_TRIP_ID + " = ?",
                 new String[] { String.valueOf(trip.getTripId()) });
@@ -106,6 +107,21 @@ public class TripDao {
     public Trip getById(int tripId) {
         Cursor cursor = database.query(TABLE_TRIPS, null, COLUMN_TRIP_ID + "=?",
                 new String[] { String.valueOf(tripId) }, null, null, null);
+
+        Trip trip = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            trip = cursorToTrip(cursor);
+            cursor.close();
+        }
+        return trip;
+    }
+
+    /**
+     * Get trip by firebase id (remote id) and user
+     */
+    public Trip getByFirebaseIdAndUserId(int firebaseId, int userId) {
+        Cursor cursor = database.query(TABLE_TRIPS, null, COLUMN_FIREBASE_ID + "=? AND " + COLUMN_USER_ID + "=?",
+                new String[] { String.valueOf(firebaseId), String.valueOf(userId) }, null, null, null);
 
         Trip trip = null;
         if (cursor != null && cursor.moveToFirst()) {

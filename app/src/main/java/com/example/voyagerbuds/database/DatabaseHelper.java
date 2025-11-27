@@ -312,6 +312,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return trip;
     }
 
+    /**
+     * Find a trip by firebase_id (the remote trip id) and user id.
+     */
+    public Trip getTripByFirebaseId(int firebaseId, int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        TripDao dao = new TripDao(db);
+        Trip trip = dao.getByFirebaseIdAndUserId(firebaseId, userId);
+        db.close();
+        return trip;
+    }
+
     public double getTotalExpensesForTrip(int tripId) {
         SQLiteDatabase db = this.getReadableDatabase();
         ExpenseDao dao = new ExpenseDao(db);
@@ -349,6 +360,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         captureDao.deleteByTripId(tripId);
         tripDao.delete(tripId);
         db.close();
+    }
+
+    /**
+     * Remove all data for a given user (trips and their related child data)
+     */
+    public void clearUserData(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        TripDao tripDao = new TripDao(db);
+        List<Trip> trips = tripDao.getAllByUserId(userId);
+        for (Trip t : trips) {
+            // Cascade delete: tripDao.delete will not cascade; keep current behaviour using helpers
+            ExpenseDao expenseDao = new ExpenseDao(db);
+            ScheduleDao scheduleDao = new ScheduleDao(db);
+            CaptureDao captureDao = new CaptureDao(db);
+            expenseDao.deleteByTripId(t.getTripId());
+            scheduleDao.deleteByTripId(t.getTripId());
+            captureDao.deleteByTripId(t.getTripId());
+            tripDao.delete(t.getTripId());
+        }
+        db.close();
+    }
+
+    /**
+     * Count total schedules for user by summing schedules across all trips
+     */
+    public int getTotalSchedulesForUser(int userId) {
+        int total = 0;
+        List<Trip> trips = getAllTrips(userId);
+        for (Trip t : trips) {
+            total += getSchedulesForTrip(t.getTripId()).size();
+        }
+        return total;
+    }
+
+    /**
+     * Count total expenses for user by summing expenses across all trips
+     */
+    public int getTotalExpensesForUser(int userId) {
+        int total = 0;
+        List<Trip> trips = getAllTrips(userId);
+        for (Trip t : trips) {
+            total += getExpensesForTrip(t.getTripId()).size();
+        }
+        return total;
+    }
+
+    /**
+     * Count total captures for user by summing captures across all trips
+     */
+    public int getTotalCapturesForUser(int userId) {
+        int total = 0;
+        List<Trip> trips = getAllTrips(userId);
+        for (Trip t : trips) {
+            total += getCapturesForTrip(t.getTripId()).size();
+        }
+        return total;
     }
 
     public boolean isDateRangeAvailable(int userId, String startDate, String endDate) {
