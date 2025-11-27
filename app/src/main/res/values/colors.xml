@@ -18,8 +18,8 @@
 
     <!-- Dark Theme Colors -->
     <color name="light_background">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
     <color name="light_surface">#181818</color>
-    <color name="light_card">#282828</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#B3B3B3</color>
     <color name="text_tertiary">#6A6A6A</color>
@@ -49,7 +49,6 @@
     <color name="text_medium">#757575</color>
     <color name="text_light">#9E9E9E</color>
     <color name="background_light">#F5F5F5</color>
-    <color name="card_background">#FFFFFF</color>
     <color name="input_border">#E0E0E0</color>
     <color name="in_progress_green">#4CAF50</color>
 

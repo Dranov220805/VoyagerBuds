@@ -20,6 +20,7 @@ import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.Trip;
 import com.example.voyagerbuds.utils.BookedDateDecorator;
 import com.example.voyagerbuds.utils.DateValidatorBlockTrips;
+import com.example.voyagerbuds.utils.UserSessionManager;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.CompositeDateValidator;
 import com.google.android.material.datepicker.DateValidatorPointForward;
@@ -144,8 +145,10 @@ public class TripDatesFragment extends Fragment {
 
     private List<Long> getBlockedDateRanges() {
         List<Long> ranges = new ArrayList<>();
-        // Assuming userId = 1 as per current implementation
-        List<Trip> trips = databaseHelper.getAllTrips(1);
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId == -1)
+            return ranges;
+        List<Trip> trips = databaseHelper.getAllTrips(userId);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -183,7 +186,12 @@ public class TripDatesFragment extends Fragment {
             }
 
             // Check for overlapping trips
-            if (!databaseHelper.isDateRangeAvailable(startDate, endDate)) {
+            int userId = UserSessionManager.getCurrentUserId(getContext());
+            if (userId == -1) {
+                Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            if (!databaseHelper.isDateRangeAvailable(userId, startDate, endDate)) {
                 Toast.makeText(getContext(), getString(R.string.toast_trip_date_conflict), Toast.LENGTH_LONG)
                         .show();
                 return false;

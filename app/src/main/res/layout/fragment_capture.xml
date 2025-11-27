@@ -40,7 +40,6 @@
             android:layout_marginBottom="24dp">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/btn_take_photo"
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_weight="1"
@@ -48,36 +47,23 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
-                <LinearLayout
+                <Button
+                    android:id="@+id/btn_capture"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@color/main_color_voyager"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@android:drawable/ic_menu_camera"
-                        android:tint="@android:color/white"
-                        android:contentDescription="@string/desc_camera"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/take_photo"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
-
-                </LinearLayout>
+                    android:text="@string/capture"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:background="@color/accent_blue"
+                    android:drawableTop="@android:drawable/ic_menu_camera"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/btn_add_video"
                 android:layout_width="0dp"
                 android:layout_height="120dp"
                 android:layout_weight="1"
@@ -85,31 +71,19 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
-                <LinearLayout
+                <Button
+                    android:id="@+id/btn_upload"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center"
+                    android:text="@string/upload"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
                     android:background="@color/orange_light"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:src="@android:drawable/ic_menu_gallery"
-                        android:tint="@android:color/white"
-                        android:contentDescription="@string/desc_video"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/add_video"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
-
-                </LinearLayout>
+                    android:drawableTop="@android:drawable/ic_menu_gallery"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"/>
 
             </androidx.cardview.widget.CardView>
 
@@ -173,7 +147,8 @@
                     android:layout_height="40dp"
                     android:text="@string/save_note"
                     android:textColor="@android:color/white"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
                     android:textAllCaps="false"
                     android:background="@drawable/button_primary"
                     android:paddingStart="24dp"
@@ -197,7 +172,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                    android:text="@string/recent_photos"
+                    android:text="@string/recent"
                 android:textColor="@color/text_dark"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
@@ -212,149 +187,12 @@
 
         </LinearLayout>
 
-        <!-- Photo Grid -->
-        <LinearLayout
+        <!-- RecyclerView for Recent Captures -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_captures"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- First Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/cyan_light"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="@string/desc_photo_1"/>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/orange_light"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="@string/desc_photo_2"/>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/green_light"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="@string/desc_photo_3"/>
-
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-
-            <!-- Second Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/purple_light"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="@string/desc_photo_4"/>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/red_light"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="@string/desc_photo_5"/>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@color/blue_light"
-                            android:scaleType="centerCrop"
-                            android:contentDescription="@string/desc_photo_6"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/photo_extra_count"
-                            android:textColor="@android:color/white"
-                            android:textSize="24sp"
-                            android:textStyle="bold"/>
-
-                    </FrameLayout>
-
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-
-        </LinearLayout>
+            android:nestedScrollingEnabled="false"/>
 
     </LinearLayout>
 

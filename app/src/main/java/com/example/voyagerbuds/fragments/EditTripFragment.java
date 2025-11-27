@@ -1,6 +1,8 @@
 package com.example.voyagerbuds.fragments;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -12,14 +14,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.database.DatabaseHelper;
 import com.example.voyagerbuds.models.Trip;
+import com.example.voyagerbuds.utils.UserSessionManager;
+import com.example.voyagerbuds.utils.ImageRandomizer;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
@@ -37,7 +48,13 @@ public class EditTripFragment extends Fragment {
     private DatabaseHelper databaseHelper;
 
     private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etParticipants, etNotes;
-    private Button btnSave;
+    private Button btnSave, btnCancel;
+    private Spinner spinnerBudgetCurrency;
+    private android.widget.ImageView imgTripPhoto;
+    private Button btnChangePhoto, btnResetPhoto;
+    private ActivityResultLauncher<String> pickImageLauncher;
+    private String newPhotoUrl = null;
+    private String budgetCurrency = "USD"; // Default currency
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -56,6 +73,20 @@ public class EditTripFragment extends Fragment {
             tripId = getArguments().getLong(ARG_TRIP_ID);
         }
         databaseHelper = new DatabaseHelper(getContext());
+
+        // Initialize image picker
+        pickImageLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri != null) {
+                try {
+                    requireContext().getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (SecurityException e) {
+                    // Ignore
+                }
+                newPhotoUrl = uri.toString();
+                loadImage(newPhotoUrl);
+            }
+        });
     }
 
     @Nullable
@@ -73,6 +104,21 @@ public class EditTripFragment extends Fragment {
         etParticipants = view.findViewById(R.id.et_participants);
         etNotes = view.findViewById(R.id.et_notes);
         btnSave = view.findViewById(R.id.btn_save);
+        btnCancel = view.findViewById(R.id.btn_cancel);
+        spinnerBudgetCurrency = view.findViewById(R.id.spinner_budget_currency);
+        imgTripPhoto = view.findViewById(R.id.img_trip_photo);
+        btnChangePhoto = view.findViewById(R.id.btn_change_photo);
+        btnResetPhoto = view.findViewById(R.id.btn_reset_photo);
+
+        // Setup currency spinner with USD and VND only
+        String[] currencies = new String[] { "USD", "VND" };
+        ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, currencies);
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBudgetCurrency.setAdapter(currencyAdapter);
+
+        // Detect default currency based on user language
+        detectDefaultCurrency();
 
         // Load Trip Data
         loadTripData();
@@ -81,6 +127,19 @@ public class EditTripFragment extends Fragment {
         etStartDate.setOnClickListener(v -> showDatePicker(etStartDate));
         etEndDate.setOnClickListener(v -> showDatePicker(etEndDate));
         btnSave.setOnClickListener(v -> saveTrip());
+        btnCancel.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+
+        if (btnChangePhoto != null) {
+            btnChangePhoto.setOnClickListener(v -> pickImageLauncher.launch("image/*"));
+        }
+
+        if (btnResetPhoto != null) {
+            btnResetPhoto.setOnClickListener(v -> {
+                // Reset to default random image
+                newPhotoUrl = ImageRandomizer.getDefaultImageName(trip.getTripId());
+                loadImage(newPhotoUrl);
+            });
+        }
 
         return view;
     }
@@ -95,9 +154,57 @@ public class EditTripFragment extends Fragment {
             etBudget.setText(String.valueOf(trip.getBudget()));
             etParticipants.setText(trip.getParticipants());
             etNotes.setText(trip.getNotes());
+
+            // Load currency
+            budgetCurrency = trip.getBudgetCurrency();
+            if (budgetCurrency == null || budgetCurrency.isEmpty()) {
+                detectDefaultCurrency();
+            } else {
+                updateCurrencySpinner();
+            }
+
+            // Load trip image
+            loadImage(trip.getPhotoUrl());
         } else {
             Toast.makeText(getContext(), getString(R.string.toast_error_loading_trip), Toast.LENGTH_SHORT).show();
             getParentFragmentManager().popBackStack();
+        }
+    }
+
+    private void loadImage(String photoUrl) {
+        if (imgTripPhoto == null)
+            return;
+
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            int drawableId = ImageRandomizer.getDrawableFromName(photoUrl);
+
+            if (drawableId != 0) {
+                // It's a default drawable resource
+                RequestOptions options = new RequestOptions()
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.voyagerbuds_nobg)
+                        .error(R.drawable.voyagerbuds_nobg);
+
+                Glide.with(this)
+                        .load(drawableId)
+                        .apply(options)
+                        .into(imgTripPhoto);
+            } else {
+                // It's a custom URI
+                RequestOptions options = new RequestOptions()
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.voyagerbuds_nobg)
+                        .error(R.drawable.voyagerbuds_nobg);
+
+                Glide.with(this)
+                        .load(Uri.parse(photoUrl))
+                        .apply(options)
+                        .into(imgTripPhoto);
+            }
+        } else {
+            imgTripPhoto.setImageResource(R.drawable.voyagerbuds_nobg);
         }
     }
 
@@ -159,7 +266,12 @@ public class EditTripFragment extends Fragment {
         }
 
         // Check for overlapping trips (excluding current trip)
-        if (!databaseHelper.isDateRangeAvailable(start, end, (int) tripId)) {
+        int userId = UserSessionManager.getCurrentUserId(getContext());
+        if (userId == -1) {
+            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!databaseHelper.isDateRangeAvailable(userId, start, end, (int) tripId)) {
             Toast.makeText(getContext(), getString(R.string.toast_trip_date_conflict), Toast.LENGTH_LONG).show();
             return;
         }
@@ -178,6 +290,10 @@ public class EditTripFragment extends Fragment {
         } catch (NumberFormatException e) {
             trip.setBudget(0.0);
         }
+
+        // Update currency from spinner
+        budgetCurrency = spinnerBudgetCurrency.getSelectedItem().toString();
+        trip.setBudgetCurrency(budgetCurrency);
 
         // Update Geolocation in background
         btnSave.setEnabled(false);
@@ -220,6 +336,11 @@ public class EditTripFragment extends Fragment {
                 trip.setMapLongitude(finalLon);
                 trip.setUpdatedAt(System.currentTimeMillis());
 
+                // Update photo URL if changed
+                if (newPhotoUrl != null) {
+                    trip.setPhotoUrl(newPhotoUrl);
+                }
+
                 int result = databaseHelper.updateTrip(trip);
 
                 if (result > 0) {
@@ -234,5 +355,32 @@ public class EditTripFragment extends Fragment {
                 }
             });
         });
+    }
+
+    /**
+     * Detect default currency based on user's language/locale
+     */
+    private void detectDefaultCurrency() {
+        String language = com.example.voyagerbuds.utils.LocaleHelper.getLanguage(requireContext());
+        if ("vi".equals(language)) {
+            budgetCurrency = "VND";
+            spinnerBudgetCurrency.setSelection(1); // VND
+        } else {
+            budgetCurrency = "USD";
+            spinnerBudgetCurrency.setSelection(0); // USD
+        }
+    }
+
+    /**
+     * Update currency spinner selection
+     */
+    private void updateCurrencySpinner() {
+        if (spinnerBudgetCurrency != null && budgetCurrency != null) {
+            if ("VND".equals(budgetCurrency)) {
+                spinnerBudgetCurrency.setSelection(1);
+            } else {
+                spinnerBudgetCurrency.setSelection(0);
+            }
+        }
     }
 }

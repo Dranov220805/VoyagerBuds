@@ -33,11 +33,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class LoginFragment extends Fragment {
 
     private static final String TAG = "LoginFragment";
     private FragmentLoginBinding binding;
+    private View loadingContainer;
 
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
@@ -61,12 +63,18 @@ public class LoginFragment extends Fragment {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         try {
                             GoogleSignInAccount account = task.getResult(ApiException.class);
-                            firebaseAuthWithGoogle(account.getIdToken(), account.getEmail());
+                            Log.d(TAG, "Google account - Email: " + account.getEmail()
+                                    + ", Name: " + account.getDisplayName());
+                            firebaseAuthWithGoogle(account.getIdToken(), account.getEmail(), account.getDisplayName());
                         } catch (ApiException e) {
                             Log.w(TAG, "Google sign in failed", e);
+                            hideLoading();
                             Toast.makeText(getContext(), getString(R.string.toast_google_sign_in_failed),
                                     Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        // User cancelled the sign-in
+                        hideLoading();
                     }
                 });
     }
@@ -83,17 +91,31 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        loadingContainer = view.findViewById(R.id.loading_container);
+
+        // Apply fade-in animation
+        view.setAlpha(0f);
+        view.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .setStartDelay(0)
+                .start();
+
         binding.btnLogin.setOnClickListener(v -> {
             String email = binding.tilEmail.getEditText().getText().toString().trim();
             String password = binding.tilPassword.getEditText().getText().toString().trim();
             if (!email.isEmpty() && !password.isEmpty()) {
+                showLoading();
                 signInWithEmailPassword(email, password);
             } else {
                 Toast.makeText(getContext(), getString(R.string.toast_enter_email_password), Toast.LENGTH_SHORT).show();
             }
         });
 
-        binding.btnGoogleLogin.setOnClickListener(v -> signInWithGoogle());
+        binding.btnGoogleLogin.setOnClickListener(v -> {
+            showLoading();
+            signInWithGoogle();
+        });
 
         binding.tvGoToRegister.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
@@ -109,25 +131,133 @@ public class LoginFragment extends Fragment {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
-                        navigateToHome();
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            // Store user data in SharedPreferences
+                            android.content.SharedPreferences.Editor editor = requireContext()
+                                    .getSharedPreferences("VoyagerBudsPrefs", android.content.Context.MODE_PRIVATE)
+                                    .edit();
+                            if (user.getEmail() != null) {
+                                editor.putString("user_email", user.getEmail());
+                            }
+                            if (user.getDisplayName() != null) {
+                                editor.putString("user_display_name", user.getDisplayName());
+                            }
+                            editor.apply();
+
+                            // Reload user to get fresh data from server
+                            user.reload().addOnCompleteListener(reloadTask -> {
+                                FirebaseUser refreshedUser = mAuth.getCurrentUser();
+                                if (refreshedUser != null) {
+                                    Log.d(TAG, "User logged in - Email: " + refreshedUser.getEmail()
+                                            + ", Name: " + refreshedUser.getDisplayName());
+                                }
+                                hideLoading();
+                                navigateToHome();
+                            });
+                        } else {
+                            hideLoading();
+                            navigateToHome();
+                        }
                     } else {
+                        hideLoading();
                         Toast.makeText(getContext(), getString(R.string.toast_auth_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void signInWithGoogle() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        googleSignInLauncher.launch(signInIntent);
+        // Sign out first to force account selection every time
+        mGoogleSignInClient.signOut().addOnCompleteListener(requireActivity(), task -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            googleSignInLauncher.launch(signInIntent);
+        });
     }
 
-    private void firebaseAuthWithGoogle(String idToken, String email) {
+    private void firebaseAuthWithGoogle(String idToken, String email, String displayName) {
+        Log.d(TAG, "Authenticating with Google - Email: " + email + ", Name: " + displayName);
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+
+                        // Get email from provider data if user.getEmail() is null
+                        String userEmail = user != null ? user.getEmail() : null;
+                        if (userEmail == null && user != null && !user.getProviderData().isEmpty()) {
+                            for (var profile : user.getProviderData()) {
+                                if (profile.getEmail() != null && !profile.getEmail().isEmpty()) {
+                                    userEmail = profile.getEmail();
+                                    Log.d(TAG, "Email found in provider data: " + userEmail);
+                                    break;
+                                }
+                            }
+                        }
+                        // If still null, use the email from GoogleSignInAccount
+                        if (userEmail == null) {
+                            userEmail = email;
+                            Log.d(TAG, "Using email from GoogleSignInAccount: " + userEmail);
+                        }
+
+                        Log.d(TAG, "Sign in successful - User email from Firebase: " + userEmail
+                                + ", Display name: " + (user != null ? user.getDisplayName() : "null"));
+
+                        if (user != null) {
+                            // Store email and display name in SharedPreferences as backup
+                            if (userEmail != null || displayName != null) {
+                                android.content.SharedPreferences.Editor editor = requireContext()
+                                        .getSharedPreferences("VoyagerBudsPrefs", android.content.Context.MODE_PRIVATE)
+                                        .edit();
+                                if (userEmail != null) {
+                                    editor.putString("user_email", userEmail);
+                                }
+                                if (displayName != null) {
+                                    editor.putString("user_display_name", displayName);
+                                }
+                                editor.apply();
+                            }
+
+                            // Update profile with display name from Google account if not already set
+                            if (user.getDisplayName() == null || user.getDisplayName().isEmpty()) {
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(displayName != null ? displayName : "User")
+                                        .build();
+                                user.updateProfile(profileUpdates).addOnCompleteListener(profileTask -> {
+                                    if (profileTask.isSuccessful()) {
+                                        // Reload to sync the updated profile
+                                        user.reload().addOnCompleteListener(reloadTask -> {
+                                            FirebaseUser refreshedUser = mAuth.getCurrentUser();
+                                            if (refreshedUser != null) {
+                                                Log.d(TAG, "Google login - Email: " + refreshedUser.getEmail()
+                                                        + ", Name: " + refreshedUser.getDisplayName());
+                                            }
+                                            hideLoading();
+                                            navigateToHome();
+                                        });
+                                    } else {
+                                        Log.e(TAG, "Failed to update profile", profileTask.getException());
+                                        hideLoading();
+                                        navigateToHome();
+                                    }
+                                });
+                                return;
+                            }
+                            // Reload user even if display name exists
+                            user.reload().addOnCompleteListener(reloadTask -> {
+                                FirebaseUser refreshedUser = mAuth.getCurrentUser();
+                                if (refreshedUser != null) {
+                                    Log.d(TAG, "Google login (existing name) - Email: " + refreshedUser.getEmail()
+                                            + ", Name: " + refreshedUser.getDisplayName());
+                                }
+                                hideLoading();
+                                navigateToHome();
+                            });
+                            return;
+                        }
+                        hideLoading();
                         navigateToHome();
                     } else {
+                        hideLoading();
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             promptForPasswordAndLink(email, credential);
                         } else {
@@ -183,6 +313,18 @@ public class LoginFragment extends Fragment {
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    private void showLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideLoading() {
+        if (loadingContainer != null) {
+            loadingContainer.setVisibility(View.GONE);
+        }
     }
 
     private void navigateToHome() {

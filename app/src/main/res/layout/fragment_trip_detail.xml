@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="?attr/colorOnSurface"
             app:title="@string/trip_details"
             app:titleCentered="true"
             app:menu="@menu/menu_trip_details" />
@@ -112,59 +113,94 @@
                     android:text="@string/notes" />
             </com.google.android.material.tabs.TabLayout>
 
-            <!-- Schedule Content -->
-            <LinearLayout
-                android:id="@+id/layout_schedule"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tv_empty_schedule"
+                <!-- Schedule Content -->
+                <LinearLayout
+                    android:id="@+id/layout_schedule"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/no_schedules_yet_add_one"
-                    android:gravity="center"
-                    android:padding="32dp"
-                    android:visibility="gone"/>
+                    android:orientation="vertical">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view_schedule"
+                    <TextView
+                        android:id="@+id/tv_empty_schedule"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/no_schedules_yet_add_one"
+                        android:gravity="center"
+                        android:padding="32dp"
+                        android:visibility="gone"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_schedule"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"/>
+
+                </LinearLayout>
+
+                <!-- Expenses Content -->
+                <LinearLayout
+                    android:id="@+id/layout_expenses"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"/>
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-            </LinearLayout>
+                    <!-- Date Selector -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_expense_dates"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="8dp"
+                        android:clipToPadding="false"/>
 
-            <!-- Expenses Content -->
-            <LinearLayout
-                android:id="@+id/layout_expenses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
+                    <!-- Date Header -->
+                    <TextView
+                        android:id="@+id/tv_expense_date_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:padding="16dp"
+                        android:textColor="?attr/colorOnSurface"/>
+
+                    <!-- Expenses List -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_expenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"/>
+
+                    <TextView
+                        android:id="@+id/tv_empty_expenses"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No expenses for this day"
+                        android:gravity="center"
+                        android:padding="32dp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <!-- Notes Content -->
+                <LinearLayout
+                    android:id="@+id/layout_notes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/expenses_coming_soon"
-                    android:gravity="center"
-                    android:padding="32dp"/>
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/notes_coming_soon"
+                        android:gravity="center"
+                        android:padding="32dp"/>
+                </LinearLayout>
 
-            <!-- Notes Content -->
-            <LinearLayout
-                android:id="@+id/layout_notes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/notes_coming_soon"
-                    android:gravity="center"
-                    android:padding="32dp"/>
-            </LinearLayout>
+            </FrameLayout>
 
             <!-- Trip Gallery -->
             <LinearLayout
@@ -182,14 +218,19 @@
                     android:text="@string/trip_gallery"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_dark"/>
+                    android:textColor="?attr/colorOnSurface"/>
 
                 <TextView
+                    android:id="@+id/btn_view_all_gallery"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/view_all"
                     android:textColor="@color/main_color_voyager"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"/>
             </LinearLayout>
 
             <HorizontalScrollView
@@ -198,32 +239,21 @@
                 android:scrollbars="none">
 
                 <LinearLayout
+                    android:id="@+id/ll_gallery_preview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="120dp"
-                        android:layout_height="160dp"
-                        android:src="@drawable/ic_photo"
-                        android:scaleType="centerCrop"
-                        android:layout_marginEnd="12dp"
-                        android:background="@drawable/rounded_corner_bg"/>
+                    <TextView
+                        android:id="@+id/tv_empty_gallery"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:gravity="center"
+                        android:text="@string/no_photos_yet"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:padding="16dp"
+                        android:visibility="gone"/>
 
-                    <ImageView
-                        android:layout_width="120dp"
-                        android:layout_height="160dp"
-                        android:src="@drawable/ic_photo"
-                        android:scaleType="centerCrop"
-                        android:layout_marginEnd="12dp"
-                        android:background="@drawable/rounded_corner_bg"/>
-
-                    <ImageView
-                        android:layout_width="120dp"
-                        android:layout_height="160dp"
-                        android:src="@drawable/ic_photo"
-                        android:scaleType="centerCrop"
-                        android:background="@drawable/rounded_corner_bg"/>
                 </LinearLayout>
             </HorizontalScrollView>
 

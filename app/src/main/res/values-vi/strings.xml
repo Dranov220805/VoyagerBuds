@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">VoyagerBuds</string>
     <string name="hello_blank_fragment">Xin chào fragment trống</string>
+    <string name="desc_network">Trạng thái mạng</string>
     <string name="profile">Hồ sơ</string>
     <string name="home">Trang chủ</string>
     <string name="search">Tìm kiếm</string>
@@ -40,6 +41,12 @@
     <string name="english">Tiếng Anh</string>
     <string name="vietnamese">Tiếng Việt</string>
     <string name="help_support">Hỗ trợ</string>
+    <string name="backup_data">Sao lưu dữ liệu</string>
+    <string name="restore_data">Khôi phục dữ liệu</string>
+    <string name="firestore_permission_denied">Quyền bị từ chối — kiểm tra quy tắc Firestore và cấu hình Firebase</string>
+    <string name="firestore_troubleshoot_title">Khắc phục lỗi quyền Firestore</string>
+    <string name="firestore_troubleshoot_message">Cấu hình Firestore của Firebase đang ngăn sao lưu. Hành động đề xuất:\n1) Bật Firestore trong Firebase Console.\n2) Xác nhận google-services.json thuộc dự án Firebase đúng.\n3) Sử dụng quy tắc Firestore cho phép người dùng đã xác thực ghi vào documents thuộc users/{uid}/trips.\n4) Nếu sử dụng Google Sign-In, đảm bảo SHA-1/256 đã được cấu hình trong Firebase Console.\n5) Đảm bảo người dùng đã đăng nhập trong ứng dụng.</string>
+    <string name="open_firebase_console">Mở Firebase Console</string>
     <string name="logout">Đăng xuất</string>
     <string name="select_language">Chọn ngôn ngữ</string>
     <string name="select_theme">Chọn giao diện</string>
@@ -64,8 +71,13 @@
     <string name="finish">Hoàn tất</string>
     <string name="discard_trip_title">Hủy tạo chuyến đi?</string>
     <string name="discard_trip_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Tiến trình sẽ bị mất.</string>
+    <string name="discard_schedule_title">Hủy thay đổi lịch trình?</string>
+    <string name="discard_schedule_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Thay đổi của bạn sẽ bị mất.</string>
+    <string name="discard_expense_title">Hủy thay đổi chi phí?</string>
+    <string name="discard_expense_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Thay đổi của bạn sẽ bị mất.</string>
     <string name="discard">Hủy</string>
     <string name="cancel">Huỷ bỏ</string>
+    <string name="done">Xong</string>
     <string name="step_progress">Bước %1$d trong %2$d</string>
     <string name="add_schedule_title">Thêm lịch trình</string>
     <string name="add_schedule_prompt">Bạn có muốn thêm lịch trình cho từng ngày của chuyến đi ngay bây giờ?</string>
@@ -78,6 +90,7 @@
     <string name="error_destination_required">Vui lòng nhập điểm đến</string>
     <string name="error_end_before_start">Ngày kết thúc không thể trước ngày bắt đầu</string>
     <string name="hint_budget">Ngân sách</string>
+    <string name="default_currency">VND</string>
 
     <!-- Schedule -->
     <string name="schedule_timeline_title">Dòng thời gian chuyến đi</string>
@@ -170,9 +183,21 @@
     <string name="full_name">Họ và tên</string>
     <string name="error_full_name_required">Vui lòng nhập họ và tên</string>
     <string name="email_address">Địa chỉ email</string>
+    <string name="confirm_password">Xác nhận mật khẩu</string>
     <string name="sign_up_with_google">Đăng ký với Google</string>
     <string name="already_have_account">Đã có tài khoản?</string>
     <string name="sign_in">Đăng nhập</string>
+    <string name="app_name_voyagerbuds">VoyagerBuds</string>
+    <string name="embark_journey">Bắt đầu hành trình tiếp theo!</string>
+    <string name="create_account_description">Tạo tài khoản để bắt đầu lên kế hoạch cho các cuộc phiêu lưu của bạn.</string>
+    <string name="or_continue_with">Hoặc tiếp tục với</string>
+    <string name="password_no_match">Mật khẩu không khớp.</string>
+    <string name="error_fill_all_fields">Vui lòng điền đầy đủ các trường.</string>
+    <string name="error_password_min_length">Mật khẩu phải có ít nhất 6 ký tự.</string>
+    <string name="email_already_registered">Email này đã được đăng ký.</string>
+    <string name="registration_failed_detail">Đăng ký thất bại: %1$s</string>
+    <string name="authentication_successful">Xác thực thành công.</string>
+    <string name="authentication_failed">Xác thực thất bại.</string>
 
     <!-- Forgot Password -->
     <string name="forgot_password_title">Quên mật khẩu?</string>
@@ -198,6 +223,8 @@
     <!-- Add Trip Screens -->
     <string name="trip_details_title">Chi tiết chuyến đi</string>
     <string name="when_traveling">Bạn đi du lịch khi nào?</string>
+    <string name="select_schedule_date">Chọn ngày lịch trình</string>
+    <string name="error_email_exists_different_provider">Email đã tồn tại</string>
     <string name="select_date">Chọn ngày</string>
     <string name="who_traveling_with">Bạn đi cùng ai?</string>
     <string name="invite_friends">Mời bạn bè</string>
@@ -307,10 +334,12 @@
     <string name="desc_photo_6">Ảnh 6</string>
 
     <!-- Capture screen -->
-    <string name="capture_header_title">Nhật ký &amp; Truyền thông du lịch</string>
+    <string name="capture_header_title">Nhật ký du lịch &amp; Thư viện</string>
     <string name="capture_header_subtitle">Ghi lại kỷ niệm và trải nghiệm của bạn</string>
     <string name="take_photo">Chụp ảnh</string>
     <string name="add_video">Thêm video</string>
+    <string name="upload">Tải lên</string>
+    <string name="recent">Gần đây</string>
     <string name="desc_close">Đóng</string>
     <string name="desc_my_location">Vị trí của tôi</string>
 
@@ -477,9 +506,38 @@
     <string name="participants">Người tham gia</string>
     <string name="expense">Chi phí</string>
     <string name="notify_before">Thông báo trước bao lâu</string>
+    <string name="notify_10_minutes">10 phút trước</string>
+    <string name="notify_30_minutes">30 phút trước</string>
+    <string name="notify_1_hour">1 giờ trước</string>
+    <string name="notify_custom">Tùy chỉnh</string>
+    <string name="custom_notification_time">Tùy chỉnh</string>
+    <string name="minutes">phút</string>
+    <string name="hours">giờ</string>
+    <string name="days">ngày</string>
     <string name="confirm">Xác nhận</string>
+
+    <!-- Expense Details Dialog -->
+    <string name="expense_details">Chi phí chi tiết</string>
+    <string name="category">Danh mục</string>
+    <string name="spent_date">Ngày chi tiêu</string>
+    <string name="delete_expense_title">Xóa Chi Phí</string>
+    <string name="delete_expense_confirm">Bạn có chắc chắn muốn xóa chi phí này không?</string>
+    <string name="expense_deleted">Đã xóa chi phí thành công</string>
+    <string name="add_expense">Thêm Chi Phí</string>
+    <string name="edit_expense">Sửa Chi Phí</string>
+    <string name="expense_added">Đã thêm chi phí thành công</string>
+    <string name="expense_updated">Đã cập nhật chi phí thành công</string>
 
     <!-- Empty schedule state -->
     <string name="schedule_no_events_today">Không có lịch trình vào hôm nay. Vui lòng tạo mới trong chuyến đi chi tiết</string>
     <string name="go_to_trip_detail">Đi tới chuyến đi chi tiết</string>
+    <string name="loading">Đang tải</string>
+    <string name="rotate_image">Xoay ảnh</string>
+    
+    <!-- Loading messages -->
+    <string name="logging_in">Đang đăng nhập...</string>
+    <string name="registering">Đang tạo tài khoản...</string>
+    <string name="change_photo">Đổi ảnh</string>
+    <string name="reset_to_default">Đặt lại mặc định</string>
+    <string name="no_photos_yet">Chưa có ảnh</string>
 </resources>

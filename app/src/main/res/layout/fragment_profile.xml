@@ -393,6 +393,122 @@
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginStart="56dp"/>
+
+                    <!-- Backup Data -->
+                    <LinearLayout
+                        android:id="@+id/btn_backup_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_clear_cache"
+                            app:tint="@color/text_medium"/>
+
+                        <TextView
+                            android:id="@+id/tv_backup_data"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/backup_data"
+                            android:textColor="@color/text_dark"
+                            android:textSize="16sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="@color/text_medium"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginStart="56dp"/>
+
+                    <!-- Restore Data -->
+                    <LinearLayout
+                        android:id="@+id/btn_restore_data"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_rotate_right"
+                            app:tint="@color/text_medium"/>
+
+                        <TextView
+                            android:id="@+id/tv_restore_data"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/restore_data"
+                            android:textColor="@color/text_dark"
+                            android:textSize="16sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="@color/text_medium"/>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider"
+                        android:layout_marginStart="56dp"/>
+
+                    <!-- Test Firestore Connection -->
+                    <LinearLayout
+                        android:id="@+id/btn_test_firestore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp"
+                        android:background="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_dialog_map"
+                            app:tint="@color/text_medium"/>
+
+                        <TextView
+                            android:id="@+id/tv_test_firestore"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Test Firestore Connection"
+                            android:textColor="@color/text_dark"
+                            android:textSize="16sp"
+                            android:layout_marginStart="16dp"/>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="@color/text_medium"/>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

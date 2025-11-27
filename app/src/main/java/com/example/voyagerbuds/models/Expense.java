@@ -8,6 +8,7 @@ public class Expense {
     private String currency;
     private String note;
     private int spentAt;
+    private String imagePaths;
 
     public Expense() {
     }
@@ -78,5 +79,13 @@ public class Expense {
 
     public void setSpentAt(int spentAt) {
         this.spentAt = spentAt;
+    }
+
+    public String getImagePaths() {
+        return imagePaths;
+    }
+
+    public void setImagePaths(String imagePaths) {
+        this.imagePaths = imagePaths;
     }
 }

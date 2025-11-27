@@ -193,6 +193,7 @@
                             android:textSize="13sp"/>
 
                         <ProgressBar
+                            android:id="@+id/pb_transport"
                             android:layout_width="0dp"
                             android:layout_height="8dp"
                             android:layout_weight="1"
@@ -202,6 +203,7 @@
                             android:progressTint="@color/main_color_voyager"/>
 
                         <TextView
+                            android:id="@+id/tv_transport_cost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_transport_cost"
@@ -228,6 +230,7 @@
                             android:textSize="13sp"/>
 
                         <ProgressBar
+                            android:id="@+id/pb_accommodation"
                             android:layout_width="0dp"
                             android:layout_height="8dp"
                             android:layout_weight="1"
@@ -237,6 +240,7 @@
                             android:progressTint="@color/orange_light"/>
 
                         <TextView
+                            android:id="@+id/tv_accommodation_cost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_hotel_cost"
@@ -262,6 +266,7 @@
                             android:textSize="13sp"/>
 
                         <ProgressBar
+                            android:id="@+id/pb_food"
                             android:layout_width="0dp"
                             android:layout_height="8dp"
                             android:layout_weight="1"
@@ -271,6 +276,7 @@
                             android:progressTint="@color/green_light"/>
 
                         <TextView
+                            android:id="@+id/tv_food_cost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/example_food_cost"
@@ -337,6 +343,7 @@
                     android:layout_marginBottom="12dp"/>
 
                 <TextView
+                    android:id="@+id/tv_last_activity"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/last_activity"

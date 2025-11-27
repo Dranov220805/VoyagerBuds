@@ -23,6 +23,7 @@ import com.example.voyagerbuds.fragments.createtrip.TripDatesFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripDestinationFragment;
 import com.example.voyagerbuds.fragments.createtrip.TripNameFragment;
 import com.example.voyagerbuds.models.Trip;
+import com.example.voyagerbuds.utils.ImageRandomizer;
 
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +44,7 @@ public class CreateTripFragment extends Fragment {
     private String notes;
     private String friends;
     private String budget;
+    private String budgetCurrency;
 
     private int currentStep = 1;
     private static final int TOTAL_STEPS = 3;
@@ -130,11 +132,12 @@ public class CreateTripFragment extends Fragment {
         fragment.setListener(new TripDestinationFragment.OnTripDestinationEnteredListener() {
             @Override
             public void onTripDestinationEntered(String dest, String tripNotes, String friendList,
-                    String budgetAmount) {
+                    String budgetAmount, String currency) {
                 destination = dest;
                 notes = tripNotes;
                 friends = friendList;
                 budget = budgetAmount;
+                budgetCurrency = currency;
                 saveTrip();
             }
 
@@ -145,7 +148,7 @@ public class CreateTripFragment extends Fragment {
         });
 
         if (destination != null) {
-            fragment.setDestination(destination, notes, friends, budget);
+            fragment.setDestination(destination, notes, friends, budget, budgetCurrency);
         }
 
         replaceChildFragment(fragment, isBack);
@@ -188,8 +191,17 @@ public class CreateTripFragment extends Fragment {
             double finalLon = lon;
 
             handler.post(() -> {
+                // Get the current logged-in user's ID from Firebase
+                int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+                if (userId == -1) {
+                    if (progressBar != null)
+                        progressBar.setIndeterminate(false);
+                    Toast.makeText(getContext(), "Error: User not logged in", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Trip trip = new Trip();
-                trip.setUserId(1); // TODO: Get from logged-in user
+                trip.setUserId(userId);
                 trip.setTripName(tripName);
                 trip.setStartDate(startDate);
                 trip.setEndDate(endDate);
@@ -208,9 +220,13 @@ public class CreateTripFragment extends Fragment {
                 if (budget != null && !budget.isEmpty()) {
                     try {
                         trip.setBudget(Double.parseDouble(budget));
+                        trip.setBudgetCurrency(budgetCurrency != null ? budgetCurrency : "USD");
                     } catch (NumberFormatException e) {
                         trip.setBudget(0.0);
+                        trip.setBudgetCurrency("USD");
                     }
+                } else {
+                    trip.setBudgetCurrency(budgetCurrency != null ? budgetCurrency : "USD");
                 }
 
                 trip.setCreatedAt(System.currentTimeMillis());
@@ -223,6 +239,14 @@ public class CreateTripFragment extends Fragment {
                     progressBar.setIndeterminate(false);
 
                 if (result > 0) {
+                    // Set default random image after trip is created
+                    Trip createdTrip = databaseHelper.getTripById((int) result);
+                    if (createdTrip != null) {
+                        String defaultImageName = ImageRandomizer.getDefaultImageName(createdTrip.getTripId());
+                        createdTrip.setPhotoUrl(defaultImageName);
+                        databaseHelper.updateTrip(createdTrip);
+                    }
+
                     isTripCreationComplete = true;
                     Toast.makeText(getContext(), R.string.trip_created, Toast.LENGTH_SHORT).show();
                     if (listener != null) {

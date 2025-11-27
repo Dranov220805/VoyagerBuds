@@ -12,10 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,8 +41,9 @@ import org.json.JSONObject;
 
 public class TripDestinationFragment extends Fragment {
 
-    private AutoCompleteTextView etDestination;
+    private MaterialAutoCompleteTextView etDestination;
     private EditText etNotes, etFriends, etBudget;
+    private Spinner spinnerBudgetCurrency;
     private Button btnFinish, btnBack;
     private OnTripDestinationEnteredListener listener;
 
@@ -48,13 +51,16 @@ public class TripDestinationFragment extends Fragment {
     private String initialNotes;
     private String initialFriends;
     private String initialBudget;
+    private String initialCurrency;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private ArrayAdapter<String> suggestionAdapter;
+    private Runnable searchRunnable;
+    private static final long DEBOUNCE_DELAY = 500; // 500ms delay
 
     public interface OnTripDestinationEnteredListener {
-        void onTripDestinationEntered(String destination, String notes, String friends, String budget);
+        void onTripDestinationEntered(String destination, String notes, String friends, String budget, String currency);
 
         void onBack();
     }
@@ -73,12 +79,29 @@ public class TripDestinationFragment extends Fragment {
         etNotes = view.findViewById(R.id.et_notes);
         etFriends = view.findViewById(R.id.et_invite_friends);
         etBudget = view.findViewById(R.id.et_budget);
+        spinnerBudgetCurrency = view.findViewById(R.id.spinner_budget_currency);
         btnFinish = view.findViewById(R.id.btn_finish);
         btnBack = view.findViewById(R.id.btn_back);
+
+        // Setup currency spinner
+        String[] currencies = new String[] { "USD", "VND" };
+        ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, currencies);
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBudgetCurrency.setAdapter(currencyAdapter);
+
+        // Auto-select currency based on language
+        String language = Locale.getDefault().getLanguage();
+        if ("vi".equals(language)) {
+            spinnerBudgetCurrency.setSelection(1); // VND
+        } else {
+            spinnerBudgetCurrency.setSelection(0); // USD
+        }
 
         suggestionAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line);
         etDestination.setAdapter(suggestionAdapter);
 
+        // Optimized autocomplete with debouncing
         etDestination.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -86,8 +109,15 @@ public class TripDestinationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Cancel previous search request
+                if (searchRunnable != null) {
+                    mainHandler.removeCallbacks(searchRunnable);
+                }
+
                 if (s.length() >= 3) {
-                    fetchSuggestions(s.toString());
+                    // Create new search request with delay
+                    searchRunnable = () -> fetchSuggestions(s.toString());
+                    mainHandler.postDelayed(searchRunnable, DEBOUNCE_DELAY);
                 }
             }
 
@@ -101,10 +131,11 @@ public class TripDestinationFragment extends Fragment {
             String notes = etNotes.getText().toString().trim();
             String friends = etFriends.getText().toString().trim();
             String budget = etBudget.getText().toString().trim();
+            String currency = spinnerBudgetCurrency.getSelectedItem().toString();
 
             if (validateInput(destination)) {
                 if (listener != null) {
-                    listener.onTripDestinationEntered(destination, notes, friends, budget);
+                    listener.onTripDestinationEntered(destination, notes, friends, budget, currency);
                 }
             }
         });
@@ -145,11 +176,12 @@ public class TripDestinationFragment extends Fragment {
         return true;
     }
 
-    public void setDestination(String destination, String notes, String friends, String budget) {
+    public void setDestination(String destination, String notes, String friends, String budget, String currency) {
         this.initialDestination = destination;
         this.initialNotes = notes;
         this.initialFriends = friends;
         this.initialBudget = budget;
+        this.initialCurrency = currency;
 
         if (etDestination != null)
             etDestination.setText(destination);
@@ -159,6 +191,13 @@ public class TripDestinationFragment extends Fragment {
             etFriends.setText(friends);
         if (etBudget != null)
             etBudget.setText(budget);
+        if (spinnerBudgetCurrency != null && currency != null) {
+            if ("VND".equals(currency)) {
+                spinnerBudgetCurrency.setSelection(1);
+            } else {
+                spinnerBudgetCurrency.setSelection(0);
+            }
+        }
     }
 
     private void fetchSuggestions(String query) {
@@ -204,5 +243,14 @@ public class TripDestinationFragment extends Fragment {
                 }
             });
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Cancel any pending search requests
+        if (searchRunnable != null) {
+            mainHandler.removeCallbacks(searchRunnable);
+        }
     }
 }

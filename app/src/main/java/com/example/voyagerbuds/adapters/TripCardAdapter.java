@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.models.Trip;
 
@@ -19,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import com.example.voyagerbuds.utils.DateUtils;
+import com.example.voyagerbuds.utils.ImageRandomizer;
 
 public class TripCardAdapter extends RecyclerView.Adapter<TripCardAdapter.TripCardViewHolder> {
 
@@ -74,13 +78,44 @@ public class TripCardAdapter extends RecyclerView.Adapter<TripCardAdapter.TripCa
                     : itemView.getContext().getString(R.string.unknown));
             tvDate.setText(formatDateRange(trip.getStartDate(), trip.getEndDate()));
 
-            // TODO: Load image using Glide/Picasso
-            if (trip.getPhotoUrl() != null && !trip.getPhotoUrl().isEmpty()) {
-                // Placeholder for now
-                imgBackground.setImageResource(R.drawable.voyagerbuds_nobg);
+            // Set background image for the trip using photoUrl if available
+            String photoUrl = trip.getPhotoUrl();
+            int backgroundImage;
+
+            if (photoUrl != null && !photoUrl.isEmpty()) {
+                backgroundImage = ImageRandomizer.getDrawableFromName(photoUrl);
+                if (backgroundImage == 0) {
+                    // It's a custom URI
+                    RequestOptions options = new RequestOptions()
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.drawable.voyagerbuds_nobg)
+                            .error(R.drawable.voyagerbuds_nobg);
+
+                    Glide.with(itemView.getContext())
+                            .load(android.net.Uri.parse(photoUrl))
+                            .apply(options)
+                            .into(imgBackground);
+
+                    itemView.setOnClickListener(v -> listener.onTripClick(trip));
+                    return;
+                }
             } else {
-                imgBackground.setImageResource(R.drawable.voyagerbuds_nobg);
+                // No photoUrl, use consistent random based on trip ID
+                backgroundImage = ImageRandomizer.getConsistentRandomBackground(trip.getTripId());
             }
+
+            // Use Glide to load images efficiently with caching and downsampling
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.voyagerbuds_nobg)
+                    .error(R.drawable.voyagerbuds_nobg);
+
+            Glide.with(itemView.getContext())
+                    .load(backgroundImage)
+                    .apply(options)
+                    .into(imgBackground);
 
             itemView.setOnClickListener(v -> listener.onTripClick(trip));
         }

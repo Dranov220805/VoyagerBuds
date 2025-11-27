@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.HorizontalScrollView;
@@ -25,6 +26,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.AutoTransition;
+import androidx.transition.TransitionManager;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.adapters.ScheduleAdapter;
@@ -42,6 +45,7 @@ import java.time.ZoneId;
 import com.example.voyagerbuds.utils.DateUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +55,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.example.voyagerbuds.adapters.ExpenseDateAdapter;
+import java.util.Calendar;
 
 public class ScheduleFragment extends Fragment {
 
@@ -72,15 +79,20 @@ public class ScheduleFragment extends Fragment {
     private LinearLayout layoutEmptyState;
     private com.google.android.material.button.MaterialButton btnGoToTripDetail;
     private RecyclerView recyclerView;
-    private HorizontalScrollView scrollDateChips;
-    private LinearLayout layoutDateChips;
+    private RecyclerView rvDateChips;
 
     private ScheduleDayAdapter dayAdapter;
+    private ExpenseDateAdapter dateAdapter;
     private DatabaseHelper databaseHelper;
     private final List<Trip> trips = new ArrayList<>();
     private Trip selectedTrip;
     private String selectedDate = null;
     private List<String> tripDates = new ArrayList<>();
+    private List<Date> dateList = new ArrayList<>();
+
+    private java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors
+            .newSingleThreadExecutor();
+    private android.os.Handler mainHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
     public ScheduleFragment() {
         // Required empty public constructor
@@ -139,8 +151,7 @@ public class ScheduleFragment extends Fragment {
         layoutEmptyState = view.findViewById(R.id.layout_schedule_empty_state);
         btnGoToTripDetail = view.findViewById(R.id.btn_go_to_trip_detail);
         recyclerView = view.findViewById(R.id.recycler_view_schedule);
-        scrollDateChips = view.findViewById(R.id.scroll_date_chips);
-        layoutDateChips = view.findViewById(R.id.layout_date_chips);
+        rvDateChips = view.findViewById(R.id.rv_date_chips);
 
         btnGoToTripDetail.setOnClickListener(v -> {
             if (selectedTrip != null) {
@@ -158,6 +169,8 @@ public class ScheduleFragment extends Fragment {
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView
+                .setLayoutAnimation(AnimationUtils.loadLayoutAnimation(getContext(), R.anim.layout_animation_slide_in));
         dayAdapter = new ScheduleDayAdapter(requireContext(), new ArrayList<>(),
                 new ScheduleAdapter.OnScheduleActionListener() {
                     @Override
@@ -183,8 +196,10 @@ public class ScheduleFragment extends Fragment {
 
     private void loadCurrentTrip() {
         trips.clear();
-        // TODO replace with logged-in user id when authentication is ready
-        trips.addAll(databaseHelper.getAllTrips(1));
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId != -1) {
+            trips.addAll(databaseHelper.getAllTrips(userId));
+        }
 
         // Sort trips by start date in ascending order (earliest upcoming trips first)
         Collections.sort(trips, new Comparator<Trip>() {
@@ -253,11 +268,11 @@ public class ScheduleFragment extends Fragment {
             tripId = selectedTrip.getTripId();
             selectedDate = null;
             tripDates.clear();
-            loadSchedulesForSelectedTrip();
+            loadSchedulesForSelectedTrip(true);
         } else {
             dayAdapter.updateGroups(new ArrayList<>());
             showEmptyState("No current trip happening now.");
-            scrollDateChips.setVisibility(View.GONE);
+            rvDateChips.setVisibility(View.GONE);
         }
     }
 
@@ -298,7 +313,7 @@ public class ScheduleFragment extends Fragment {
                         tripId = selectedTrip.getTripId();
                         selectedDate = null;
                         tripDates.clear();
-                        loadSchedulesForSelectedTrip();
+                        loadSchedulesForSelectedTrip(true);
                     }
                 }
             }
@@ -310,11 +325,11 @@ public class ScheduleFragment extends Fragment {
         });
     }
 
-    private void loadSchedulesForSelectedTrip() {
+    private void loadSchedulesForSelectedTrip(boolean animateLayout) {
         if (selectedTrip == null) {
             showEmptyState(getString(R.string.schedule_no_trips_prompt));
             dayAdapter.updateGroups(new ArrayList<>());
-            scrollDateChips.setVisibility(View.GONE);
+            rvDateChips.setVisibility(View.GONE);
             return;
         }
 
@@ -345,7 +360,7 @@ public class ScheduleFragment extends Fragment {
                 showEmptyState(getString(R.string.schedule_no_events_for_trip, selectedTrip.getTripName()));
             }
             dayAdapter.updateGroups(new ArrayList<>());
-            scrollDateChips.setVisibility(View.GONE);
+            rvDateChips.setVisibility(View.GONE);
             return;
         }
 
@@ -361,25 +376,28 @@ public class ScheduleFragment extends Fragment {
 
         List<ScheduleDayGroup> groups = groupSchedulesByDay(scheduleItems);
         dayAdapter.updateGroups(groups);
+        if (animateLayout) {
+            recyclerView.scheduleLayoutAnimation();
+        }
         dayAdapter.setSelectedDateKey(selectedDate);
         showScheduleList();
     }
 
     private void generateDateChips() {
         if (selectedTrip == null) {
-            scrollDateChips.setVisibility(View.GONE);
+            rvDateChips.setVisibility(View.GONE);
             return;
         }
 
-        layoutDateChips.removeAllViews();
         tripDates.clear();
+        dateList.clear();
 
         try {
             LocalDate startDate = DateUtils.parseDbDateToLocalDate(selectedTrip.getStartDate());
             LocalDate endDate = DateUtils.parseDbDateToLocalDate(selectedTrip.getEndDate());
 
             if (startDate == null || endDate == null) {
-                scrollDateChips.setVisibility(View.GONE);
+                rvDateChips.setVisibility(View.GONE);
                 return;
             }
             LocalDate cur = startDate;
@@ -388,13 +406,19 @@ public class ScheduleFragment extends Fragment {
                 tripDates.add(dateKey);
 
                 java.util.Date displayDate = java.util.Date.from(cur.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                LinearLayout chip = createCompactDateChip(displayDate, dateKey);
-                layoutDateChips.addView(chip);
+                dateList.add(displayDate);
 
                 cur = cur.plusDays(1);
             }
 
-            scrollDateChips.setVisibility(View.VISIBLE);
+            rvDateChips.setVisibility(View.VISIBLE);
+            rvDateChips.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+            dateAdapter = new ExpenseDateAdapter(getContext(), dateList, (date, position) -> {
+                String dateKey = tripDates.get(position);
+                selectDate(dateKey);
+            });
+            rvDateChips.setAdapter(dateAdapter);
 
             // Auto-select current date if it's within trip range, otherwise select first
             // date
@@ -412,111 +436,39 @@ public class ScheduleFragment extends Fragment {
 
         } catch (Exception e) {
             e.printStackTrace();
-            scrollDateChips.setVisibility(View.GONE);
+            rvDateChips.setVisibility(View.GONE);
         }
-    }
-
-    private LinearLayout createCompactDateChip(Date date, String dateKey) {
-        LinearLayout chipContainer = new LinearLayout(requireContext());
-        chipContainer.setOrientation(LinearLayout.VERTICAL);
-        chipContainer.setPadding(24, 16, 24, 16);
-        chipContainer.setClickable(true);
-        chipContainer.setFocusable(true);
-        chipContainer.setGravity(android.view.Gravity.CENTER);
-
-        // Get localized weekday abbreviation from strings
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.setTime(date);
-        int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK);
-        String weekdayKey;
-        switch (dayOfWeek) {
-            case java.util.Calendar.MONDAY:
-                weekdayKey = "weekday_mon_short";
-                break;
-            case java.util.Calendar.TUESDAY:
-                weekdayKey = "weekday_tue_short";
-                break;
-            case java.util.Calendar.WEDNESDAY:
-                weekdayKey = "weekday_wed_short";
-                break;
-            case java.util.Calendar.THURSDAY:
-                weekdayKey = "weekday_thu_short";
-                break;
-            case java.util.Calendar.FRIDAY:
-                weekdayKey = "weekday_fri_short";
-                break;
-            case java.util.Calendar.SATURDAY:
-                weekdayKey = "weekday_sat_short";
-                break;
-            case java.util.Calendar.SUNDAY:
-                weekdayKey = "weekday_sun_short";
-                break;
-            default:
-                weekdayKey = "weekday_mon_short";
-        }
-
-        int resId = getResources().getIdentifier(weekdayKey, "string", requireContext().getPackageName());
-        String weekdayText = resId != 0 ? getString(resId) : "";
-
-        TextView weekdayView = new TextView(requireContext());
-        weekdayView.setText(weekdayText);
-        weekdayView.setTextSize(12);
-        weekdayView.setGravity(android.view.Gravity.CENTER);
-
-        TextView dayNumberView = new TextView(requireContext());
-        dayNumberView.setText(String.valueOf(cal.get(java.util.Calendar.DAY_OF_MONTH)));
-        dayNumberView.setTextSize(18);
-        dayNumberView.setTypeface(null, android.graphics.Typeface.BOLD);
-        dayNumberView.setGravity(android.view.Gravity.CENTER);
-
-        chipContainer.addView(weekdayView);
-        chipContainer.addView(dayNumberView);
-
-        // Set initial style (unselected)
-        chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
-        weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_medium));
-        dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_dark));
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMarginEnd(12);
-        chipContainer.setLayoutParams(params);
-
-        chipContainer.setOnClickListener(v -> selectDate(dateKey));
-
-        return chipContainer;
     }
 
     private void selectDate(String dateKey) {
+        String previousSelected = selectedDate;
         selectedDate = dateKey;
 
-        // Update chip styles
-        for (int i = 0; i < layoutDateChips.getChildCount(); i++) {
-            View child = layoutDateChips.getChildAt(i);
-            if (child instanceof LinearLayout) {
-                LinearLayout chipContainer = (LinearLayout) child;
-                String chipDateKey = tripDates.get(i);
-
-                TextView weekdayView = (TextView) chipContainer.getChildAt(0);
-                TextView dayNumberView = (TextView) chipContainer.getChildAt(1);
-
-                if (chipDateKey.equals(dateKey)) {
-                    // Selected style - teal background
-                    chipContainer.setBackgroundResource(R.drawable.chip_bg_selected);
-                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-                } else {
-                    // Unselected style - neutral background
-                    chipContainer.setBackgroundResource(R.drawable.chip_bg_white);
-                    weekdayView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_medium));
-                    dayNumberView.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_dark));
-                }
-            }
+        // Update adapter selection
+        if (dateAdapter != null && tripDates.contains(dateKey)) {
+            int index = tripDates.indexOf(dateKey);
+            dateAdapter.setSelectedPosition(index);
+            rvDateChips.smoothScrollToPosition(index);
         }
 
-        // Reload schedules for selected date
-        loadSchedulesForSelectedTrip();
+        // Determine direction (kept for reference or future use, but not used for fade)
+        // boolean movingRight = true;
+        // if (previousSelected != null && dateKey != null) {
+        // movingRight = dateKey.compareTo(previousSelected) > 0;
+        // }
+
+        // Animate list change with Fade
+        recyclerView.animate()
+                .alpha(0f)
+                .setDuration(150)
+                .withEndAction(() -> {
+                    loadSchedulesForSelectedTrip(false);
+                    recyclerView.animate()
+                            .alpha(1f)
+                            .setDuration(150)
+                            .start();
+                })
+                .start();
     }
 
     private String getCurrentDateKey() {
@@ -677,15 +629,11 @@ public class ScheduleFragment extends Fragment {
         EditText etTitle = dialogView.findViewById(R.id.et_detail_title);
         EditText etTime = dialogView.findViewById(R.id.et_detail_time);
         EditText etLocation = dialogView.findViewById(R.id.et_detail_location);
+        TextInputLayout layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
         EditText etNotes = dialogView.findViewById(R.id.et_detail_notes);
+        TextInputLayout layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
+        TextInputLayout layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
         EditText etParticipants = dialogView.findViewById(R.id.et_detail_participants);
-        EditText etExpense = dialogView.findViewById(R.id.et_detail_expense);
-
-        View layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
-        View layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
-        View layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
-        View layoutExpense = dialogView.findViewById(R.id.layout_detail_expense_input);
-
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_detail_images);
         View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
         View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
@@ -728,15 +676,47 @@ public class ScheduleFragment extends Fragment {
             layoutParticipants.setVisibility(View.GONE);
         }
 
-        if (item.getExpenseAmount() > 0) {
-            String currency = item.getExpenseCurrency() != null ? item.getExpenseCurrency() : "USD";
-            etExpense.setText(String.format(Locale.getDefault(), "%.2f %s", item.getExpenseAmount(), currency));
-            layoutExpense.setVisibility(View.VISIBLE);
-        } else {
-            layoutExpense.setVisibility(View.GONE);
+        /*
+         * if (item.getExpenseAmount() > 0) {
+         * String currency = item.getExpenseCurrency() != null ?
+         * item.getExpenseCurrency() : "USD";
+         * etExpense.setText(String.format(Locale.getDefault(), "%.2f %s",
+         * item.getExpenseAmount(), currency));
+         * layoutExpense.setVisibility(View.VISIBLE);
+         * } else {
+         * layoutExpense.setVisibility(View.GONE);
+         * }
+         */
+
+        List<String> imagePathList = new ArrayList<>();
+        String paths = item.getImagePaths();
+        if (paths != null && !paths.isEmpty()) {
+            try {
+                org.json.JSONArray jsonArray = new org.json.JSONArray(paths);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    imagePathList.add(jsonArray.getString(i));
+                }
+            } catch (Exception e) {
+                // Try comma separated
+                String[] parts = paths.split(",");
+                for (String part : parts) {
+                    if (!part.trim().isEmpty()) {
+                        imagePathList.add(part.trim());
+                    }
+                }
+            }
         }
 
-        // TODO: Load images into rvImages
+        if (!imagePathList.isEmpty()) {
+            rvImages.setVisibility(View.VISIBLE);
+            rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            com.example.voyagerbuds.adapters.ScheduleImageAdapter imageAdapter = new com.example.voyagerbuds.adapters.ScheduleImageAdapter(
+                    requireContext(), imagePathList, false, null);
+            imageAdapter.setOnImageClickListener(this::showFullImageDialog);
+            rvImages.setAdapter(imageAdapter);
+        } else {
+            rvImages.setVisibility(View.GONE);
+        }
 
         // When this dialog is shown from the Schedule fragment, we do not want to allow
         // editing or deleting directly from here. Allow these actions only from Trip
@@ -796,7 +776,7 @@ public class ScheduleFragment extends Fragment {
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
                     databaseHelper.deleteSchedule(item.getId());
                     Toast.makeText(getContext(), R.string.schedule_deleted, Toast.LENGTH_SHORT).show();
-                    loadSchedulesForSelectedTrip();
+                    loadSchedulesForSelectedTrip(true);
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -836,11 +816,15 @@ public class ScheduleFragment extends Fragment {
                 }
                 args.putString("pin_time", time);
 
-                if (item.getExpenseAmount() > 0) {
-                    String currency = item.getExpenseCurrency() != null ? item.getExpenseCurrency() : "USD";
-                    String budget = String.format(Locale.getDefault(), "%.2f %s", item.getExpenseAmount(), currency);
-                    args.putString("pin_budget", budget);
-                }
+                /*
+                 * if (item.getExpenseAmount() > 0) {
+                 * String currency = item.getExpenseCurrency() != null ?
+                 * item.getExpenseCurrency() : "USD";
+                 * String budget = String.format(Locale.getDefault(), "%.2f %s",
+                 * item.getExpenseAmount(), currency);
+                 * args.putString("pin_budget", budget);
+                 * }
+                 */
 
                 mapFragment.setArguments(args);
 
@@ -855,5 +839,68 @@ public class ScheduleFragment extends Fragment {
             e.printStackTrace();
             Toast.makeText(getContext(), R.string.geocoding_error, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showFullImageDialog(String imagePath) {
+        android.app.Dialog fullImageDialog = new android.app.Dialog(requireContext(),
+                android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        fullImageDialog.setContentView(R.layout.dialog_full_image);
+
+        com.example.voyagerbuds.views.ZoomableImageView ivFullImage = fullImageDialog.findViewById(R.id.iv_full_image);
+        android.widget.ImageButton btnClose = fullImageDialog.findViewById(R.id.btn_close_full_image);
+        android.widget.ImageButton btnRotate = fullImageDialog.findViewById(R.id.btn_rotate_full_image);
+        android.view.View loadingContainer = fullImageDialog.findViewById(R.id.loading_container);
+
+        loadingContainer.setVisibility(View.VISIBLE);
+
+        executorService.execute(() -> {
+            android.graphics.Bitmap bitmap = null;
+            try {
+                android.net.Uri uri;
+                if (imagePath.startsWith("content://") || imagePath.startsWith("file://")) {
+                    uri = android.net.Uri.parse(imagePath);
+                } else {
+                    uri = android.net.Uri.fromFile(new java.io.File(imagePath));
+                }
+
+                android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                int reqWidth = metrics.widthPixels;
+                int reqHeight = metrics.heightPixels;
+
+                android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                java.io.InputStream input = requireContext().getContentResolver().openInputStream(uri);
+                android.graphics.BitmapFactory.decodeStream(input, null, options);
+                if (input != null)
+                    input.close();
+
+                options.inSampleSize = com.example.voyagerbuds.utils.ImageUtils.calculateInSampleSize(options, reqWidth,
+                        reqHeight);
+                options.inJustDecodeBounds = false;
+
+                input = requireContext().getContentResolver().openInputStream(uri);
+                bitmap = android.graphics.BitmapFactory.decodeStream(input, null, options);
+                if (input != null)
+                    input.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            final android.graphics.Bitmap finalBitmap = bitmap;
+            mainHandler.post(() -> {
+                loadingContainer.setVisibility(View.GONE);
+                if (finalBitmap != null) {
+                    ivFullImage.setImageBitmap(finalBitmap);
+                } else {
+                    ivFullImage.setImageResource(android.R.drawable.ic_menu_report_image);
+                }
+            });
+        });
+
+        btnClose.setOnClickListener(v -> fullImageDialog.dismiss());
+        btnRotate.setOnClickListener(v -> ivFullImage.rotate());
+
+        fullImageDialog.show();
     }
 }

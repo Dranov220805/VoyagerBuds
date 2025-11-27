@@ -411,8 +411,9 @@ public class MapFragment extends Fragment {
     }
 
     private void loadUserTrips() {
-        // Use userId = 1 as in HomeFragment
-        int userId = 1;
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId == -1)
+            return;
         List<Trip> trips = databaseHelper.getAllTrips(userId);
 
         for (Trip trip : trips) {
