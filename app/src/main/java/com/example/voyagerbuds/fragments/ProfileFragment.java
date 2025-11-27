@@ -23,6 +23,7 @@ import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.activities.LoginActivity;
 import com.example.voyagerbuds.utils.LocaleHelper;
 import com.example.voyagerbuds.utils.ThemeHelper;
+import com.example.voyagerbuds.database.DatabaseHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -44,6 +45,9 @@ public class ProfileFragment extends Fragment {
     private TextView tvLanguageLabel;
     private TextView tvThemeLabel;
     private TextView tvHelp;
+    private LinearLayout btnBackupData;
+    private LinearLayout btnRestoreData;
+    private LinearLayout btnTestFirestore;
     private TextView tvUserName;
     private TextView tvUserEmail;
     private FirebaseAuth mAuth;
@@ -87,6 +91,9 @@ public class ProfileFragment extends Fragment {
         tvLanguageLabel = view.findViewById(R.id.tv_language_label);
         tvThemeLabel = view.findViewById(R.id.tv_theme_label);
         tvHelp = view.findViewById(R.id.tv_help);
+        btnBackupData = view.findViewById(R.id.btn_backup_data);
+        btnRestoreData = view.findViewById(R.id.btn_restore_data);
+        btnTestFirestore = view.findViewById(R.id.btn_test_firestore);
 
         // Setup Notifications Switch
         SharedPreferences prefs = requireContext().getSharedPreferences("VoyagerBudsPrefs", Context.MODE_PRIVATE);
@@ -123,6 +130,211 @@ public class ProfileFragment extends Fragment {
 
         // Update user name and email display
         updateUserDisplay();
+
+        // Setup backup/restore click handlers
+        btnBackupData.setOnClickListener(v -> {
+            if (!com.example.voyagerbuds.utils.UserSessionManager.isUserLoggedIn()) {
+                android.widget.Toast
+                        .makeText(getContext(), "Please log in to back up data", android.widget.Toast.LENGTH_SHORT)
+                        .show();
+                return;
+            }
+
+            android.app.AlertDialog progress = new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Backing Up")
+                    .setMessage("Please wait while we upload data to Firebase...")
+                    .setCancelable(false)
+                    .create();
+            progress.show();
+
+            DatabaseHelper dbHelper = new DatabaseHelper(requireContext());
+            com.example.voyagerbuds.firebase.FirebaseBackupManager.backupAllData(requireContext(), mAuth, dbHelper,
+                    new com.example.voyagerbuds.firebase.FirebaseBackupManager.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            progress.dismiss();
+                            android.widget.Toast.makeText(requireContext(), "Backup completed successfully",
+                                    android.widget.Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            progress.dismiss();
+                            android.util.Log.w("ProfileFragment", "Backup failed: " + error);
+                            if (error != null && error.toLowerCase().contains("permission denied")) {
+                                // Show troubleshooting dialog with direct action to open Firebase console
+                                new android.app.AlertDialog.Builder(requireContext())
+                                        .setTitle(getString(R.string.firestore_troubleshoot_title))
+                                        .setMessage(getString(R.string.firestore_troubleshoot_message))
+                                        .setPositiveButton(getString(R.string.open_firebase_console), (d, w) -> {
+                                            android.content.Intent intent = new android.content.Intent(
+                                                    android.content.Intent.ACTION_VIEW);
+                                            intent.setData(
+                                                    android.net.Uri.parse("https://console.firebase.google.com/"));
+                                            startActivity(intent);
+                                        })
+                                        .setNeutralButton("Copy error", (d, w) -> {
+                                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext()
+                                                    .getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                            android.content.ClipData clip = android.content.ClipData
+                                                    .newPlainText("backup_error", error);
+                                            if (clipboard != null)
+                                                clipboard.setPrimaryClip(clip);
+                                            android.widget.Toast.makeText(requireContext(), "Copied to clipboard",
+                                                    android.widget.Toast.LENGTH_SHORT).show();
+                                        })
+                                        .setNegativeButton("OK", null)
+                                        .show();
+                            } else {
+                                // General error dialog with copy option
+                                new android.app.AlertDialog.Builder(requireContext())
+                                        .setTitle("Backup Failed")
+                                        .setMessage(error)
+                                        .setPositiveButton("Copy details", (d, w) -> {
+                                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext()
+                                                    .getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                            android.content.ClipData clip = android.content.ClipData
+                                                    .newPlainText("backup_error", error);
+                                            if (clipboard != null)
+                                                clipboard.setPrimaryClip(clip);
+                                            android.widget.Toast.makeText(requireContext(), "Copied to clipboard",
+                                                    android.widget.Toast.LENGTH_SHORT).show();
+                                        })
+                                        .setNegativeButton("OK", null)
+                                        .show();
+                            }
+                        }
+                    });
+        });
+
+        btnRestoreData.setOnClickListener(v -> {
+            if (!com.example.voyagerbuds.utils.UserSessionManager.isUserLoggedIn()) {
+                android.widget.Toast
+                        .makeText(getContext(), "Please log in to restore data", android.widget.Toast.LENGTH_SHORT)
+                        .show();
+                return;
+            }
+
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Restore Data")
+                    .setMessage(
+                            "This will import data from your Firebase backup and append it to local data. Continue?")
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        android.app.AlertDialog progress = new android.app.AlertDialog.Builder(requireContext())
+                                .setTitle("Restoring")
+                                .setMessage("Please wait while we download your backup...")
+                                .setCancelable(false)
+                                .create();
+                        progress.show();
+                        DatabaseHelper dbHelper = new DatabaseHelper(requireContext());
+                        com.example.voyagerbuds.firebase.FirebaseBackupManager.restoreAllData(requireContext(), mAuth,
+                                dbHelper, new com.example.voyagerbuds.firebase.FirebaseBackupManager.Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        progress.dismiss();
+                                        android.widget.Toast.makeText(requireContext(), "Restore completed",
+                                                android.widget.Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onFailure(String error) {
+                                        progress.dismiss();
+                                        android.util.Log.w("ProfileFragment", "Restore failed: " + error);
+                                        if (error != null && error.toLowerCase().contains("permission denied")) {
+                                            new android.app.AlertDialog.Builder(requireContext())
+                                                    .setTitle(getString(R.string.firestore_troubleshoot_title))
+                                                    .setMessage(getString(R.string.firestore_troubleshoot_message))
+                                                    .setPositiveButton(getString(R.string.open_firebase_console),
+                                                            (d, w) -> {
+                                                                android.content.Intent intent = new android.content.Intent(
+                                                                        android.content.Intent.ACTION_VIEW);
+                                                                intent.setData(android.net.Uri
+                                                                        .parse("https://console.firebase.google.com/"));
+                                                                startActivity(intent);
+                                                            })
+                                                    .setNeutralButton("Copy error", (d, w) -> {
+                                                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext()
+                                                                .getSystemService(
+                                                                        android.content.Context.CLIPBOARD_SERVICE);
+                                                        android.content.ClipData clip = android.content.ClipData
+                                                                .newPlainText("restore_error", error);
+                                                        if (clipboard != null)
+                                                            clipboard.setPrimaryClip(clip);
+                                                        android.widget.Toast
+                                                                .makeText(requireContext(), "Copied to clipboard",
+                                                                        android.widget.Toast.LENGTH_SHORT)
+                                                                .show();
+                                                    })
+                                                    .setNegativeButton("OK", null)
+                                                    .show();
+                                        } else {
+                                            new android.app.AlertDialog.Builder(requireContext())
+                                                    .setTitle("Restore Failed")
+                                                    .setMessage(error)
+                                                    .setPositiveButton("Copy details", (d, w) -> {
+                                                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext()
+                                                                .getSystemService(
+                                                                        android.content.Context.CLIPBOARD_SERVICE);
+                                                        android.content.ClipData clip = android.content.ClipData
+                                                                .newPlainText("restore_error", error);
+                                                        if (clipboard != null)
+                                                            clipboard.setPrimaryClip(clip);
+                                                        android.widget.Toast
+                                                                .makeText(requireContext(), "Copied to clipboard",
+                                                                        android.widget.Toast.LENGTH_SHORT)
+                                                                .show();
+                                                    })
+                                                    .setNegativeButton("OK", null)
+                                                    .show();
+                                        }
+
+                                    }
+                                });
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+        });
+
+        btnTestFirestore.setOnClickListener(v -> {
+            // Run the preflight test only
+            DatabaseHelper dbHelper = new DatabaseHelper(requireContext());
+            com.example.voyagerbuds.firebase.FirebaseBackupManager.preflightCheck(requireContext(), mAuth, dbHelper,
+                    new com.example.voyagerbuds.firebase.FirebaseBackupManager.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            // Include UID and Project ID in success dialog for diagnostics
+                            String uid = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : "(none)";
+                            String projectId = com.google.firebase.FirebaseApp.getInstance().getOptions()
+                                    .getProjectId();
+                            String message = "Preflight check successful — you can write to Firestore.\nUID: " + uid
+                                    + "\nProject ID: " + projectId;
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Firestore Test")
+                                    .setMessage(message)
+                                    .setPositiveButton("Copy", (d, w) -> {
+                                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext()
+                                                .getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                                        android.content.ClipData clip = android.content.ClipData
+                                                .newPlainText("firestore_test_success", message);
+                                        if (clipboard != null)
+                                            clipboard.setPrimaryClip(clip);
+                                        android.widget.Toast.makeText(requireContext(), "Copied details",
+                                                android.widget.Toast.LENGTH_SHORT).show();
+                                    })
+                                    .setNegativeButton(android.R.string.ok, null)
+                                    .show();
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Firestore Test Failed")
+                                    .setMessage(error)
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .show();
+                        }
+                    });
+        });
     }
 
     private void updateLanguageDisplay() {

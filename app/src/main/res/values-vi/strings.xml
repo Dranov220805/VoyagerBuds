@@ -41,6 +41,12 @@
     <string name="english">Tiếng Anh</string>
     <string name="vietnamese">Tiếng Việt</string>
     <string name="help_support">Hỗ trợ</string>
+    <string name="backup_data">Sao lưu dữ liệu</string>
+    <string name="restore_data">Khôi phục dữ liệu</string>
+    <string name="firestore_permission_denied">Quyền bị từ chối — kiểm tra quy tắc Firestore và cấu hình Firebase</string>
+    <string name="firestore_troubleshoot_title">Khắc phục lỗi quyền Firestore</string>
+    <string name="firestore_troubleshoot_message">Cấu hình Firestore của Firebase đang ngăn sao lưu. Hành động đề xuất:\n1) Bật Firestore trong Firebase Console.\n2) Xác nhận google-services.json thuộc dự án Firebase đúng.\n3) Sử dụng quy tắc Firestore cho phép người dùng đã xác thực ghi vào documents thuộc users/{uid}/trips.\n4) Nếu sử dụng Google Sign-In, đảm bảo SHA-1/256 đã được cấu hình trong Firebase Console.\n5) Đảm bảo người dùng đã đăng nhập trong ứng dụng.</string>
+    <string name="open_firebase_console">Mở Firebase Console</string>
     <string name="logout">Đăng xuất</string>
     <string name="select_language">Chọn ngôn ngữ</string>
     <string name="select_theme">Chọn giao diện</string>

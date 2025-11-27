@@ -41,6 +41,12 @@
     <string name="english">English</string>
     <string name="vietnamese">Vietnamese</string>
     <string name="help_support">Help &amp; Support</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="restore_data">Restore Data</string>
+    <string name="firestore_permission_denied">Permission denied — check Firestore rules and Firebase configuration</string>
+    <string name="firestore_troubleshoot_title">Troubleshooting Firestore Permissions</string>
+    <string name="firestore_troubleshoot_message">Your Firebase Firestore configuration is preventing backup. Suggested actions:\n1) Ensure Firestore is enabled in the Firebase Console.\n2) Confirm google-services.json matches the Firebase project.\n3) Use Firestore security rules to allow authenticated users to write to their own user document (users/{uid}/trips).\n4) If using Google Sign-In, ensure SHA-1/256 fingerprints are set in Firebase console.\n5) Ensure the user is signed in in the app.</string>
+    <string name="open_firebase_console">Open Firebase Console</string>
     <string name="logout">Logout</string>
     <string name="select_language">Select Language</string>
     <string name="select_theme">Select Theme</string>
