@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.EditText;
@@ -41,7 +41,7 @@ import org.json.JSONObject;
 
 public class TripDestinationFragment extends Fragment {
 
-    private AutoCompleteTextView etDestination;
+    private MaterialAutoCompleteTextView etDestination;
     private EditText etNotes, etFriends, etBudget;
     private Spinner spinnerBudgetCurrency;
     private Button btnFinish, btnBack;

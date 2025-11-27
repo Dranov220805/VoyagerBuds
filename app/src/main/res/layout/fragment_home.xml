@@ -32,10 +32,27 @@
             android:ellipsize="end"
             android:maxLines="1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/profile_icon"
+            app:layout_constraintEnd_toStartOf="@+id/network_icon"
             android:layout_marginEnd="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Network Icon -->
+        <ImageView
+            android:id="@+id/network_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_wifi_off"
+            android:contentDescription="@string/desc_network"
+            android:layout_marginEnd="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:tint="@color/icon_tint_gray"
+            app:layout_constraintEnd_toStartOf="@+id/profile_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Profile Icon -->
         <ImageView

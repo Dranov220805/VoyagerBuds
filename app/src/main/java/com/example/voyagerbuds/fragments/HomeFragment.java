@@ -3,6 +3,14 @@ package com.example.voyagerbuds.fragments;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.content.res.ColorStateList;
+import androidx.core.content.ContextCompat;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -70,6 +78,11 @@ public class HomeFragment extends Fragment
     private TextView tvHeroTripExpenses;
     private TextView tvCurrentTripHeader;
     private com.google.android.material.floatingactionbutton.FloatingActionButton fabAddTrip;
+    // Network icon and connectivity
+    private ImageView networkIcon;
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // New Sections
     private RecyclerView recyclerViewUpcomingTrips;
@@ -123,6 +136,18 @@ public class HomeFragment extends Fragment
         tvHeroTripSchedule = view.findViewById(R.id.tv_hero_trip_schedule);
         tvHeroTripExpenses = view.findViewById(R.id.tv_hero_trip_expenses);
         fabAddTrip = view.findViewById(R.id.fab_add_trip);
+
+        // Initialize network icon
+        networkIcon = view.findViewById(R.id.network_icon);
+        if (networkIcon != null) {
+            networkIcon.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+                    startActivity(intent);
+                } catch (Exception ignored) {
+                }
+            });
+        }
 
         // Initialize profile icon
         ImageView profileIcon = view.findViewById(R.id.profile_icon);
@@ -216,6 +241,40 @@ public class HomeFragment extends Fragment
 
         // Load trips
         loadTrips();
+
+        // Initialize connectivity manager and register network callback for updates
+        if (connectivityManager == null) {
+            connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        }
+
+        if (networkCallback == null) {
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    super.onAvailable(network);
+                    mainHandler.post(() -> updateNetworkIcon(true));
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    super.onLost(network);
+                    mainHandler.post(() -> updateNetworkIcon(false));
+                }
+            };
+        }
+
+        try {
+            if (connectivityManager != null && networkCallback != null) {
+                NetworkRequest request = new NetworkRequest.Builder()
+                        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                        .build();
+                connectivityManager.registerNetworkCallback(request, networkCallback);
+            }
+        } catch (Exception ignored) {
+        }
+
+        // Set icon to initial state
+        updateNetworkIcon(isConnected());
 
         // Fade-in animation for Home fragment root view
         view.setAlpha(0f);
@@ -369,6 +428,36 @@ public class HomeFragment extends Fragment
             }
         } catch (Exception ignored) {
         }
+        // Unregister network callback when fragment is paused to avoid leaks
+        try {
+            if (connectivityManager != null && networkCallback != null) {
+                connectivityManager.unregisterNetworkCallback(networkCallback);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isConnected() {
+        if (connectivityManager == null)
+            return false;
+        try {
+            Network network = connectivityManager.getActiveNetwork();
+            if (network == null)
+                return false;
+            NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(network);
+            return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void updateNetworkIcon(boolean connected) {
+        if (networkIcon == null)
+            return;
+        int color = ContextCompat.getColor(requireContext(),
+                connected ? R.color.main_color_voyager : R.color.icon_tint_gray);
+        networkIcon.setImageResource(connected ? R.drawable.ic_wifi : R.drawable.ic_wifi_off);
+        networkIcon.setImageTintList(ColorStateList.valueOf(color));
     }
 
     private Trip findCurrentTrip() {

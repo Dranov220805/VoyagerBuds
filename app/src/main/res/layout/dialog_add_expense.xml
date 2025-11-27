@@ -103,7 +103,7 @@
                 <Spinner
                     android:id="@+id/spinner_expense_currency"
                     android:layout_width="100dp"
-                    android:layout_height="56dp"
+                    android:layout_height="50dp"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/spinner_background"
                     android:paddingStart="12dp"
