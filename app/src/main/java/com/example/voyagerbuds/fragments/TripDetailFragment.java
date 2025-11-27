@@ -5,9 +5,11 @@ import android.view.animation.AnimationUtils;
 import androidx.transition.TransitionManager;
 import androidx.transition.AutoTransition;
 import android.Manifest;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -25,6 +27,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -551,6 +554,9 @@ public class TripDetailFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_schedule, null);
         bottomSheetDialog.setContentView(dialogView);
 
+        // Track if changes have been made
+        final boolean[] hasUnsavedChanges = { false };
+
         // Configure BottomSheet Behavior
         bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
         // bottomSheetDialog.getBehavior().setDraggable(false); // Removed to fix swipe
@@ -584,7 +590,13 @@ public class TripDetailFragment extends Fragment {
          * });
          */
 
-        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        btnClose.setOnClickListener(v -> {
+            if (hasUnsavedChanges[0]) {
+                showDiscardScheduleDialog(() -> bottomSheetDialog.dismiss());
+            } else {
+                bottomSheetDialog.dismiss();
+            }
+        });
 
         TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etDay = dialogView.findViewById(R.id.et_schedule_day);
@@ -611,12 +623,40 @@ public class TripDetailFragment extends Fragment {
         tempImageAdapter = new ScheduleImageAdapter(getContext(), tempImagePaths, true, position -> {
             tempImagePaths.remove(position);
             tempImageAdapter.notifyItemRemoved(position);
+            hasUnsavedChanges[0] = true;
         });
         tempImageAdapter.setOnImageRotationListener(this::rotateImage);
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvImages.setAdapter(tempImageAdapter);
 
-        btnAddImage.setOnClickListener(v -> showImageSourceDialog());
+        // Track changes in all input fields
+        TextWatcher changeWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                hasUnsavedChanges[0] = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        etDay.addTextChangedListener(changeWatcher);
+        etStartTime.addTextChangedListener(changeWatcher);
+        etEndTime.addTextChangedListener(changeWatcher);
+        etTitle.addTextChangedListener(changeWatcher);
+        etNotes.addTextChangedListener(changeWatcher);
+        etLocation.addTextChangedListener(changeWatcher);
+        etParticipants.addTextChangedListener(changeWatcher);
+        etNotifyBefore.addTextChangedListener(changeWatcher);
+
+        btnAddImage.setOnClickListener(v -> {
+            hasUnsavedChanges[0] = true;
+            showImageSourceDialog();
+        });
 
         if (editing != null) {
             etDay.setText(editing.getDay());
@@ -627,7 +667,7 @@ public class TripDetailFragment extends Fragment {
             etLocation.setText(editing.getLocation());
             etParticipants.setText(editing.getParticipants());
             if (editing.getNotifyBeforeMinutes() > 0) {
-                etNotifyBefore.setText(String.valueOf(editing.getNotifyBeforeMinutes()));
+                etNotifyBefore.setText(formatNotificationTime(editing.getNotifyBeforeMinutes()));
             }
             tvDialogTitle.setText(R.string.schedule_edit_title);
         } else {
@@ -665,27 +705,7 @@ public class TripDetailFragment extends Fragment {
         });
 
         etNotifyBefore.setOnClickListener(v -> {
-            int currentMinutes = 0;
-            try {
-                String val = etNotifyBefore.getText().toString();
-                if (!val.isEmpty()) {
-                    currentMinutes = Integer.parseInt(val);
-                }
-            } catch (NumberFormatException e) {
-                // Ignore
-            }
-
-            int hour = currentMinutes / 60;
-            int minute = currentMinutes % 60;
-
-            TimePickerDialog tp = new TimePickerDialog(requireContext(),
-                    (view14, h, m) -> {
-                        int totalMinutes = h * 60 + m;
-                        etNotifyBefore.setText(String.valueOf(totalMinutes));
-                    },
-                    hour, minute, true);
-            tp.setTitle(getString(R.string.notify_before));
-            tp.show();
+            showNotifyBeforeMenu(etNotifyBefore);
         });
 
         btnSave.setOnClickListener(v -> {
@@ -700,11 +720,7 @@ public class TripDetailFragment extends Fragment {
 
             int notifyBeforeMinutes = 0;
             if (!notifyBeforeStr.isEmpty()) {
-                try {
-                    notifyBeforeMinutes = Integer.parseInt(notifyBeforeStr);
-                } catch (NumberFormatException e) {
-                    // Ignore
-                }
+                notifyBeforeMinutes = parseNotificationTime(notifyBeforeStr);
             }
 
             if (title.isEmpty()) {
@@ -747,6 +763,7 @@ public class TripDetailFragment extends Fragment {
                             loadSchedules();
                             loadGalleryPreview(rootView);
                             notifyGalleryRefresh();
+                            hasUnsavedChanges[0] = false;
                             bottomSheetDialog.dismiss();
                         });
                     } catch (Exception e) {
@@ -784,6 +801,7 @@ public class TripDetailFragment extends Fragment {
                             loadSchedules();
                             loadGalleryPreview(rootView);
                             notifyGalleryRefresh();
+                            hasUnsavedChanges[0] = false;
                             bottomSheetDialog.dismiss();
                         });
                     } catch (Exception e) {
@@ -799,7 +817,181 @@ public class TripDetailFragment extends Fragment {
             }
         });
 
+        // Handle back button or outside touch dismiss
+        bottomSheetDialog.setOnCancelListener(dialog -> {
+            if (hasUnsavedChanges[0]) {
+                showDiscardScheduleDialog(() -> bottomSheetDialog.dismiss());
+            }
+        });
+
         bottomSheetDialog.show();
+    }
+
+    private void showDiscardScheduleDialog(Runnable onConfirm) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.discard_schedule_title)
+                .setMessage(R.string.discard_schedule_message)
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
+                    onConfirm.run();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setIcon(R.drawable.ic_warning)
+                .show();
+    }
+
+    private void showNotifyBeforeMenu(EditText targetField) {
+        String[] options = new String[] {
+                getString(R.string.notify_10_minutes),
+                getString(R.string.notify_30_minutes),
+                getString(R.string.notify_1_hour),
+                getString(R.string.notify_custom)
+        };
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                requireContext());
+
+        builder.setTitle(R.string.notify_before)
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0: // 10 minutes
+                            targetField.setText(formatNotificationTime(10));
+                            break;
+                        case 1: // 30 minutes
+                            targetField.setText(formatNotificationTime(30));
+                            break;
+                        case 2: // 1 hour
+                            targetField.setText(formatNotificationTime(60));
+                            break;
+                        case 3: // Custom
+                            showCustomNotificationPicker(targetField);
+                            break;
+                    }
+                })
+                .show();
+    }
+
+    private void showCustomNotificationPicker(EditText targetField) {
+        View pickerView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_custom_notification, null);
+
+        NumberPicker numberPicker = pickerView.findViewById(R.id.number_picker);
+        NumberPicker unitPicker = pickerView.findViewById(R.id.unit_picker);
+
+        // Setup number picker (1-60 for minutes/hours, 1-30 for days)
+        numberPicker.setMinValue(1);
+        numberPicker.setMaxValue(60);
+        numberPicker.setValue(30);
+        numberPicker.setWrapSelectorWheel(false);
+
+        // Setup unit picker (minutes, hours, days)
+        String[] units = new String[] {
+                getString(R.string.minutes),
+                getString(R.string.hours),
+                getString(R.string.days)
+        };
+        unitPicker.setMinValue(0);
+        unitPicker.setMaxValue(units.length - 1);
+        unitPicker.setDisplayedValues(units);
+        unitPicker.setValue(0); // Default to minutes
+        unitPicker.setWrapSelectorWheel(false);
+
+        // Adjust number picker range based on unit selection
+        unitPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            if (newVal == 2) { // days
+                numberPicker.setMaxValue(30);
+                if (numberPicker.getValue() > 30) {
+                    numberPicker.setValue(30);
+                }
+            } else {
+                numberPicker.setMaxValue(60);
+            }
+        });
+
+        // Apply entrance animation
+        pickerView.setAlpha(0f);
+        pickerView.setTranslationY(50f);
+        pickerView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(250)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(
+                requireContext());
+
+        androidx.appcompat.app.AlertDialog dialog = builder
+                .setView(pickerView)
+                .setPositiveButton(R.string.done, (d, which) -> {
+                    int number = numberPicker.getValue();
+                    int unit = unitPicker.getValue();
+                    int totalMinutes;
+
+                    switch (unit) {
+                        case 0: // minutes
+                            totalMinutes = number;
+                            break;
+                        case 1: // hours
+                            totalMinutes = number * 60;
+                            break;
+                        case 2: // days
+                            totalMinutes = number * 60 * 24;
+                            break;
+                        default:
+                            totalMinutes = number;
+                    }
+
+                    targetField.setText(formatNotificationTime(totalMinutes));
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.bg_dialog_rounded))
+                .create();
+
+        // Show dialog
+        dialog.show();
+
+        // Style the buttons
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.main_color_voyager));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.text_medium));
+    }
+
+    private String formatNotificationTime(int minutes) {
+        if (minutes < 60) {
+            return minutes + " " + getString(R.string.minutes);
+        } else if (minutes < 1440) { // Less than a day
+            int hours = minutes / 60;
+            return hours + " " + getString(R.string.hours);
+        } else {
+            int days = minutes / 1440;
+            return days + " " + getString(R.string.days);
+        }
+    }
+
+    private int parseNotificationTime(String formatted) {
+        try {
+            String[] parts = formatted.trim().split(" ");
+            if (parts.length >= 2) {
+                int number = Integer.parseInt(parts[0]);
+                String unit = parts[1].toLowerCase();
+
+                if (unit.contains(getString(R.string.hours).toLowerCase()) || unit.contains("hour")
+                        || unit.contains("giờ")) {
+                    return number * 60;
+                } else if (unit.contains(getString(R.string.days).toLowerCase()) || unit.contains("day")
+                        || unit.contains("ngày")) {
+                    return number * 60 * 24;
+                } else {
+                    return number; // minutes
+                }
+            }
+            // Try parsing as plain number (legacy format)
+            return Integer.parseInt(formatted);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void deleteSchedule(ScheduleItem item) {
@@ -1639,10 +1831,19 @@ public class TripDetailFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_expense, null);
         bottomSheetDialog.setContentView(dialogView);
 
+        // Track if changes have been made
+        final boolean[] hasUnsavedChanges = { false };
+
         bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
 
         View btnClose = dialogView.findViewById(R.id.btn_close_sheet);
-        btnClose.setOnClickListener(v -> bottomSheetDialog.dismiss());
+        btnClose.setOnClickListener(v -> {
+            if (hasUnsavedChanges[0]) {
+                showDiscardExpenseDialog(() -> bottomSheetDialog.dismiss());
+            } else {
+                bottomSheetDialog.dismiss();
+            }
+        });
 
         TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
         EditText etName = dialogView.findViewById(R.id.et_expense_name);
@@ -1687,12 +1888,46 @@ public class TripDetailFragment extends Fragment {
         tempImageAdapter = new ScheduleImageAdapter(getContext(), tempImagePaths, true, position -> {
             tempImagePaths.remove(position);
             tempImageAdapter.notifyItemRemoved(position);
+            hasUnsavedChanges[0] = true;
         });
         tempImageAdapter.setOnImageRotationListener(this::rotateImage);
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvImages.setAdapter(tempImageAdapter);
 
-        btnAddImage.setOnClickListener(v -> showImageSourceDialog());
+        // Track changes in all input fields
+        TextWatcher changeWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                hasUnsavedChanges[0] = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        etName.addTextChangedListener(changeWatcher);
+        etAmount.addTextChangedListener(changeWatcher);
+        etDate.addTextChangedListener(changeWatcher);
+        etNote.addTextChangedListener(changeWatcher);
+        spinnerCurrency.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                hasUnsavedChanges[0] = true;
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
+
+        btnAddImage.setOnClickListener(v -> {
+            hasUnsavedChanges[0] = true;
+            showImageSourceDialog();
+        });
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -1783,7 +2018,19 @@ public class TripDetailFragment extends Fragment {
                 return;
             }
 
-            double amount = Double.parseDouble(amountStr);
+            // Parse amount - handle both comma and period as decimal separators
+            double amount;
+            try {
+                // Replace comma with period for proper parsing
+                String normalizedAmount = amountStr.replace(",", ".");
+                // Remove any grouping separators (spaces, apostrophes)
+                normalizedAmount = normalizedAmount.replaceAll("[\\s']", "");
+                amount = Double.parseDouble(normalizedAmount);
+            } catch (NumberFormatException e) {
+                etAmount.setError("Invalid amount format");
+                return;
+            }
+
             int spentAt = 0;
             try {
                 Date date = sdf.parse(dateStr);
@@ -1830,6 +2077,7 @@ public class TripDetailFragment extends Fragment {
                             if (loadingView != null)
                                 loadingView.setVisibility(View.GONE);
                             btnSave.setEnabled(true);
+                            hasUnsavedChanges[0] = false;
                             bottomSheetDialog.dismiss();
                             loadExpenses();
                             loadGalleryPreview(rootView);
@@ -1862,6 +2110,7 @@ public class TripDetailFragment extends Fragment {
                             if (loadingView != null)
                                 loadingView.setVisibility(View.GONE);
                             btnSave.setEnabled(true);
+                            hasUnsavedChanges[0] = false;
                             bottomSheetDialog.dismiss();
                             loadExpenses();
                             loadGalleryPreview(rootView);
@@ -1881,7 +2130,28 @@ public class TripDetailFragment extends Fragment {
             }
         });
 
+        // Handle back button or outside touch dismiss
+        bottomSheetDialog.setOnCancelListener(dialog -> {
+            if (hasUnsavedChanges[0]) {
+                showDiscardExpenseDialog(() -> bottomSheetDialog.dismiss());
+            }
+        });
+
         bottomSheetDialog.show();
+    }
+
+    private void showDiscardExpenseDialog(Runnable onConfirm) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.discard_expense_title)
+                .setMessage(R.string.discard_expense_message)
+                .setPositiveButton(R.string.discard, (dialog, which) -> {
+                    onConfirm.run();
+                })
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setIcon(R.drawable.ic_warning)
+                .show();
     }
 
     /**

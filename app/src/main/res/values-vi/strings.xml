@@ -64,8 +64,13 @@
     <string name="finish">Hoàn tất</string>
     <string name="discard_trip_title">Hủy tạo chuyến đi?</string>
     <string name="discard_trip_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Tiến trình sẽ bị mất.</string>
+    <string name="discard_schedule_title">Hủy thay đổi lịch trình?</string>
+    <string name="discard_schedule_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Thay đổi của bạn sẽ bị mất.</string>
+    <string name="discard_expense_title">Hủy thay đổi chi phí?</string>
+    <string name="discard_expense_message">Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không? Thay đổi của bạn sẽ bị mất.</string>
     <string name="discard">Hủy</string>
     <string name="cancel">Huỷ bỏ</string>
+    <string name="done">Xong</string>
     <string name="step_progress">Bước %1$d trong %2$d</string>
     <string name="add_schedule_title">Thêm lịch trình</string>
     <string name="add_schedule_prompt">Bạn có muốn thêm lịch trình cho từng ngày của chuyến đi ngay bây giờ?</string>
@@ -78,6 +83,7 @@
     <string name="error_destination_required">Vui lòng nhập điểm đến</string>
     <string name="error_end_before_start">Ngày kết thúc không thể trước ngày bắt đầu</string>
     <string name="hint_budget">Ngân sách</string>
+    <string name="default_currency">VND</string>
 
     <!-- Schedule -->
     <string name="schedule_timeline_title">Dòng thời gian chuyến đi</string>
@@ -493,6 +499,14 @@
     <string name="participants">Người tham gia</string>
     <string name="expense">Chi phí</string>
     <string name="notify_before">Thông báo trước bao lâu</string>
+    <string name="notify_10_minutes">10 phút trước</string>
+    <string name="notify_30_minutes">30 phút trước</string>
+    <string name="notify_1_hour">1 giờ trước</string>
+    <string name="notify_custom">Tùy chỉnh</string>
+    <string name="custom_notification_time">Tùy chỉnh</string>
+    <string name="minutes">phút</string>
+    <string name="hours">giờ</string>
+    <string name="days">ngày</string>
     <string name="confirm">Xác nhận</string>
 
     <!-- Expense Details Dialog -->
@@ -516,4 +530,6 @@
     <!-- Loading messages -->
     <string name="logging_in">Đang đăng nhập...</string>
     <string name="registering">Đang tạo tài khoản...</string>
+    <string name="change_photo">Đổi ảnh</string>
+    <string name="reset_to_default">Đặt lại mặc định</string>
 </resources>

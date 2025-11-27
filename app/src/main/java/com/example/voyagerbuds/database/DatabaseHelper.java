@@ -22,8 +22,8 @@ import java.util.List;
  * operations.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "voyagerbuds.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final String DATABASE_NAME = "VoyagerBuds.db";
+    private static final int DATABASE_VERSION = 11;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -221,6 +221,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 10) {
             // Create Captures table for photo/video diary entries
+            String CREATE_CAPTURES_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_CAPTURES + "("
+                    + COLUMN_CAPTURE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_CAPTURE_USER_ID + " INTEGER,"
+                    + COLUMN_CAPTURE_TRIP_ID + " INTEGER,"
+                    + COLUMN_MEDIA_PATH + " TEXT NOT NULL,"
+                    + COLUMN_MEDIA_TYPE + " TEXT,"
+                    + COLUMN_CAPTURE_DESCRIPTION + " TEXT,"
+                    + COLUMN_CAPTURED_AT + " INTEGER,"
+                    + COLUMN_CAPTURE_CREATED_AT + " INTEGER,"
+                    + COLUMN_CAPTURE_UPDATED_AT + " INTEGER,"
+                    + "FOREIGN KEY(" + COLUMN_CAPTURE_TRIP_ID + ") REFERENCES "
+                    + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
+                    + ")";
+            db.execSQL(CREATE_CAPTURES_TABLE);
+        }
+        if (oldVersion < 11) {
+            // Ensure Captures table exists (safety check for version 11)
             String CREATE_CAPTURES_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_CAPTURES + "("
                     + COLUMN_CAPTURE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_CAPTURE_USER_ID + " INTEGER,"

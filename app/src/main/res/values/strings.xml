@@ -64,8 +64,13 @@
     <string name="finish">Finish</string>
     <string name="discard_trip_title">Discard Trip Creation?</string>
     <string name="discard_trip_message">You have unsaved changes. Are you sure you want to leave? Your progress will be lost.</string>
+    <string name="discard_schedule_title">Discard Schedule Changes?</string>
+    <string name="discard_schedule_message">You have unsaved changes. Are you sure you want to leave? Your changes will be lost.</string>
+    <string name="discard_expense_title">Discard Expense Changes?</string>
+    <string name="discard_expense_message">You have unsaved changes. Are you sure you want to leave? Your changes will be lost.</string>
     <string name="discard">Discard</string>
     <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
     <string name="step_progress">Step %1$d of %2$d</string>
     <string name="add_schedule_title">Add Schedule</string>
     <string name="add_schedule_prompt">Would you like to add a schedule for each day of your trip now?</string>
@@ -78,6 +83,7 @@
     <string name="error_destination_required">Destination is required</string>
     <string name="error_end_before_start">End date cannot be before start date</string>
     <string name="hint_budget">Budget</string>
+    <string name="default_currency">USD</string>
     <string name="error_full_name_required">Full name is required</string>
     <string name="error_email_required">Email is required</string>
     <string name="error_password_required">Password is required</string>
@@ -458,6 +464,7 @@
     <string name="label_total_expenses">Total Expenses: </string>
     <string name="example_money_2500">$2500</string>
     <string name="captured_memories">Captured Memories</string>
+    <string name="show_more">Show More</string>
     <string name="desc_add_trip">Add Trip</string>
     <string name="example_trip_name_kyoto">Summer in Kyoto</string>
     <string name="example_trip_subtitle_kyoto">A 10-day adventure to Kyoto.</string>
@@ -487,6 +494,14 @@
     <string name="participants">Participants</string>
     <string name="expense">Expense</string>
     <string name="notify_before">Notify before</string>
+    <string name="notify_10_minutes">10 minutes before</string>
+    <string name="notify_30_minutes">30 minutes before</string>
+    <string name="notify_1_hour">1 hour before</string>
+    <string name="notify_custom">Custom</string>
+    <string name="custom_notification_time">Custom</string>
+    <string name="minutes">minutes</string>
+    <string name="hours">hours</string>
+    <string name="days">days</string>
     <string name="confirm">Confirm</string>
 
     <!-- Expense Details Dialog -->
@@ -510,4 +525,6 @@
     <!-- Loading messages -->
     <string name="logging_in">Logging in...</string>
     <string name="registering">Creating your account...</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="reset_to_default">Reset to Default</string>
 </resources>

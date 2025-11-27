@@ -86,6 +86,7 @@ public class HomeFragment extends Fragment
     private MemoryAdapter memoryAdapter;
     private List<MemoryAdapter.MemoryItem> memoryList;
     private TextView tvMemoriesHeader;
+    private TextView tvShowMoreMemories;
 
     // Receiver used to detect device date/time changes and refresh trips
     // automatically
@@ -142,6 +143,7 @@ public class HomeFragment extends Fragment
 
         recyclerViewMemories = view.findViewById(R.id.recycler_view_memories);
         tvMemoriesHeader = view.findViewById(R.id.tv_memories_header);
+        tvShowMoreMemories = view.findViewById(R.id.tv_show_more_memories);
 
         // Setup Upcoming Trips RecyclerView
         recyclerViewUpcomingTrips
@@ -166,12 +168,51 @@ public class HomeFragment extends Fragment
         recyclerViewMemories.setHasFixedSize(true);
         recyclerViewMemories.setItemViewCacheSize(20);
         memoryList = new ArrayList<>();
-        // Add dummy memories for now
-        memoryList.add(new MemoryAdapter.MemoryItem("Eiffel Tower Sparkle", R.drawable.voyagerbuds));
-        memoryList.add(new MemoryAdapter.MemoryItem("Mona Lisa Moment", R.drawable.voyagerbuds));
-        memoryList.add(new MemoryAdapter.MemoryItem("Parisian Cafe Vibes", R.drawable.voyagerbuds));
-        memoryAdapter = new MemoryAdapter(getContext(), memoryList);
+        memoryAdapter = new MemoryAdapter(getContext(), memoryList, new MemoryAdapter.OnMemoryClickListener() {
+            @Override
+            public void onMemoryClick(MemoryAdapter.MemoryItem memoryItem) {
+                // Navigate to capture fragment for the trip
+                if (memoryItem.tripId > 0) {
+                    CaptureFragment captureFragment = CaptureFragment.newInstance(memoryItem.tripId);
+                    getParentFragmentManager().beginTransaction()
+                            .setCustomAnimations(
+                                    R.anim.slide_in_right,
+                                    R.anim.slide_out_left,
+                                    R.anim.slide_in_left,
+                                    R.anim.slide_out_right)
+                            .replace(R.id.content_container, captureFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
         recyclerViewMemories.setAdapter(memoryAdapter);
+
+        // Setup Show More click listener
+        if (tvShowMoreMemories != null) {
+            tvShowMoreMemories.setOnClickListener(v -> {
+                // Find the most recent trip with captures to open gallery
+                Trip recentTripWithCaptures = findRecentTripWithCaptures();
+                if (recentTripWithCaptures != null) {
+                    // Open Trip Gallery Fragment
+                    TripGalleryFragment galleryFragment = TripGalleryFragment
+                            .newInstance(recentTripWithCaptures.getTripId());
+                    getParentFragmentManager().beginTransaction()
+                            .setCustomAnimations(
+                                    R.anim.slide_in_right,
+                                    R.anim.slide_out_left,
+                                    R.anim.slide_in_left,
+                                    R.anim.slide_out_right)
+                            .replace(R.id.content_container, galleryFragment)
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    // No captures yet - encourage user to start capturing
+                    Toast.makeText(getContext(), "Start capturing memories from your trips!", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
+        }
 
         // Load trips
         loadTrips();
@@ -413,13 +454,7 @@ public class HomeFragment extends Fragment
         }
 
         // 4. Memories Section
-        if (!memoryList.isEmpty()) {
-            tvMemoriesHeader.setVisibility(View.VISIBLE);
-            recyclerViewMemories.setVisibility(View.VISIBLE);
-        } else {
-            tvMemoriesHeader.setVisibility(View.GONE);
-            recyclerViewMemories.setVisibility(View.GONE);
-        }
+        loadCaptureMemories();
     }
 
     private void displayHeroTrip(Trip trip, boolean isCurrentTrip) {
@@ -632,5 +667,140 @@ public class HomeFragment extends Fragment
 
     // onRequestPermissionsResult intentionally removed; HomeFragment no longer
     // requests location
+
+    /**
+     * Load capture memories from recent trips with event tags from schedule
+     */
+    private void loadCaptureMemories() {
+        memoryList.clear();
+
+        int userId = com.example.voyagerbuds.utils.UserSessionManager.getCurrentUserId(requireContext());
+        if (userId == -1) {
+            updateMemoriesVisibility();
+            return;
+        }
+
+        // Get recent trips (current + past trips, limit to 5 most recent)
+        List<Trip> recentTrips = new ArrayList<>();
+        if (displayedHeroTrip != null && isCurrentTrip(displayedHeroTrip)) {
+            recentTrips.add(displayedHeroTrip);
+        }
+        // Add recent past trips
+        int tripsToAdd = Math.min(4, pastTripList.size());
+        for (int i = 0; i < tripsToAdd; i++) {
+            recentTrips.add(pastTripList.get(i));
+        }
+
+        // Load captures from recent trips (limit to 6 total memories for grid)
+        int memoriesLoaded = 0;
+        int maxMemories = 6;
+
+        for (Trip trip : recentTrips) {
+            if (memoriesLoaded >= maxMemories)
+                break;
+
+            // Get recent captures for this trip
+            List<com.example.voyagerbuds.models.Capture> captures = databaseHelper
+                    .getRecentCapturesForTrip(trip.getTripId(), maxMemories - memoriesLoaded);
+
+            // Get schedule items for this trip to extract event tags
+            List<com.example.voyagerbuds.models.ScheduleItem> scheduleItems = databaseHelper
+                    .getSchedulesForTrip(trip.getTripId());
+
+            for (com.example.voyagerbuds.models.Capture capture : captures) {
+                if (memoriesLoaded >= maxMemories)
+                    break;
+
+                // Find matching schedule item based on capture time/date
+                String eventTag = findMatchingEventTag(capture, scheduleItems, trip);
+                if (eventTag == null || eventTag.isEmpty()) {
+                    eventTag = trip.getTripName(); // Fallback to trip name
+                }
+
+                MemoryAdapter.MemoryItem memoryItem = new MemoryAdapter.MemoryItem(
+                        eventTag,
+                        0, // No resource ID for real photos
+                        capture.getMediaPath(),
+                        trip.getTripId());
+                memoryList.add(memoryItem);
+                memoriesLoaded++;
+            }
+        }
+
+        memoryAdapter.notifyDataSetChanged();
+        updateMemoriesVisibility();
+    }
+
+    /**
+     * Find matching event tag from schedule items based on capture time
+     */
+    private String findMatchingEventTag(com.example.voyagerbuds.models.Capture capture,
+            List<com.example.voyagerbuds.models.ScheduleItem> scheduleItems,
+            Trip trip) {
+        if (scheduleItems == null || scheduleItems.isEmpty()) {
+            return trip.getTripName();
+        }
+
+        // Convert capture timestamp to date
+        java.util.Date captureDate = new java.util.Date(capture.getCapturedAt());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String captureDateStr = dateFormat.format(captureDate);
+
+        // Try to find a schedule item on the same day
+        for (com.example.voyagerbuds.models.ScheduleItem item : scheduleItems) {
+            if (item.getDay() != null && item.getDay().equals(captureDateStr)) {
+                return item.getTitle();
+            }
+        }
+
+        // If no exact match, return the first schedule item or trip name
+        if (!scheduleItems.isEmpty()) {
+            return scheduleItems.get(0).getTitle();
+        }
+
+        return trip.getTripName();
+    }
+
+    /**
+     * Update visibility of memories section based on data availability
+     */
+    private void updateMemoriesVisibility() {
+        if (!memoryList.isEmpty()) {
+            tvMemoriesHeader.setVisibility(View.VISIBLE);
+            recyclerViewMemories.setVisibility(View.VISIBLE);
+            if (tvShowMoreMemories != null) {
+                tvShowMoreMemories.setVisibility(View.VISIBLE);
+            }
+        } else {
+            tvMemoriesHeader.setVisibility(View.GONE);
+            recyclerViewMemories.setVisibility(View.GONE);
+            if (tvShowMoreMemories != null) {
+                tvShowMoreMemories.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * Find the most recent trip that has captures for gallery viewing
+     */
+    private Trip findRecentTripWithCaptures() {
+        // Check current trip first
+        if (displayedHeroTrip != null) {
+            int captureCount = databaseHelper.getCaptureCountForTrip(displayedHeroTrip.getTripId());
+            if (captureCount > 0) {
+                return displayedHeroTrip;
+            }
+        }
+
+        // Check past trips (already sorted by most recent first)
+        for (Trip trip : pastTripList) {
+            int captureCount = databaseHelper.getCaptureCountForTrip(trip.getTripId());
+            if (captureCount > 0) {
+                return trip;
+            }
+        }
+
+        return null;
+    }
 
 }

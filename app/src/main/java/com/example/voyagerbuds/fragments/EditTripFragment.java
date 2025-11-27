@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,10 +49,12 @@ public class EditTripFragment extends Fragment {
 
     private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etParticipants, etNotes;
     private Button btnSave, btnCancel;
+    private Spinner spinnerBudgetCurrency;
     private android.widget.ImageView imgTripPhoto;
     private Button btnChangePhoto, btnResetPhoto;
     private ActivityResultLauncher<String> pickImageLauncher;
     private String newPhotoUrl = null;
+    private String budgetCurrency = "USD"; // Default currency
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
@@ -101,9 +105,20 @@ public class EditTripFragment extends Fragment {
         etNotes = view.findViewById(R.id.et_notes);
         btnSave = view.findViewById(R.id.btn_save);
         btnCancel = view.findViewById(R.id.btn_cancel);
+        spinnerBudgetCurrency = view.findViewById(R.id.spinner_budget_currency);
         imgTripPhoto = view.findViewById(R.id.img_trip_photo);
         btnChangePhoto = view.findViewById(R.id.btn_change_photo);
         btnResetPhoto = view.findViewById(R.id.btn_reset_photo);
+
+        // Setup currency spinner with USD and VND only
+        String[] currencies = new String[] { "USD", "VND" };
+        ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, currencies);
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBudgetCurrency.setAdapter(currencyAdapter);
+
+        // Detect default currency based on user language
+        detectDefaultCurrency();
 
         // Load Trip Data
         loadTripData();
@@ -139,6 +154,14 @@ public class EditTripFragment extends Fragment {
             etBudget.setText(String.valueOf(trip.getBudget()));
             etParticipants.setText(trip.getParticipants());
             etNotes.setText(trip.getNotes());
+
+            // Load currency
+            budgetCurrency = trip.getBudgetCurrency();
+            if (budgetCurrency == null || budgetCurrency.isEmpty()) {
+                detectDefaultCurrency();
+            } else {
+                updateCurrencySpinner();
+            }
 
             // Load trip image
             loadImage(trip.getPhotoUrl());
@@ -268,6 +291,10 @@ public class EditTripFragment extends Fragment {
             trip.setBudget(0.0);
         }
 
+        // Update currency from spinner
+        budgetCurrency = spinnerBudgetCurrency.getSelectedItem().toString();
+        trip.setBudgetCurrency(budgetCurrency);
+
         // Update Geolocation in background
         btnSave.setEnabled(false);
         btnSave.setText(R.string.saving);
@@ -328,5 +355,32 @@ public class EditTripFragment extends Fragment {
                 }
             });
         });
+    }
+
+    /**
+     * Detect default currency based on user's language/locale
+     */
+    private void detectDefaultCurrency() {
+        String language = com.example.voyagerbuds.utils.LocaleHelper.getLanguage(requireContext());
+        if ("vi".equals(language)) {
+            budgetCurrency = "VND";
+            spinnerBudgetCurrency.setSelection(1); // VND
+        } else {
+            budgetCurrency = "USD";
+            spinnerBudgetCurrency.setSelection(0); // USD
+        }
+    }
+
+    /**
+     * Update currency spinner selection
+     */
+    private void updateCurrencySpinner() {
+        if (spinnerBudgetCurrency != null && budgetCurrency != null) {
+            if ("VND".equals(budgetCurrency)) {
+                spinnerBudgetCurrency.setSelection(1);
+            } else {
+                spinnerBudgetCurrency.setSelection(0);
+            }
+        }
     }
 }
