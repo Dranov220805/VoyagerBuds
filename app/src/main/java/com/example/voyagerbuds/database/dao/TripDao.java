@@ -224,4 +224,38 @@ public class TripDao {
         trip.setParticipants(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PARTICIPANTS)));
         return trip;
     }
+
+    /**
+     * Generate a trip code for sharing/joining
+     * Format: TRIPNAME_TRIPID_HASH
+     * Example: PARIS_15_K8X3
+     */
+    public static String generateTripCode(String tripName, int tripId) {
+        // Get first few letters from trip name
+        String namePrefix = tripName.replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
+        if (namePrefix.length() > 5) {
+            namePrefix = namePrefix.substring(0, 5);
+        }
+
+        // Generate random hash
+        String hash = generateRandomHash(4);
+
+        return namePrefix + "_" + tripId + "_" + hash;
+    }
+
+    /**
+     * Generate a random alphanumeric hash
+     */
+    private static String generateRandomHash(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder hash = new StringBuilder();
+        java.util.Random random = new java.util.Random();
+
+        for (int i = 0; i < length; i++) {
+            hash.append(chars.charAt(random.nextInt(chars.length())));
+        }
+
+        return hash.toString();
+    }
 }
+
