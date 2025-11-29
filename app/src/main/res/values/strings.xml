@@ -592,4 +592,17 @@
     <string name="change_photo">Change Photo</string>
     <string name="reset_to_default">Reset to Default</string>
     <string name="no_photos_yet">No photos yet</string>
+
+    <!-- Join Group Strings -->
+    <string name="join_group_title">Join a Group Trip</string>
+    <string name="join_group_subtitle">Enter a trip code to join an existing group adventure</string>
+    <string name="hint_trip_code">Trip Code (e.g., PARIS_15_K8X3)</string>
+    <string name="search_trip">Search Trip</string>
+    <string name="search_results">Search Results</string>
+    <string name="trip_not_found">Trip not found. Please check the code and try again.</string>
+    <string name="enter_trip_code_placeholder">Enter a trip code to search for group trips</string>
+    <string name="destination_label">Destination:</string>
+    <string name="dates_label">Dates:</string>
+    <string name="members_label">Members:</string>
+    <string name="join_button">Join This Trip</string>
 </resources>
