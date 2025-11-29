@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -46,6 +47,15 @@ public class DashboardFragment extends Fragment {
     // UI Components - Emergency Alert
     private TextView tvLastActivity;
     private SwitchCompat switchEmergencyAlert;
+
+    // UI Components - Group Trips
+    private TextView tvGroupTripTitle;
+    private TextView tvGroupTripMembers;
+    private android.widget.Button btnViewGroup;
+    private android.widget.Button btnCreateGroup;
+    private android.widget.Button btnJoinGroup;
+    private android.view.View groupTripCard;
+    private Trip currentGroupTrip;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -100,6 +110,25 @@ public class DashboardFragment extends Fragment {
             updateLastActivityTime();
         });
         
+        // Initialize UI components - Group Trips
+        groupTripCard = view.findViewById(R.id.group_trip_card);
+        tvGroupTripTitle = view.findViewById(R.id.tv_group_trip_title);
+        tvGroupTripMembers = view.findViewById(R.id.tv_group_trip_members);
+        btnViewGroup = view.findViewById(R.id.btn_view_group);
+        btnCreateGroup = view.findViewById(R.id.btn_create_group);
+        btnJoinGroup = view.findViewById(R.id.btn_join_group);
+        
+        // Set up group trips click listeners
+        if (btnViewGroup != null) {
+            btnViewGroup.setOnClickListener(v -> navigateToGroupTrip());
+        }
+        if (btnCreateGroup != null) {
+            btnCreateGroup.setOnClickListener(v -> navigateToCreateTrip());
+        }
+        if (btnJoinGroup != null) {
+            btnJoinGroup.setOnClickListener(v -> showJoinGroupDialog());
+        }
+        
         // Load dashboard data
         loadDashboardData();
     }
@@ -118,6 +147,7 @@ public class DashboardFragment extends Fragment {
         loadExpenseStatistics();
         loadLastActivityTime();
         loadEmergencyAlertState();
+        loadGroupTrips();
     }
 
     /**
@@ -245,6 +275,167 @@ public class DashboardFragment extends Fragment {
     private void loadEmergencyAlertState() {
         boolean isAlertEnabled = isEmergencyAlertEnabled();
         switchEmergencyAlert.setChecked(isAlertEnabled);
+    }
+
+    /**
+     * Load and display group trips
+     */
+    private void loadGroupTrips() {
+        if (currentUserId == -1) {
+            if (groupTripCard != null) {
+                groupTripCard.setVisibility(android.view.View.GONE);
+            }
+            return;
+        }
+
+        List<Trip> trips = databaseHelper.getAllTrips(currentUserId);
+        
+        // Filter group trips where is_group_trip = 1
+        Trip firstGroupTrip = null;
+        for (Trip trip : trips) {
+            if (trip.getIsGroupTrip() == 1) {
+                firstGroupTrip = trip;
+                break;
+            }
+        }
+
+        if (firstGroupTrip == null) {
+            // No group trips, hide the card
+            if (groupTripCard != null) {
+                groupTripCard.setVisibility(android.view.View.GONE);
+            }
+        } else {
+            // Display group trip card
+            if (groupTripCard != null) {
+                groupTripCard.setVisibility(android.view.View.VISIBLE);
+            }
+            
+            if (tvGroupTripTitle != null) {
+                tvGroupTripTitle.setText(firstGroupTrip.getTripName());
+            }
+            
+            // Parse participants and count members
+            int memberCount = countParticipants(firstGroupTrip.getParticipants());
+            int tripDuration = calculateTripDuration(firstGroupTrip.getStartDate(), firstGroupTrip.getEndDate());
+            
+            String memberText = memberCount + " " + (memberCount == 1 ? "member" : "members") + " • " + tripDuration + " " + (tripDuration == 1 ? "day" : "days");
+            if (tvGroupTripMembers != null) {
+                tvGroupTripMembers.setText(memberText);
+            }
+            
+            // Store reference to current group trip for navigation
+            currentGroupTrip = firstGroupTrip;
+        }
+    }
+
+    /**
+     * Count participants from comma-separated string
+     */
+    private int countParticipants(String participants) {
+        if (participants == null || participants.isEmpty()) {
+            return 1; // At least the organizer
+        }
+        String[] parts = participants.split(",");
+        return parts.length + 1; // +1 for organizer
+    }
+
+    /**
+     * Calculate trip duration in days
+     */
+    private int calculateTripDuration(String startDate, String endDate) {
+        if (startDate == null || endDate == null) {
+            return 1;
+        }
+        try {
+            java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+            java.util.Date start = dateFormat.parse(startDate);
+            java.util.Date end = dateFormat.parse(endDate);
+            
+            if (start != null && end != null) {
+                long differenceInTime = end.getTime() - start.getTime();
+                long differenceInDays = differenceInTime / (1000 * 60 * 60 * 24) + 1; // +1 to include both start and end dates
+                return (int) Math.max(1, differenceInDays);
+            }
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
+    /**
+     * Navigate to group trip detail
+     */
+    private void navigateToGroupTrip() {
+        if (currentGroupTrip != null) {
+            // Show trip code for sharing
+            showTripCodeDialog(currentGroupTrip);
+        }
+    }
+
+    /**
+     * Show trip code dialog for sharing the group trip
+     */
+    private void showTripCodeDialog(Trip trip) {
+        com.example.voyagerbuds.database.dao.TripDao tripDao = new com.example.voyagerbuds.database.dao.TripDao(null);
+        String tripCode = tripDao.generateTripCode(trip.getTripName(), (int) trip.getTripId());
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(requireContext());
+        builder.setTitle("Trip Code")
+                .setMessage("Share this code with friends:\n\n" + tripCode)
+                .setPositiveButton("Copy to Clipboard", (dialog, which) -> {
+                    copyToClipboard(tripCode);
+                    Toast.makeText(getContext(), "Code copied to clipboard!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    // Navigate to trip detail
+                    TripDetailFragment fragment = TripDetailFragment.newInstance(trip.getTripId());
+                    getParentFragmentManager().beginTransaction()
+                            .setCustomAnimations(
+                                    R.anim.slide_in_right,
+                                    R.anim.slide_out_left,
+                                    R.anim.slide_in_left,
+                                    R.anim.slide_out_right)
+                            .replace(R.id.content_container, fragment)
+                            .addToBackStack(null)
+                            .commit();
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    /**
+     * Copy text to clipboard
+     */
+    private void copyToClipboard(String text) {
+        android.content.ClipboardManager clipboard = 
+            (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+        android.content.ClipData clip = android.content.ClipData.newPlainText("Trip Code", text);
+        clipboard.setPrimaryClip(clip);
+    }
+
+    /**
+     * Navigate to create trip screen
+     */
+    private void navigateToCreateTrip() {
+        if (getActivity() instanceof com.example.voyagerbuds.activities.HomeActivity) {
+            ((com.example.voyagerbuds.activities.HomeActivity) getActivity()).showCreateTripFragment();
+        }
+    }
+
+    /**
+     * Show join group dialog (placeholder for future implementation)
+     */
+    private void showJoinGroupDialog() {
+        JoinGroupFragment joinFragment = new JoinGroupFragment();
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right)
+                .replace(R.id.content_container, joinFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     // ======================== Utility Methods ========================
