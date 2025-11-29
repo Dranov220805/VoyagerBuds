@@ -370,7 +370,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         TripDao tripDao = new TripDao(db);
         List<Trip> trips = tripDao.getAllByUserId(userId);
         for (Trip t : trips) {
-            // Cascade delete: tripDao.delete will not cascade; keep current behaviour using helpers
+            // Cascade delete: tripDao.delete will not cascade; keep current behaviour using
+            // helpers
             ExpenseDao expenseDao = new ExpenseDao(db);
             ScheduleDao scheduleDao = new ScheduleDao(db);
             CaptureDao captureDao = new CaptureDao(db);

@@ -43,6 +43,62 @@
     <string name="help_support">Hỗ trợ</string>
     <string name="backup_data">Sao lưu dữ liệu</string>
     <string name="restore_data">Khôi phục dữ liệu</string>
+    <string name="backup_login_prompt">Vui lòng đăng nhập để sao lưu dữ liệu</string>
+    <string name="backing_up_title">Đang sao lưu</string>
+    <string name="backing_up_message">Vui lòng đợi trong khi chúng tôi tải dữ liệu lên Firebase...</string>
+    <string name="backup_completed">Sao lưu hoàn tất</string>
+    <string name="backup_failed_title">Sao lưu thất bại</string>
+    <string name="copy_details">Sao chép chi tiết</string>
+    <string name="copied_to_clipboard">Đã sao chép vào clipboard</string>
+    <string name="restore_login_prompt">Vui lòng đăng nhập để khôi phục dữ liệu</string>
+    <string name="fetching_backup_preview_title">Kiểm tra bản sao lưu</string>
+    <string name="fetching_backup_preview_message">Vui lòng đợi trong khi chúng tôi kiểm tra bản sao lưu của bạn...</string>
+    <string name="restore_preview_title">Xem trước khôi phục</string>
+    <string name="action_overwrite">Ghi đè</string>
+    <string name="action_merge">Hợp lại</string>
+    <string name="action_append">Thêm</string>
+    <string name="confirm_overwrite_title">Xác nhận ghi đè</string>
+    <string name="confirm_overwrite_message">Hành động này sẽ xóa tất cả dữ liệu cục bộ và thay thế bằng bản sao lưu từ máy chủ. Hành động này không thể hoàn tác. Tiếp tục?</string>
+    <string name="restoring_title">Đang khôi phục</string>
+    <string name="restoring_message_overwrite">Vui lòng đợi trong khi chúng tôi khôi phục và thay thế dữ liệu của bạn...</string>
+    <string name="restoring_message_merge">Vui lòng đợi trong khi chúng tôi hợp nhất bản sao lưu từ máy chủ vào dữ liệu cục bộ của bạn...</string>
+    <string name="restoring_message_append">Vui lòng đợi trong khi chúng tôi thêm bản sao lưu từ máy chủ vào dữ liệu cục bộ...</string>
+    <string name="restore_completed">Khôi phục hoàn tất</string>
+    <string name="merge_completed">Hợp nhất hoàn tất</string>
+    <string name="append_completed">Thêm hoàn tất</string>
+    <string name="restore_failed_title">Khôi phục thất bại</string>
+    <string name="restore_preview_failed_title">Kiểm tra khôi phục thất bại</string>
+    <string name="copy">Sao chép</string>
+    <string name="local_label">Lưu cục bộ: </string>
+    <string name="remote_backup_label">Sao lưu từ máy chủ: </string>
+    <string name="remote_trips_sample">Các chuyến đi trên cloud: \n</string>
+        <plurals name="n_trips">
+            <item quantity="one">%d chuyến đi</item>
+            <item quantity="other">%d chuyến đi</item>
+        </plurals>
+        <plurals name="n_schedules">
+            <item quantity="one">%d lịch trình</item>
+            <item quantity="other">%d lịch trình</item>
+        </plurals>
+        <plurals name="n_expenses">
+            <item quantity="one">%d khoản chi</item>
+            <item quantity="other">%d khoản chi</item>
+        </plurals>
+        <plurals name="n_captures">
+            <item quantity="one">%d ảnh</item>
+            <item quantity="other">%d ảnh</item>
+        </plurals>
+    <string name="restore_what_do">Bạn muốn làm gì?\n\n</string>
+    <string name="overwrite_description">\u2022 Ghi đè: Xóa tất cả dữ liệu cục bộ và thay thế bằng bản sao lưu.</string>
+    <string name="merge_description">\u2022 Hợp nhất: Cố gắng hợp nhất bản sao lưu vào dữ liệu cục bộ và tránh trùng lặp.</string>
+    <string name="append_description">\u2022 Thêm vào: Giữ dữ liệu hiện có và thêm các bản ghi từ bản sao lưu.</string>
+    <string name="confirm_merge_title">Xác nhận hợp nhất</string>
+    <string name="confirm_merge_message">Hành động này sẽ cố gắng hợp nhất bản sao lưu máy chủ vào dữ liệu cục bộ và có thể cập nhật hoặc thêm mục. Tiếp tục?</string>
+    <string name="confirm_append_title">Xác nhận thêm vào</string>
+    <string name="confirm_append_message">Hành động này sẽ thêm các bản ghi bản sao lưu máy chủ vào dữ liệu cục bộ của bạn mà không xóa mục hiện có. Tiếp tục?</string>
+    <string name="firestore_test_title">Kiểm tra Firestore</string>
+    <string name="firestore_test_copied">Đã sao chép chi tiết</string>
+    <string name="firestore_test_failed_title">Kiểm tra Firestore thất bại</string>
     <string name="firestore_permission_denied">Quyền bị từ chối — kiểm tra quy tắc Firestore và cấu hình Firebase</string>
     <string name="firestore_troubleshoot_title">Khắc phục lỗi quyền Firestore</string>
     <string name="firestore_troubleshoot_message">Cấu hình Firestore của Firebase đang ngăn sao lưu. Hành động đề xuất:\n1) Bật Firestore trong Firebase Console.\n2) Xác nhận google-services.json thuộc dự án Firebase đúng.\n3) Sử dụng quy tắc Firestore cho phép người dùng đã xác thực ghi vào documents thuộc users/{uid}/trips.\n4) Nếu sử dụng Google Sign-In, đảm bảo SHA-1/256 đã được cấu hình trong Firebase Console.\n5) Đảm bảo người dùng đã đăng nhập trong ứng dụng.</string>
@@ -310,6 +366,7 @@
     <string name="short_notes">Ghi chú ngắn</string>
     <string name="memory_title">Tiêu đề kỷ niệm</string>
     <string name="more">Thêm</string>
+    <string name="more_indicator">+ %d khác</string>
 
     <!-- Content descriptions -->
     <string name="desc_trip_icon">Biểu tượng chuyến đi</string>

@@ -43,6 +43,62 @@
     <string name="help_support">Help &amp; Support</string>
     <string name="backup_data">Backup Data</string>
     <string name="restore_data">Restore Data</string>
+    <string name="backup_login_prompt">Please log in to back up data</string>
+    <string name="backing_up_title">Backing Up</string>
+    <string name="backing_up_message">Please wait while we upload data to Firebase...</string>
+    <string name="backup_completed">Backup completed successfully</string>
+    <string name="backup_failed_title">Backup Failed</string>
+    <string name="copy_details">Copy details</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="restore_login_prompt">Please log in to restore data</string>
+    <string name="fetching_backup_preview_title">Fetching Backup Preview</string>
+    <string name="fetching_backup_preview_message">Please wait while we check your backup...</string>
+    <string name="restore_preview_title">Restore Preview</string>
+    <string name="action_overwrite">Overwrite</string>
+    <string name="action_merge">Merge</string>
+    <string name="action_append">Append</string>
+    <string name="confirm_overwrite_title">Confirm Overwrite</string>
+    <string name="confirm_overwrite_message">This will delete all local data and replace it with the remote backup. This cannot be undone. Continue?</string>
+    <string name="restoring_title">Restoring</string>
+    <string name="restoring_message_overwrite">Please wait while we restore and replace your data...</string>
+    <string name="restoring_message_merge">Please wait while we merge remote backup into your local data...</string>
+    <string name="restoring_message_append">Please wait while we append remote backup to your local data...</string>
+    <string name="restore_completed">Restore completed</string>
+    <string name="merge_completed">Merge completed</string>
+    <string name="append_completed">Append completed</string>
+    <string name="restore_failed_title">Restore Failed</string>
+    <string name="restore_preview_failed_title">Restore Preview Failed</string>
+    <string name="copy">Copy</string>
+    <string name="local_label">Local Save: </string>
+    <string name="remote_backup_label">Remote Backup: </string>
+    <string name="remote_trips_sample">Remote Trips On Cloud: \n</string>
+    <plurals name="n_trips">
+        <item quantity="one">%d trip</item>
+        <item quantity="other">%d trips</item>
+    </plurals>
+    <plurals name="n_schedules">
+        <item quantity="one">%d schedule</item>
+        <item quantity="other">%d schedules</item>
+    </plurals>
+    <plurals name="n_expenses">
+        <item quantity="one">%d expense</item>
+        <item quantity="other">%d expenses</item>
+    </plurals>
+    <plurals name="n_captures">
+        <item quantity="one">%d capture</item>
+        <item quantity="other">%d captures</item>
+    </plurals>
+    <string name="restore_what_do">What would you like to do?\n\n</string>
+    <string name="overwrite_description">\u2022 Overwrite: Delete all local data and replace with backup.</string>
+    <string name="merge_description">\u2022 Merge: Attempt to merge backup into local data while avoiding duplicates.</string>
+    <string name="append_description">\u2022 Append: Keep existing data and append backup entries.</string>
+    <string name="confirm_merge_title">Confirm Merge</string>
+    <string name="confirm_merge_message">This will attempt to merge remote backup into your local data and may update or add entries. Continue?</string>
+    <string name="confirm_append_title">Confirm Append</string>
+    <string name="confirm_append_message">This will append remote backup entries to your local data without deleting existing entries. Continue?</string>
+    <string name="firestore_test_title">Firestore Test</string>
+    <string name="firestore_test_copied">Copied details</string>
+    <string name="firestore_test_failed_title">Firestore Test Failed</string>
     <string name="firestore_permission_denied">Permission denied — check Firestore rules and Firebase configuration</string>
     <string name="firestore_troubleshoot_title">Troubleshooting Firestore Permissions</string>
     <string name="firestore_troubleshoot_message">Your Firebase Firestore configuration is preventing backup. Suggested actions:\n1) Ensure Firestore is enabled in the Firebase Console.\n2) Confirm google-services.json matches the Firebase project.\n3) Use Firestore security rules to allow authenticated users to write to their own user document (users/{uid}/trips).\n4) If using Google Sign-In, ensure SHA-1/256 fingerprints are set in Firebase console.\n5) Ensure the user is signed in in the app.</string>
@@ -308,6 +364,7 @@
     <string name="short_notes">Short notes</string>
     <string name="memory_title">Memory Title</string>
     <string name="more">More</string>
+    <string name="more_indicator">+ %d more</string>
 
     <!-- Content descriptions -->
     <string name="desc_trip_icon">Trip icon</string>
