@@ -9,10 +9,14 @@ public class GalleryItem {
     private boolean isSelected;
 
     public GalleryItem(String imagePath, int itemId, int itemType, String dayLabel) {
+        this(imagePath, itemId, itemType, dayLabel, 0);
+    }
+
+    public GalleryItem(String imagePath, int itemId, int itemType, String dayLabel, long date) {
         this.imagePath = imagePath;
         this.itemId = itemId;
         this.itemType = itemType;
-        this.date = 0;
+        this.date = date;
         this.dayLabel = dayLabel;
         this.isSelected = false;
     }

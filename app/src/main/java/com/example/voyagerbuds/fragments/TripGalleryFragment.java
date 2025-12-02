@@ -131,8 +131,18 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
 
     private void loadGalleryItems() {
         galleryItems.clear();
+
+        if (tripId == -1) {
+            Toast.makeText(requireContext(), "No current trip selected", Toast.LENGTH_SHORT).show();
+            tvEmptyState.setText("No trip selected");
+            tvEmptyState.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            return;
+        }
+
         List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip(tripId);
         List<com.example.voyagerbuds.models.Expense> expenses = databaseHelper.getExpensesForTrip(tripId);
+        List<com.example.voyagerbuds.models.Capture> captures = databaseHelper.getCapturesForTripOrdered(tripId);
         List<GalleryItem> allImages = new ArrayList<>();
 
         // Add images from schedules
@@ -141,10 +151,19 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
                 try {
                     JSONArray jsonArray = new JSONArray(schedule.getImagePaths());
                     String dateStr = schedule.getDay(); // Using day as label
+                    long dateMillis = 0;
+                    try {
+                        java.util.Date d = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+                                .parse(dateStr);
+                        if (d != null)
+                            dateMillis = d.getTime();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         String path = jsonArray.getString(i);
-                        allImages.add(new GalleryItem(path, schedule.getId(), 0, dateStr));
+                        allImages.add(new GalleryItem(path, schedule.getId(), 0, dateStr, dateMillis));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -158,15 +177,25 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
             if (expense.getImagePaths() != null && !expense.getImagePaths().isEmpty()) {
                 try {
                     JSONArray jsonArray = new JSONArray(expense.getImagePaths());
-                    String dateStr = sdf.format(new java.util.Date(expense.getSpentAt() * 1000L));
+                    long dateMillis = expense.getSpentAt() * 1000L;
+                    String dateStr = sdf.format(new java.util.Date(dateMillis));
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         String path = jsonArray.getString(i);
-                        allImages.add(new GalleryItem(path, expense.getExpenseId(), 1, dateStr));
+                        allImages.add(new GalleryItem(path, expense.getExpenseId(), 1, dateStr, dateMillis));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+
+        // Add images from captures
+        for (com.example.voyagerbuds.models.Capture capture : captures) {
+            if (capture.getMediaPath() != null && !capture.getMediaPath().isEmpty()) {
+                long dateMillis = capture.getCapturedAt();
+                String dateStr = sdf.format(new java.util.Date(dateMillis));
+                allImages.add(new GalleryItem(capture.getMediaPath(), capture.getCaptureId(), 2, dateStr, dateMillis));
             }
         }
 
@@ -198,8 +227,43 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
         if (isSelectionMode) {
             toggleSelection(item);
         } else {
-            // TODO: Open full screen view
-            Toast.makeText(requireContext(), "Image: " + item.getImagePath(), Toast.LENGTH_SHORT).show();
+            // Convert all GalleryItems to Captures for the viewer
+            List<com.example.voyagerbuds.models.Capture> captures = new ArrayList<>();
+            int startPos = 0;
+            int index = 0;
+
+            for (Object obj : galleryItems) {
+                if (obj instanceof GalleryItem) {
+                    GalleryItem gi = (GalleryItem) obj;
+                    com.example.voyagerbuds.models.Capture c = new com.example.voyagerbuds.models.Capture();
+                    c.setCaptureId(gi.getItemId());
+                    c.setMediaPath(gi.getImagePath());
+                    c.setMediaType("photo");
+                    c.setCapturedAt(gi.getDate());
+
+                    // Set description based on type
+                    if (gi.getItemType() == 0)
+                        c.setDescription("From Schedule");
+                    else if (gi.getItemType() == 1)
+                        c.setDescription("From Expense");
+                    else
+                        c.setDescription(""); // Capture description would need DB lookup if not passed, but for now
+                                              // empty is fine or we could fetch it.
+
+                    captures.add(c);
+
+                    if (gi == item) {
+                        startPos = index;
+                    }
+                    index++;
+                }
+            }
+
+            FullImageFragment fragment = FullImageFragment.newInstance(captures, startPos);
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.content_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
@@ -258,6 +322,7 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
     private void deleteSelectedItems() {
         Map<Integer, List<String>> scheduleImagesToDelete = new HashMap<>();
         Map<Integer, List<String>> expenseImagesToDelete = new HashMap<>();
+        List<Integer> capturesToDelete = new ArrayList<>();
 
         for (GalleryItem item : selectedItems) {
             if (item.getItemType() == 0) {
@@ -266,12 +331,15 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
                     scheduleImagesToDelete.put(item.getItemId(), new ArrayList<>());
                 }
                 scheduleImagesToDelete.get(item.getItemId()).add(item.getImagePath());
-            } else {
+            } else if (item.getItemType() == 1) {
                 // Expense image
                 if (!expenseImagesToDelete.containsKey(item.getItemId())) {
                     expenseImagesToDelete.put(item.getItemId(), new ArrayList<>());
                 }
                 expenseImagesToDelete.get(item.getItemId()).add(item.getImagePath());
+            } else if (item.getItemType() == 2) {
+                // Capture image
+                capturesToDelete.add(item.getItemId());
             }
         }
 
@@ -319,6 +387,11 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
                     e.printStackTrace();
                 }
             }
+        }
+
+        // Delete captures
+        for (int captureId : capturesToDelete) {
+            databaseHelper.deleteCapture(captureId);
         }
 
         stopSelectionMode();

@@ -13,6 +13,8 @@ import com.example.voyagerbuds.models.Expense;
 import com.example.voyagerbuds.models.ScheduleItem;
 import com.example.voyagerbuds.models.Trip;
 
+import android.database.Cursor;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -536,14 +538,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return captures;
     }
 
-    public List<Capture> getRecentCapturesForTrip(int tripId, int limit) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        CaptureDao dao = new CaptureDao(db);
-        List<Capture> captures = dao.getRecentByTripId(tripId, limit);
-        db.close();
-        return captures;
-    }
-
     public List<Capture> getCapturesForUser(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         CaptureDao dao = new CaptureDao(db);
@@ -589,5 +583,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         CaptureDao dao = new CaptureDao(db);
         dao.deleteByTripId(tripId);
         db.close();
+    }
+
+    /**
+     * Get all captures for a user, ordered by timestamp descending
+     */
+    public List<Capture> getAllCapturesForUser(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        CaptureDao dao = new CaptureDao(db);
+        List<Capture> captures = dao.getAllByUserId(userId);
+        db.close();
+        return captures;
+    }
+
+    /**
+     * Get all captures for a trip, ordered by timestamp ascending
+     */
+    public List<Capture> getCapturesForTripOrdered(int tripId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Capture> captures = new ArrayList<>();
+
+        String query = "SELECT * FROM " + CaptureDao.TABLE_NAME +
+                " WHERE " + CaptureDao.COLUMN_TRIP_ID + " = ? " +
+                " ORDER BY " + CaptureDao.COLUMN_CAPTURED_AT + " ASC";
+
+        Cursor cursor = db.rawQuery(query, new String[] { String.valueOf(tripId) });
+
+        if (cursor.moveToFirst()) {
+            CaptureDao dao = new CaptureDao(db);
+            do {
+                Capture capture = dao.cursorToCapture(cursor);
+                captures.add(capture);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+        return captures;
     }
 }

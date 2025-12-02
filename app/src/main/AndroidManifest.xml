@@ -67,6 +67,11 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name=".activities.RegisterActivity"
+            android:theme="@style/Theme.VoyagerBuds.NoActionBar"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".activities.HomeActivity"
             android:theme="@style/Theme.VoyagerBuds.NoActionBar"
             android:screenOrientation="portrait"

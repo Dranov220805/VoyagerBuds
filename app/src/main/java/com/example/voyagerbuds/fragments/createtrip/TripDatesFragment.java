@@ -154,6 +154,11 @@ public class TripDatesFragment extends Fragment {
 
         for (Trip trip : trips) {
             try {
+                // Skip trips with null dates
+                if (trip.getStartDate() == null || trip.getEndDate() == null) {
+                    continue;
+                }
+
                 Date start = sdf.parse(trip.getStartDate());
                 Date end = sdf.parse(trip.getEndDate());
                 if (start != null && end != null) {

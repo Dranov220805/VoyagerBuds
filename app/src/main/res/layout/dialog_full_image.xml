@@ -1,68 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <com.example.voyagerbuds.views.ZoomableImageView
-        android:id="@+id/iv_full_image"
+    <ImageView
+        android:id="@+id/full_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="true"
-        android:scaleType="matrix" />
-
-    <!-- Loading Indicator -->
-    <FrameLayout
-        android:id="@+id/loading_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80000000"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
-
-        <ProgressBar
-            android:id="@+id/loading_progress"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center"
-            android:indeterminateTint="@android:color/white"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="80dp"
-            android:text="@string/loading"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
-
-    </FrameLayout>
+        android:scaleType="fitCenter"
+        android:contentDescription="Full image" />
 
     <ImageButton
         android:id="@+id/btn_close_full_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
+        android:layout_gravity="top|end"
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_close"
-        android:tint="@android:color/white"
-        android:contentDescription="@string/desc_close" />
+        android:contentDescription="Close"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:tint="@android:color/white" />
 
     <ImageButton
         android:id="@+id/btn_rotate_full_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_rotate_right"
-        android:tint="@android:color/white"
-        android:contentDescription="@string/rotate_image" />
+        android:contentDescription="Rotate"
+        android:src="@android:drawable/ic_menu_rotate"
+        android:tint="@android:color/white" />
 
-</RelativeLayout>
+</FrameLayout>

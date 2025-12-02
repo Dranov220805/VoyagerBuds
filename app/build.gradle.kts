@@ -63,7 +63,20 @@ dependencies {
 
     // Glide for efficient image loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.camera.core)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // CameraX
+    implementation("androidx.camera:camera-core:1.3.1")
+    implementation("androidx.camera:camera-camera2:1.3.1")
+    implementation("androidx.camera:camera-lifecycle:1.3.1")
+    implementation("androidx.camera:camera-view:1.3.1")
+
+    // Guava for CameraX
+    implementation("com.google.guava:guava:31.1-android")
+
+    // ViewPager2
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

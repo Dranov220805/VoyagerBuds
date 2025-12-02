@@ -62,7 +62,7 @@ public class JoinGroupFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         databaseHelper = new DatabaseHelper(getContext());
-        
+
         // Get current user ID from session manager
         currentUserId = UserSessionManager.getCurrentUserId(requireContext());
         if (currentUserId == -1) {
@@ -72,7 +72,7 @@ public class JoinGroupFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_join_group, container, false);
     }
 
@@ -210,11 +210,12 @@ public class JoinGroupFragment extends Fragment {
         foundTrip.setParticipants(updatedParticipants);
         foundTrip.setUpdatedAt(System.currentTimeMillis());
 
-        boolean success = databaseHelper.updateTrip(foundTrip);
+        int rowsUpdated = databaseHelper.updateTrip(foundTrip);
+        boolean success = rowsUpdated > 0;
 
         if (success) {
             Toast.makeText(getContext(), "Successfully joined the group trip!", Toast.LENGTH_SHORT).show();
-            
+
             // Navigate back to dashboard or trip detail
             navigateBack();
         } else {

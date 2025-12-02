@@ -2,7 +2,7 @@
 <resources>
     <!-- Navigation bar dimensions -->
     <dimen name="nav_bar_height">70dp</dimen>
-    <dimen name="nav_icon_size">30dp</dimen>
+    <dimen name="nav_icon_size">28dp</dimen>
 
     <!-- Generic sizes for use across the app -->
     <dimen name="spacing_small">8dp</dimen>

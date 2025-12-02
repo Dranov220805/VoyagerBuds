@@ -63,7 +63,9 @@
     <!-- Misc -->
     <color name="shadow_color">#80000000</color>
     <color name="schedule_bg_tint">#FFF3E0</color>
-    <color name="overlay_background">#80000000</color>
+    <color name="overlay_background">#D9FFFFFF</color>
     <color name="icon_tint_gray">#757575</color>
     <color name="divider_light">#E0E0E0</color>
+    <color name="caption_background">#80424242</color>
+    <color name="control_background_color">#1A000000</color>
 </resources>

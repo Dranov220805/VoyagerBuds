@@ -15,17 +15,20 @@ import java.util.List;
  * Manages photo/video diary entries for trips.
  */
 public class CaptureDao {
-    // Table and column names
-    private static final String TABLE_CAPTURES = "Captures";
-    private static final String COLUMN_CAPTURE_ID = "captureId";
-    private static final String COLUMN_USER_ID = "userId";
-    private static final String COLUMN_TRIP_ID = "tripId";
-    private static final String COLUMN_MEDIA_PATH = "media_path";
-    private static final String COLUMN_MEDIA_TYPE = "media_type";
-    private static final String COLUMN_DESCRIPTION = "description";
-    private static final String COLUMN_CAPTURED_AT = "captured_at";
-    private static final String COLUMN_CREATED_AT = "created_at";
-    private static final String COLUMN_UPDATED_AT = "updated_at";
+    // Table and column names (public for DatabaseHelper access)
+    public static final String TABLE_NAME = "Captures";
+    public static final String COLUMN_CAPTURE_ID = "captureId";
+    public static final String COLUMN_USER_ID = "userId";
+    public static final String COLUMN_TRIP_ID = "tripId";
+    public static final String COLUMN_MEDIA_PATH = "media_path";
+    public static final String COLUMN_MEDIA_TYPE = "media_type";
+    public static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_CAPTURED_AT = "captured_at";
+    public static final String COLUMN_CREATED_AT = "created_at";
+    public static final String COLUMN_UPDATED_AT = "updated_at";
+
+    // Keep private alias for backward compatibility
+    private static final String TABLE_CAPTURES = TABLE_NAME;
 
     private final SQLiteDatabase database;
 
@@ -62,7 +65,7 @@ public class CaptureDao {
         values.put(COLUMN_UPDATED_AT, capture.getUpdatedAt());
 
         return database.update(TABLE_CAPTURES, values, COLUMN_CAPTURE_ID + " = ?",
-                new String[]{String.valueOf(capture.getCaptureId())});
+                new String[] { String.valueOf(capture.getCaptureId()) });
     }
 
     /**
@@ -70,7 +73,7 @@ public class CaptureDao {
      */
     public int delete(int captureId) {
         return database.delete(TABLE_CAPTURES, COLUMN_CAPTURE_ID + " = ?",
-                new String[]{String.valueOf(captureId)});
+                new String[] { String.valueOf(captureId) });
     }
 
     /**
@@ -78,7 +81,7 @@ public class CaptureDao {
      */
     public int deleteByTripId(int tripId) {
         return database.delete(TABLE_CAPTURES, COLUMN_TRIP_ID + " = ?",
-                new String[]{String.valueOf(tripId)});
+                new String[] { String.valueOf(tripId) });
     }
 
     /**
@@ -86,7 +89,7 @@ public class CaptureDao {
      */
     public int deleteByUserId(int userId) {
         return database.delete(TABLE_CAPTURES, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(userId)});
+                new String[] { String.valueOf(userId) });
     }
 
     /**
@@ -94,7 +97,7 @@ public class CaptureDao {
      */
     public Capture getById(int captureId) {
         Cursor cursor = database.query(TABLE_CAPTURES, null, COLUMN_CAPTURE_ID + "=?",
-                new String[]{String.valueOf(captureId)}, null, null, null);
+                new String[] { String.valueOf(captureId) }, null, null, null);
 
         Capture capture = null;
         if (cursor != null && cursor.moveToFirst()) {
@@ -105,30 +108,13 @@ public class CaptureDao {
     }
 
     /**
-     * Get all captures for a trip, ordered by captured date descending (most recent first)
+     * Get all captures for a trip, ordered by captured date descending (most recent
+     * first)
      */
     public List<Capture> getAllByTripId(int tripId) {
         List<Capture> captures = new ArrayList<>();
         Cursor cursor = database.query(TABLE_CAPTURES, null, COLUMN_TRIP_ID + "=?",
-                new String[]{String.valueOf(tripId)}, null, null, COLUMN_CAPTURED_AT + " DESC");
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                captures.add(cursorToCapture(cursor));
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return captures;
-    }
-
-    /**
-     * Get recent captures for a trip (limit to N items)
-     */
-    public List<Capture> getRecentByTripId(int tripId, int limit) {
-        List<Capture> captures = new ArrayList<>();
-        Cursor cursor = database.query(TABLE_CAPTURES, null, COLUMN_TRIP_ID + "=?",
-                new String[]{String.valueOf(tripId)}, null, null, 
-                COLUMN_CAPTURED_AT + " DESC LIMIT " + limit);
+                new String[] { String.valueOf(tripId) }, null, null, COLUMN_CAPTURED_AT + " DESC");
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -145,7 +131,7 @@ public class CaptureDao {
     public List<Capture> getAllByUserId(int userId) {
         List<Capture> captures = new ArrayList<>();
         Cursor cursor = database.query(TABLE_CAPTURES, null, COLUMN_USER_ID + "=?",
-                new String[]{String.valueOf(userId)}, null, null, COLUMN_CAPTURED_AT + " DESC");
+                new String[] { String.valueOf(userId) }, null, null, COLUMN_CAPTURED_AT + " DESC");
 
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -162,7 +148,7 @@ public class CaptureDao {
     public List<Capture> getByTripIdAndMediaType(int tripId, String mediaType) {
         List<Capture> captures = new ArrayList<>();
         String selection = COLUMN_TRIP_ID + " = ? AND " + COLUMN_MEDIA_TYPE + " = ?";
-        String[] selectionArgs = new String[]{String.valueOf(tripId), mediaType};
+        String[] selectionArgs = new String[] { String.valueOf(tripId), mediaType };
 
         Cursor cursor = database.query(TABLE_CAPTURES, null, selection, selectionArgs,
                 null, null, COLUMN_CAPTURED_AT + " DESC");
@@ -180,8 +166,8 @@ public class CaptureDao {
      * Get count of captures for a trip
      */
     public int getCountByTripId(int tripId) {
-        Cursor cursor = database.query(TABLE_CAPTURES, new String[]{"COUNT(*) as count"},
-                COLUMN_TRIP_ID + "=?", new String[]{String.valueOf(tripId)},
+        Cursor cursor = database.query(TABLE_CAPTURES, new String[] { "COUNT(*) as count" },
+                COLUMN_TRIP_ID + "=?", new String[] { String.valueOf(tripId) },
                 null, null, null);
 
         int count = 0;
@@ -196,9 +182,9 @@ public class CaptureDao {
      * Get count of photos (media_type = 'photo') for a trip
      */
     public int getPhotoCountByTripId(int tripId) {
-        Cursor cursor = database.query(TABLE_CAPTURES, new String[]{"COUNT(*) as count"},
+        Cursor cursor = database.query(TABLE_CAPTURES, new String[] { "COUNT(*) as count" },
                 COLUMN_TRIP_ID + "=? AND " + COLUMN_MEDIA_TYPE + "=?",
-                new String[]{String.valueOf(tripId), "photo"},
+                new String[] { String.valueOf(tripId), "photo" },
                 null, null, null);
 
         int count = 0;
@@ -213,9 +199,9 @@ public class CaptureDao {
      * Get count of videos (media_type = 'video') for a trip
      */
     public int getVideoCountByTripId(int tripId) {
-        Cursor cursor = database.query(TABLE_CAPTURES, new String[]{"COUNT(*) as count"},
+        Cursor cursor = database.query(TABLE_CAPTURES, new String[] { "COUNT(*) as count" },
                 COLUMN_TRIP_ID + "=? AND " + COLUMN_MEDIA_TYPE + "=?",
-                new String[]{String.valueOf(tripId), "video"},
+                new String[] { String.valueOf(tripId), "video" },
                 null, null, null);
 
         int count = 0;
@@ -227,9 +213,9 @@ public class CaptureDao {
     }
 
     /**
-     * Convert cursor row to Capture object
+     * Convert cursor row to Capture object (public for DatabaseHelper access)
      */
-    private Capture cursorToCapture(Cursor cursor) {
+    public Capture cursorToCapture(Cursor cursor) {
         Capture capture = new Capture();
         capture.setCaptureId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CAPTURE_ID)));
         capture.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)));

@@ -597,4 +597,30 @@
     <string name="change_photo">Đổi ảnh</string>
     <string name="reset_to_default">Đặt lại mặc định</string>
     <string name="no_photos_yet">Chưa có ảnh</string>
+
+    <!-- Post Capture Fragment -->
+    <string name="add_caption_hint">Thêm chú thích...</string>
+    <string name="failed_embed_caption">Không thể nhúng chú thích</string>
+    <string name="unknown_trip">Chuyến đi không xác định</string>
+    <string name="saved_to_trip">Đã lưu vào %s</string>
+    <string name="failed_to_save">Lưu thất bại</string>
+
+    <!-- Full Image Fragment -->
+    <string name="image_details_title">Chi tiết ảnh</string>
+    <string name="image_details_message">Đường dẫn: %1$s\n\nLoại: %2$s\n\nĐã chụp: %3$s</string>
+    <string name="ok">OK</string>
+    <string name="delete_photo_title">Xóa ảnh</string>
+    <string name="delete_photo_message">Bạn có chắc muốn xóa ảnh này?</string>
+    <string name="cannot_delete_schedule_expense">Chưa thể xóa ảnh Lịch trình/Chi phí từ đây</string>
+    <string name="photo_deleted">Đã xóa ảnh</string>
+
+    <!-- Capture Fragment -->
+    <string name="camera_permission_denied">Quyền truy cập máy ảnh bị từ chối</string>
+    <string name="failed_start_camera">Không thể khởi động máy ảnh</string>
+    <string name="failed_create_photo_file">Không thể tạo tệp ảnh</string>
+    <string name="failed_capture_photo">Chụp ảnh thất bại</string>
+    <string name="zoom_1x">1x</string>
+    <string name="zoom_0_5x">0.5x</string>
+    <string name="select_trip">Chọn chuyến đi</string>
+    <string name="library">Thư viện</string>
 </resources>

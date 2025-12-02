@@ -1,20 +1,15 @@
 package com.example.voyagerbuds.fragments;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,55 +17,53 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.core.ZoomState;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.voyagerbuds.R;
-import com.example.voyagerbuds.adapters.CaptureAdapter;
-import com.example.voyagerbuds.database.DatabaseHelper;
-import com.example.voyagerbuds.models.Capture;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
-/**
- * CaptureFragment allows users to capture photos/videos or upload from gallery.
- * Displays recent captures as a diary-like interface.
- */
-public class CaptureFragment extends Fragment implements CaptureAdapter.OnCaptureActionListener {
+public class CaptureFragment extends Fragment {
 
-    private DatabaseHelper databaseHelper;
-    private int currentUserId = 1; // Get from SharedPreferences/session in production
-    private int currentTripId = -1; // Get from arguments in production
-
-    // UI Components
-    private Button btnCapture;
-    private Button btnUpload;
-    private EditText etTravelNote;
-    private Button btnSaveNote;
-    private RecyclerView recyclerViewCaptures;
-    private CaptureAdapter captureAdapter;
-    private List<Capture> captureList;
-    private TextView tvViewAllPhotos;
-
-    // Media handling
-    private Uri currentPhotoUri;
-    private String currentPhotoPath;
+    private static final String TAG = "CaptureFragment";
     private static final String PHOTO_DIR = "VoyagerBuds/Photos";
 
-    // Activity result launchers
-    private ActivityResultLauncher<Intent> cameraLauncher;
-    private ActivityResultLauncher<String> cameraPermissionLauncher;
-    private ActivityResultLauncher<String> galleryPermissionLauncher;
-    private ActivityResultLauncher<Intent> galleryLauncher;
-    private ActivityResultLauncher<String[]> multiplePermissionLauncher;
+    private PreviewView cameraPreview;
+    private ImageButton btnFlash;
+    private TextView tvZoom;
+    private ImageButton btnAdd; // Change Camera
+    private FloatingActionButton btnCapture;
+    private ImageButton btnGallery;
+    private View swipeArea;
+    private View bottomDrawer;
+    private ImageButton btnCloseDrawer;
+
+    private ImageCapture imageCapture;
+    private Camera camera;
+    private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+    private ProcessCameraProvider cameraProvider;
+    private boolean isFlashOn = false;
+
+    private ActivityResultLauncher<String[]> cameraPermissionLauncher;
+    private BottomSheetBehavior<View> bottomSheetBehavior;
+    private GestureDetector gestureDetector;
 
     public CaptureFragment() {
         // Required empty public constructor
@@ -87,313 +80,313 @@ public class CaptureFragment extends Fragment implements CaptureAdapter.OnCaptur
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        databaseHelper = new DatabaseHelper(getContext());
-
-        if (getArguments() != null) {
-            currentTripId = getArguments().getInt("tripId", -1);
-        }
-
         setupActivityResultLaunchers();
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_capture, container, false);
 
-        // Initialize views
+        cameraPreview = view.findViewById(R.id.camera_preview);
+        btnFlash = view.findViewById(R.id.btn_flash);
+        tvZoom = view.findViewById(R.id.tv_zoom);
+        btnAdd = view.findViewById(R.id.btn_add);
         btnCapture = view.findViewById(R.id.btn_capture);
-        btnUpload = view.findViewById(R.id.btn_upload);
-        etTravelNote = view.findViewById(R.id.et_travel_note);
-        btnSaveNote = view.findViewById(R.id.btn_save_note);
-        recyclerViewCaptures = view.findViewById(R.id.recycler_view_captures);
-        tvViewAllPhotos = view.findViewById(R.id.tv_view_all_photos);
+        btnGallery = view.findViewById(R.id.btn_gallery);
+        swipeArea = view.findViewById(R.id.swipe_area);
+        bottomDrawer = view.findViewById(R.id.bottom_drawer);
+        btnCloseDrawer = view.findViewById(R.id.btn_close_drawer);
+        btnCapture.setOnClickListener(v -> capturePhoto());
+        btnAdd.setOnClickListener(v -> switchCamera());
+        btnFlash.setOnClickListener(v -> toggleFlash());
+        tvZoom.setOnClickListener(v -> toggleZoom());
+        btnGallery.setOnClickListener(v -> openDrawer());
+        btnCloseDrawer.setOnClickListener(v -> closeDrawer());
 
-        // Setup RecyclerView
-        captureList = new ArrayList<>();
-        captureAdapter = new CaptureAdapter(getContext(), captureList, this);
-        recyclerViewCaptures.setLayoutManager(new GridLayoutManager(getContext(), 3));
-        recyclerViewCaptures.setAdapter(captureAdapter);
+        setupBottomSheet();
+        setupSwipeGesture();
 
-        // Setup button listeners
-        btnCapture.setOnClickListener(v -> openCamera());
-        btnUpload.setOnClickListener(v -> openGallery());
-        btnSaveNote.setOnClickListener(v -> saveNote());
-        tvViewAllPhotos.setOnClickListener(v -> openFullGallery());
-
-        // Load initial captures
-        loadCaptures();
+        if (allPermissionsGranted()) {
+            startCamera();
+        } else {
+            requestPermissions();
+        }
 
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadCaptures();
-    }
-
-    // ======================== Camera & Gallery Methods ========================
-
     private void setupActivityResultLaunchers() {
-        // Camera launcher
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == getActivity().RESULT_OK) {
-                        if (currentPhotoUri != null) {
-                            saveCapture(currentPhotoPath, "photo");
-                        }
-                    }
-                });
-
-        // Gallery launcher
-        galleryLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
-                        handleGallerySelection(result.getData());
-                    }
-                });
-
-        // Camera permission launcher
         cameraPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {
-                    if (isGranted) {
-                        launchCamera();
-                    } else {
-                        Toast.makeText(getContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        // Gallery permission launcher
-        galleryPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {
-                    if (isGranted) {
-                        launchGalleryPicker();
-                    } else {
-                        Toast.makeText(getContext(), "Gallery permission denied", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        // Multiple permissions launcher
-        multiplePermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 permissions -> {
-                    boolean cameraGranted = permissions.getOrDefault(Manifest.permission.CAMERA, false);
-                    boolean storageGranted = permissions.getOrDefault(
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                                    Manifest.permission.READ_MEDIA_IMAGES :
-                                    Manifest.permission.READ_EXTERNAL_STORAGE, false);
-
-                    if (cameraGranted && storageGranted) {
-                        launchCamera();
+                    boolean allGranted = true;
+                    for (Boolean granted : permissions.values()) {
+                        if (!granted) {
+                            allGranted = false;
+                            break;
+                        }
+                    }
+                    if (allGranted) {
+                        startCamera();
                     } else {
-                        Toast.makeText(getContext(), "Permissions denied", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT)
+                                .show();
                     }
                 });
     }
 
-    private void openCamera() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
-        } else {
-            launchCamera();
-        }
+    private boolean allPermissionsGranted() {
+        if (getContext() == null)
+            return false;
+        return ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void launchCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    private void requestPermissions() {
+        cameraPermissionLauncher.launch(new String[] { Manifest.permission.CAMERA });
+    }
 
-        if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            File photoFile = createImageFile();
-            if (photoFile != null) {
-                currentPhotoUri = FileProvider.getUriForFile(getContext(),
-                        getContext().getPackageName() + ".fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoUri);
-                cameraLauncher.launch(takePictureIntent);
+    private void startCamera() {
+        if (getContext() == null)
+            return;
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(getContext());
+        cameraProviderFuture.addListener(() -> {
+            try {
+                cameraProvider = cameraProviderFuture.get();
+                bindCameraUseCases();
+            } catch (ExecutionException | InterruptedException e) {
+                Log.e(TAG, "Error starting camera", e);
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), getString(R.string.failed_start_camera), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, ContextCompat.getMainExecutor(getContext()));
+    }
+
+    private void bindCameraUseCases() {
+        Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(cameraPreview.getSurfaceProvider());
+
+        imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setFlashMode(isFlashOn ? ImageCapture.FLASH_MODE_ON : ImageCapture.FLASH_MODE_OFF)
+                .build();
+
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+            try {
+                camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+                updateZoomUI();
+            } catch (Exception e) {
+                Log.e(TAG, "Use case binding failed", e);
             }
         }
     }
 
-    private File createImageFile() {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        File storageDir = new File(getContext().getExternalFilesDir(null), PHOTO_DIR);
+    private void capturePhoto() {
+        if (imageCapture == null || getContext() == null)
+            return;
 
-        if (!storageDir.exists()) {
-            storageDir.mkdirs();
-        }
-
-        File imageFile = new File(storageDir, "IMG_" + timeStamp + ".jpg");
-        currentPhotoPath = imageFile.getAbsolutePath();
-        return imageFile;
-    }
-
-    private void openGallery() {
-        String permission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ?
-                Manifest.permission.READ_MEDIA_IMAGES :
-                Manifest.permission.READ_EXTERNAL_STORAGE;
-
-        if (ContextCompat.checkSelfPermission(getContext(), permission)
-                != PackageManager.PERMISSION_GRANTED) {
-            galleryPermissionLauncher.launch(permission);
-        } else {
-            launchGalleryPicker();
-        }
-    }
-
-    private void launchGalleryPicker() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/* video/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        galleryLauncher.launch(intent);
-    }
-
-    private void handleGallerySelection(Intent data) {
-        if (data.getClipData() != null) {
-            // Multiple files selected
-            int count = data.getClipData().getItemCount();
-            for (int i = 0; i < count; i++) {
-                Uri uri = data.getClipData().getItemAt(i).getUri();
-                copyUriToInternalStorage(uri);
+        File photoFile = createImageFile();
+        if (photoFile == null) {
+            if (getContext() != null) {
+                Toast.makeText(getContext(), getString(R.string.failed_create_photo_file), Toast.LENGTH_SHORT).show();
             }
-        } else if (data.getData() != null) {
-            // Single file selected
-            Uri uri = data.getData();
-            copyUriToInternalStorage(uri);
-        }
-    }
-
-    private void copyUriToInternalStorage(Uri uri) {
-        try {
-            String mimeType = getContext().getContentResolver().getType(uri);
-            String mediaType = mimeType != null && mimeType.startsWith("video") ? "video" : "photo";
-
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-            File storageDir = new File(getContext().getExternalFilesDir(null), PHOTO_DIR);
-            if (!storageDir.exists()) {
-                storageDir.mkdirs();
-            }
-
-            String fileName = mediaType.equals("video") ? "VID_" + timeStamp + ".mp4" : "IMG_" + timeStamp + ".jpg";
-            File destFile = new File(storageDir, fileName);
-
-            java.io.InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
-            java.io.FileOutputStream outputStream = new java.io.FileOutputStream(destFile);
-
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, length);
-            }
-
-            inputStream.close();
-            outputStream.close();
-
-            saveCapture(destFile.getAbsolutePath(), mediaType);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Failed to import media", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // ======================== Database & UI Methods ========================
-
-    private void saveCapture(String mediaPath, String mediaType) {
-        Capture capture = new Capture();
-        capture.setUserId(currentUserId);
-        capture.setTripId(currentTripId > 0 ? currentTripId : 1); // Default to trip 1 if not set
-        capture.setMediaPath(mediaPath);
-        capture.setMediaType(mediaType);
-        capture.setDescription(""); // Empty description initially
-        capture.setCapturedAt(System.currentTimeMillis());
-        capture.setCreatedAt(System.currentTimeMillis());
-        capture.setUpdatedAt(System.currentTimeMillis());
-
-        long id = databaseHelper.addCapture(capture);
-        if (id > 0) {
-            Toast.makeText(getContext(), mediaType.equals("video") ? "Video saved" : "Photo saved", Toast.LENGTH_SHORT).show();
-            loadCaptures();
-        } else {
-            Toast.makeText(getContext(), "Failed to save capture", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void saveNote() {
-        String note = etTravelNote.getText().toString().trim();
-        if (note.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter a note", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create a capture with just a note (no media)
-        Capture capture = new Capture();
-        capture.setUserId(currentUserId);
-        capture.setTripId(currentTripId > 0 ? currentTripId : 1);
-        capture.setMediaPath(""); // No media for note-only entries
-        capture.setMediaType("note");
-        capture.setDescription(note);
-        capture.setCapturedAt(System.currentTimeMillis());
-        capture.setCreatedAt(System.currentTimeMillis());
-        capture.setUpdatedAt(System.currentTimeMillis());
+        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
 
-        long id = databaseHelper.addCapture(capture);
-        if (id > 0) {
-            Toast.makeText(getContext(), "Note saved", Toast.LENGTH_SHORT).show();
-            etTravelNote.setText("");
-            loadCaptures();
-        } else {
-            Toast.makeText(getContext(), "Failed to save note", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void loadCaptures() {
-        if (currentTripId > 0) {
-            List<Capture> captures = databaseHelper.getRecentCapturesForTrip(currentTripId, 6);
-            captureAdapter.updateList(captures);
-        }
-    }
-
-    private void openFullGallery() {
-        // TODO: Navigate to full gallery fragment showing all captures
-        Toast.makeText(getContext(), "Full gallery view coming soon", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onCaptureClicked(Capture capture) {
-        // Show capture details or preview
-        if (!capture.getMediaPath().isEmpty()) {
-            // TODO: Open media preview
-            Toast.makeText(getContext(), "Preview: " + capture.getDescription(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onCaptureDelete(Capture capture) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Capture")
-                .setMessage("Are you sure you want to delete this capture?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    databaseHelper.deleteCapture(capture.getCaptureId());
-
-                    // Delete file if exists
-                    if (!capture.getMediaPath().isEmpty()) {
-                        File file = new File(capture.getMediaPath());
-                        if (file.exists()) {
-                            file.delete();
+        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(getContext()),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        // Navigate to PostCaptureFragment
+                        if (isAdded()) {
+                            PostCaptureFragment fragment = PostCaptureFragment.newInstance(photoFile.getAbsolutePath());
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.content_container, fragment)
+                                    .addToBackStack(null)
+                                    .commit();
                         }
                     }
 
-                    Toast.makeText(getContext(), "Capture deleted", Toast.LENGTH_SHORT).show();
-                    loadCaptures();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), getString(R.string.failed_capture_photo), Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+                });
+    }
+
+    private File createImageFile() {
+        if (getContext() == null)
+            return null;
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        File storageDir = new File(getContext().getExternalFilesDir(null), PHOTO_DIR);
+        if (!storageDir.exists())
+            storageDir.mkdirs();
+        return new File(storageDir, "IMG_" + timeStamp + ".jpg");
+    }
+
+    private void switchCamera() {
+        cameraSelector = (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) ? CameraSelector.DEFAULT_FRONT_CAMERA
+                : CameraSelector.DEFAULT_BACK_CAMERA;
+        // Reset zoom when switching cameras
+        bindCameraUseCases();
+    }
+
+    private void toggleFlash() {
+        isFlashOn = !isFlashOn;
+        // Rebind camera with new flash mode
+        bindCameraUseCases();
+        if (btnFlash != null && getContext() != null) {
+            btnFlash.setImageResource(isFlashOn ? R.drawable.ic_flash_on : R.drawable.ic_flash_off);
+        }
+    }
+
+    private void toggleZoom() {
+        if (camera == null)
+            return;
+        CameraControl control = camera.getCameraControl();
+        ZoomState zoomState = camera.getCameraInfo().getZoomState().getValue();
+
+        if (zoomState != null) {
+            float minZoom = zoomState.getMinZoomRatio();
+            float currentZoom = zoomState.getZoomRatio();
+
+            float targetZoom = 1.0f;
+            String zoomText = getString(R.string.zoom_1x);
+
+            // Only allow toggling if the camera supports wide angle (< 1.0x)
+            if (minZoom < 1.0f) {
+                // Check if we are effectively at 1x (allow small epsilon)
+                if (Math.abs(currentZoom - 1.0f) < 0.05f) {
+                    // We are at 1x, go to 0.5x (or minZoom)
+                    targetZoom = Math.max(minZoom, 0.5f);
+                    zoomText = getString(R.string.zoom_0_5x);
+                } else {
+                    // We are not at 1x (presumably 0.5x), go back to 1x
+                    targetZoom = 1.0f;
+                    zoomText = getString(R.string.zoom_1x);
+                }
+                control.setZoomRatio(targetZoom);
+                tvZoom.setText(zoomText);
+            } else {
+                // If wide angle not supported, ensure we stay at 1x
+                control.setZoomRatio(1.0f);
+                tvZoom.setText(getString(R.string.zoom_1x));
+            }
+        }
+    }
+
+    private void updateZoomUI() {
+        // Reset to 1x when binding/rebinding
+        tvZoom.setText(R.string.zoom_1x);
+    }
+
+    private void setupBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomDrawer);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior.setPeekHeight(0);
+
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    // Load AlbumFragment into the drawer
+                    loadLibraryContent();
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    // Clear the fragment when drawer is hidden
+                    clearLibraryContent();
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                // Optional: Add animation effects during slide
+            }
+        });
+    }
+
+    private void setupSwipeGesture() {
+        gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
+            private static final int SWIPE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null)
+                    return false;
+
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+
+                if (Math.abs(diffY) > Math.abs(diffX)) {
+                    if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffY < 0) {
+                            // Swipe up detected
+                            openDrawer();
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+
+        swipeArea.setOnTouchListener((v, event) -> {
+            boolean handled = gestureDetector.onTouchEvent(event);
+            // Only consume the event if it was a swipe gesture, otherwise pass through to
+            // views below
+            return handled;
+        });
+    }
+
+    private void openDrawer() {
+        if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+    }
+
+    private void closeDrawer() {
+        if (bottomSheetBehavior != null) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+    }
+
+    private void loadLibraryContent() {
+        if (isAdded() && getChildFragmentManager().findFragmentById(R.id.drawer_content_container) == null) {
+            AlbumFragment albumFragment = AlbumFragment.newInstance();
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.drawer_content_container, albumFragment)
+                    .commit();
+        }
+    }
+
+    private void clearLibraryContent() {
+        if (isAdded()) {
+            Fragment fragment = getChildFragmentManager().findFragmentById(R.id.drawer_content_container);
+            if (fragment != null) {
+                getChildFragmentManager().beginTransaction()
+                        .remove(fragment)
+                        .commit();
+            }
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+        }
+        gestureDetector = null;
     }
 }

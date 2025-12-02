@@ -62,20 +62,22 @@ public class ZoomableImageView extends AppCompatImageView implements View.OnTouc
             float scaleFactor = detector.getScaleFactor();
             float origScale = mScaleFactor;
             mScaleFactor *= scaleFactor;
+
             if (mScaleFactor > 10.0f) {
                 mScaleFactor = 10.0f;
                 scaleFactor = 10.0f / origScale;
-            } else if (mScaleFactor < 0.1f) {
-                mScaleFactor = 0.1f;
-                scaleFactor = 0.1f / origScale;
+            } else if (mScaleFactor < 1.0f) {
+                mScaleFactor = 1.0f;
+                scaleFactor = 1.0f / origScale;
             }
 
-            if (origScale * scaleFactor < 0.1f) {
+            if (origScale * scaleFactor < 1.0f) {
                 matrix.postScale(scaleFactor, scaleFactor, getWidth() / 2, getHeight() / 2);
             } else {
                 matrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
             }
 
+            checkMatrixBounds();
             setImageMatrix(matrix);
             return true;
         }
@@ -92,6 +94,10 @@ public class ZoomableImageView extends AppCompatImageView implements View.OnTouc
                 start.set(curr);
                 mode = DRAG;
                 lastEvent = null;
+                // Only disallow interception if we are zoomed in
+                if (mScaleFactor > 1.0f) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 oldDist = spacing(event);
@@ -99,6 +105,8 @@ public class ZoomableImageView extends AppCompatImageView implements View.OnTouc
                     savedMatrix.set(matrix);
                     midPoint(mid, event);
                     mode = ZOOM;
+                    // Always disallow parent intercept during zoom
+                    getParent().requestDisallowInterceptTouchEvent(true);
                 }
                 lastEvent = new float[4];
                 lastEvent[0] = event.getX(0);
@@ -111,13 +119,20 @@ public class ZoomableImageView extends AppCompatImageView implements View.OnTouc
             case MotionEvent.ACTION_POINTER_UP:
                 mode = NONE;
                 lastEvent = null;
+                if (mScaleFactor <= 1.0f) {
+                    resetZoom();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (mode == DRAG) {
-                    matrix.set(savedMatrix);
-                    float dx = curr.x - start.x;
-                    float dy = curr.y - start.y;
-                    matrix.postTranslate(dx, dy);
+                    // Only drag if zoomed in
+                    if (mScaleFactor > 1.0f) {
+                        matrix.set(savedMatrix);
+                        float dx = curr.x - start.x;
+                        float dy = curr.y - start.y;
+                        matrix.postTranslate(dx, dy);
+                        checkMatrixBounds();
+                    }
                 } else if (mode == ZOOM) {
                     // Pinch zooming is handled by ScaleGestureDetector
                 }
@@ -126,6 +141,43 @@ public class ZoomableImageView extends AppCompatImageView implements View.OnTouc
 
         setImageMatrix(matrix);
         return true;
+    }
+
+    private void checkMatrixBounds() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+
+        if (getDrawable() == null)
+            return;
+
+        float imgW = getDrawable().getIntrinsicWidth() * values[Matrix.MSCALE_X];
+        float imgH = getDrawable().getIntrinsicHeight() * values[Matrix.MSCALE_Y];
+        float transX = values[Matrix.MTRANS_X];
+        float transY = values[Matrix.MTRANS_Y];
+        float viewW = getWidth();
+        float viewH = getHeight();
+
+        if (imgW <= viewW) {
+            transX = (viewW - imgW) / 2;
+        } else {
+            if (transX > 0)
+                transX = 0;
+            if (transX < viewW - imgW)
+                transX = viewW - imgW;
+        }
+
+        if (imgH <= viewH) {
+            transY = (viewH - imgH) / 2;
+        } else {
+            if (transY > 0)
+                transY = 0;
+            if (transY < viewH - imgH)
+                transY = viewH - imgH;
+        }
+
+        values[Matrix.MTRANS_X] = transX;
+        values[Matrix.MTRANS_Y] = transY;
+        matrix.setValues(values);
     }
 
     @Override

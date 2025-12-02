@@ -401,53 +401,6 @@
                 android:clipToPadding="false"
                 android:visibility="gone" />
 
-            <!-- Captured Memories Section -->
-            <TextView
-                android:id="@+id/tv_memories_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/captured_memories"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_dark"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view_memories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:clipToPadding="false" />
-
-            <!-- Show More Memories Button -->
-            <TextView
-                android:id="@+id/tv_show_more_memories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/show_more"
-                android:textSize="14sp"
-                android:textColor="@color/teal_primary"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:drawableEnd="@drawable/ic_arrow_forward"
-                android:drawablePadding="8dp"
-                android:gravity="center_vertical"
-                android:visibility="gone" />
-
         </LinearLayout>
     </ScrollView>
 

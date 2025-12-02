@@ -527,8 +527,6 @@
     <string name="example_schedule_arrival_tokyo">Arrival in Tokyo...</string>
     <string name="label_total_expenses">Total Expenses: </string>
     <string name="example_money_2500">$2500</string>
-    <string name="captured_memories">Captured Memories</string>
-    <string name="show_more">Show More</string>
     <string name="desc_add_trip">Add Trip</string>
     <string name="example_trip_name_kyoto">Summer in Kyoto</string>
     <string name="example_trip_subtitle_kyoto">A 10-day adventure to Kyoto.</string>
@@ -605,4 +603,31 @@
     <string name="dates_label">Dates:</string>
     <string name="members_label">Members:</string>
     <string name="join_button">Join This Trip</string>
+
+    <!-- Post Capture Fragment -->
+    <string name="add_caption_hint">Add a caption...</string>
+    <string name="failed_embed_caption">Failed to embed caption</string>
+    <string name="unknown_trip">Unknown Trip</string>
+    <string name="saved_to_trip">Saved to %s</string>
+    <string name="failed_to_save">Failed to save</string>
+
+    <!-- Full Image Fragment -->
+    <string name="image_details_title">Image Details</string>
+    <string name="image_details_message">Path: %1$s\n\nType: %2$s\n\nCaptured: %3$s</string>
+    <string name="ok">OK</string>
+    <string name="delete_photo_title">Delete Photo</string>
+    <string name="delete_photo_message">Are you sure you want to delete this photo?</string>
+    <string name="cannot_delete_schedule_expense">Cannot delete Schedule/Expense images from here yet</string>
+    <string name="photo_deleted">Photo deleted</string>
+
+    <!-- Capture Fragment -->
+    <string name="camera_permission_denied">Camera permissions denied</string>
+    <string name="failed_start_camera">Failed to start camera</string>
+    <string name="failed_create_photo_file">Failed to create photo file</string>
+    <string name="failed_capture_photo">Failed to capture photo</string>
+    <string name="zoom_1x">1x</string>
+    <string name="zoom_0_5x">0.5x</string>
+    <string name="zoom_2x">2x</string>
+    <string name="select_trip">Select Trip</string>
+    <string name="library">Library</string>
 </resources>
