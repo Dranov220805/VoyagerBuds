@@ -423,6 +423,8 @@ public class TripDetailFragment extends Fragment {
         executorService.execute(() -> {
             List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip((int) tripId);
             List<Expense> expenses = databaseHelper.getExpensesForTrip((int) tripId);
+            List<com.example.voyagerbuds.models.Capture> captures = databaseHelper
+                    .getCapturesForTripOrdered((int) tripId);
             List<String> allImages = new ArrayList<>();
 
             // Add images from schedules
@@ -453,6 +455,13 @@ public class TripDetailFragment extends Fragment {
                 }
             }
 
+            // Add images from captures
+            for (com.example.voyagerbuds.models.Capture capture : captures) {
+                if (capture.getMediaPath() != null && !capture.getMediaPath().isEmpty()) {
+                    allImages.add(capture.getMediaPath());
+                }
+            }
+
             Collections.reverse(allImages);
             List<String> previewImages = allImages.subList(0, Math.min(allImages.size(), 5));
 
@@ -479,44 +488,21 @@ public class TripDetailFragment extends Fragment {
                         imageView.setBackgroundResource(R.drawable.rounded_corner_bg);
                         imageView.setClipToOutline(true);
 
-                        executorService.execute(() -> {
-                            android.graphics.Bitmap bitmap = null;
-                            try {
-                                Uri uri;
-                                if (path.startsWith("content://") || path.startsWith("file://")) {
-                                    uri = Uri.parse(path);
-                                } else {
-                                    uri = Uri.fromFile(new File(path));
-                                }
-                                android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
-                                options.inJustDecodeBounds = true;
-                                java.io.InputStream input = requireContext().getContentResolver().openInputStream(uri);
-                                android.graphics.BitmapFactory.decodeStream(input, null, options);
-                                if (input != null)
-                                    input.close();
+                        // Use Glide for better image loading
+                        Uri uri;
+                        if (path.startsWith("content://") || path.startsWith("file://")) {
+                            uri = Uri.parse(path);
+                        } else {
+                            uri = Uri.fromFile(new File(path));
+                        }
 
-                                options.inSampleSize = com.example.voyagerbuds.utils.ImageUtils
-                                        .calculateInSampleSize(options, 300, 300);
-                                options.inJustDecodeBounds = false;
-
-                                input = requireContext().getContentResolver().openInputStream(uri);
-                                bitmap = android.graphics.BitmapFactory.decodeStream(input, null, options);
-                                if (input != null)
-                                    input.close();
-
-                                bitmap = com.example.voyagerbuds.utils.ImageUtils
-                                        .rotateImageIfRequired(requireContext(), bitmap, uri);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            android.graphics.Bitmap finalBitmap = bitmap;
-                            mainHandler.post(() -> {
-                                if (finalBitmap != null) {
-                                    imageView.setImageBitmap(finalBitmap);
-                                }
-                            });
-                        });
+                        Glide.with(requireContext())
+                                .load(uri)
+                                .centerCrop()
+                                .placeholder(R.drawable.ic_photo)
+                                .error(R.drawable.ic_photo)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(imageView);
 
                         imageView.setOnClickListener(v -> {
                             showFullImageDialog(path);

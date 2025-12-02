@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <ImageView
-        android:id="@+id/full_image_view"
+    <com.example.voyagerbuds.views.ZoomableImageView
+        android:id="@+id/iv_full_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"
@@ -32,5 +32,20 @@
         android:contentDescription="Rotate"
         android:src="@android:drawable/ic_menu_rotate"
         android:tint="@android:color/white" />
+
+    <FrameLayout
+        android:id="@+id/loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@android:color/white" />
+
+    </FrameLayout>
 
 </FrameLayout>

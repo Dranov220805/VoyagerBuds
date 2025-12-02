@@ -248,7 +248,8 @@ public class FirebaseBackupManager {
         }
         String uid = user.getUid();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        CollectionReference tripsRef = firestore.collection(USERS_COLLECTION).document(uid).collection(TRIPS_COLLECTION);
+        CollectionReference tripsRef = firestore.collection(USERS_COLLECTION).document(uid)
+                .collection(TRIPS_COLLECTION);
 
         tripsRef.get().addOnSuccessListener(querySnapshot -> {
             List<com.google.firebase.firestore.DocumentSnapshot> docs = querySnapshot.getDocuments();
@@ -270,7 +271,8 @@ public class FirebaseBackupManager {
                 preview.trips.add(ts);
 
                 // count child collections
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> schTask = doc.getReference()
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> schTask = doc
+                        .getReference()
                         .collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(qs -> {
                             int c = qs.getDocuments().size();
                             ts.scheduleCount = c;
@@ -278,7 +280,8 @@ public class FirebaseBackupManager {
                         }).addOnFailureListener(e -> Log.w(TAG, "Failed to count schedules for " + doc.getId(), e));
                 tasks.add(schTask);
 
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> expTask = doc.getReference()
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> expTask = doc
+                        .getReference()
                         .collection(EXPENSES_COLLECTION).get().addOnSuccessListener(qs -> {
                             int c = qs.getDocuments().size();
                             ts.expenseCount = c;
@@ -286,7 +289,8 @@ public class FirebaseBackupManager {
                         }).addOnFailureListener(e -> Log.w(TAG, "Failed to count expenses for " + doc.getId(), e));
                 tasks.add(expTask);
 
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> capTask = doc.getReference()
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> capTask = doc
+                        .getReference()
                         .collection(CAPTURES_COLLECTION).get().addOnSuccessListener(qs -> {
                             int c = qs.getDocuments().size();
                             ts.captureCount = c;
@@ -305,6 +309,27 @@ public class FirebaseBackupManager {
         restoreAllData(context, mAuth, dbHelper, RestoreStrategy.APPEND, callback);
     }
 
+    /**
+     * Restore user data from Firestore with three strategies:
+     * 
+     * 1. OVERWRITE: Delete all local data first, then import everything from cloud.
+     * - Destructive operation: all local data is lost
+     * - Use when cloud data is the source of truth
+     * 
+     * 2. MERGE: Smart merge - skip duplicates, update existing matches, add new
+     * items.
+     * - Non-destructive: preserves local data
+     * - Duplicate detection by: Trip (name+dates), Schedule (title+day+time),
+     * Expense (category+amount+date+currency), Capture (mediaPath+capturedAt)
+     * - Use when you want to sync data from multiple devices
+     * 
+     * 3. APPEND: Always add cloud data as new entries (may create duplicates).
+     * - Non-destructive: preserves all local data
+     * - Use when you want to keep both local and cloud data
+     * 
+     * Note: Images are NOT backed up to cloud yet (future update).
+     * Only image metadata (paths) are synced.
+     */
     public static void restoreAllData(Context context, FirebaseAuth mAuth, DatabaseHelper dbHelper,
             RestoreStrategy strategy, Callback callback) {
         FirebaseUser user = mAuth.getCurrentUser();
@@ -317,13 +342,16 @@ public class FirebaseBackupManager {
         com.google.firebase.firestore.CollectionReference tripsRef = firestore.collection(USERS_COLLECTION)
                 .document(uid).collection(TRIPS_COLLECTION);
 
-        // If overwrite strategy, clear local data first
+        // Get local user ID
         int localUserId = UserSessionManager.getCurrentUserId(context);
         if (localUserId == -1) {
             callback.onFailure("Cannot find local user id");
             return;
         }
+
+        // OVERWRITE strategy: Clear all local data first
         if (strategy == RestoreStrategy.OVERWRITE) {
+            Log.d(TAG, "OVERWRITE mode: Clearing all local data...");
             dbHelper.clearUserData(localUserId);
         }
 
@@ -378,154 +406,214 @@ public class FirebaseBackupManager {
                 trip.setBudgetCurrency((String) tripData.getOrDefault("budgetCurrency", "USD"));
                 trip.setParticipants((String) tripData.getOrDefault("participants", ""));
 
-                // Check merge strategy: if MERGE, try to find existing trip by firebase id or by name/date
+                // Check merge strategy: if MERGE, try to find existing trip by firebase id or
+                // by name/date
+                // MERGE: Skip duplicates, update existing matches
+                // APPEND: Always add as new (default behavior)
+                // OVERWRITE: Delete all local data first (handled above), then add
                 long newIdLong;
                 if (strategy == RestoreStrategy.MERGE) {
                     Trip existing = null;
+                    // First, try to match by Firebase ID (most precise)
                     if (trip.getFirebaseId() > 0) {
                         existing = dbHelper.getTripByFirebaseId(trip.getFirebaseId(), localUserId);
                     }
+                    // Fallback: match by tripName + startDate + endDate (precise duplicate
+                    // detection)
                     if (existing == null) {
-                        // Fallback, try matching by name and startDate
                         List<Trip> localTrips = dbHelper.getAllTrips(localUserId);
                         for (Trip lt : localTrips) {
-                            if (lt.getTripName() != null && lt.getTripName().equals(trip.getTripName())
-                                    && lt.getStartDate() != null && lt.getStartDate().equals(trip.getStartDate())) {
+                            boolean nameMatches = (lt.getTripName() != null && trip.getTripName() != null
+                                    && lt.getTripName().trim().equalsIgnoreCase(trip.getTripName().trim()));
+                            boolean startDateMatches = (lt.getStartDate() != null && trip.getStartDate() != null
+                                    && lt.getStartDate().equals(trip.getStartDate()));
+                            boolean endDateMatches = (lt.getEndDate() != null && trip.getEndDate() != null
+                                    && lt.getEndDate().equals(trip.getEndDate()));
+
+                            if (nameMatches && startDateMatches && endDateMatches) {
                                 existing = lt;
                                 break;
                             }
                         }
                     }
                     if (existing != null) {
-                        // Merge: update existing trip then use its id for children
+                        // MERGE: Update existing trip with cloud data, preserve local ID
                         trip.setTripId(existing.getTripId());
-                        trip.setFirebaseId(existing.getFirebaseId() == 0 ? trip.getFirebaseId() : existing.getFirebaseId());
+                        trip.setFirebaseId(
+                                existing.getFirebaseId() == 0 ? trip.getFirebaseId() : existing.getFirebaseId());
                         dbHelper.updateTrip(trip);
                         newIdLong = existing.getTripId();
+                        Log.d(TAG, "MERGE: Updated existing trip - " + trip.getTripName());
                     } else {
-                        // Add as new trip
+                        // No match found, add as new trip
                         long newId = dbHelper.addTrip(trip);
                         newIdLong = newId;
+                        Log.d(TAG, "MERGE: Added new trip - " + trip.getTripName());
                     }
                 } else {
-                    // Append or overwrite: simply add
+                    // APPEND or OVERWRITE: Simply add as new trip
                     long newId = dbHelper.addTrip(trip);
                     newIdLong = newId;
+                    Log.d(TAG, strategy + ": Added trip - " + trip.getTripName());
                 }
                 int insertedTripId = (int) newIdLong;
 
                 // Now child collections: schedules
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> sTask = doc.getReference().collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
-                    for (com.google.firebase.firestore.DocumentSnapshot scheduleDoc : querySnapshot.getDocuments()) {
-                        Map<String, Object> scheduleData = scheduleDoc.getData();
-                        ScheduleItem item = new ScheduleItem();
-                        item.setTripId(insertedTripId);
-                        item.setDay((String) scheduleData.getOrDefault("day", null));
-                        item.setStartTime((String) scheduleData.getOrDefault("startTime", null));
-                        item.setEndTime((String) scheduleData.getOrDefault("endTime", null));
-                        item.setTitle((String) scheduleData.getOrDefault("title", null));
-                        item.setNotes((String) scheduleData.getOrDefault("notes", null));
-                        item.setLocation((String) scheduleData.getOrDefault("location", null));
-                        item.setParticipants((String) scheduleData.getOrDefault("participants", null));
-                        item.setImagePaths((String) scheduleData.getOrDefault("imagePaths", null));
-                        item.setNotifyBeforeMinutes(
-                                ((Number) scheduleData.getOrDefault("notifyBeforeMinutes", 0)).intValue());
-                        item.setCreatedAt(((Number) scheduleData.getOrDefault("createdAt", 0)).longValue());
-                        item.setUpdatedAt(((Number) scheduleData.getOrDefault("updatedAt", 0)).longValue());
-                        // For MERGE, try to avoid duplicates for schedules: minimal heuristic
-                        if (strategy == RestoreStrategy.MERGE) {
-                            List<ScheduleItem> existingSchedules = dbHelper.getSchedulesForTrip(insertedTripId);
-                            boolean found = false;
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> sTask = doc
+                        .getReference().collection(SCHEDULE_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                            for (com.google.firebase.firestore.DocumentSnapshot scheduleDoc : querySnapshot
+                                    .getDocuments()) {
+                                Map<String, Object> scheduleData = scheduleDoc.getData();
+                                ScheduleItem item = new ScheduleItem();
+                                item.setTripId(insertedTripId);
+                                item.setDay((String) scheduleData.getOrDefault("day", null));
+                                item.setStartTime((String) scheduleData.getOrDefault("startTime", null));
+                                item.setEndTime((String) scheduleData.getOrDefault("endTime", null));
+                                item.setTitle((String) scheduleData.getOrDefault("title", null));
+                                item.setNotes((String) scheduleData.getOrDefault("notes", null));
+                                item.setLocation((String) scheduleData.getOrDefault("location", null));
+                                item.setParticipants((String) scheduleData.getOrDefault("participants", null));
+                                item.setImagePaths((String) scheduleData.getOrDefault("imagePaths", null));
+                                item.setNotifyBeforeMinutes(
+                                        ((Number) scheduleData.getOrDefault("notifyBeforeMinutes", 0)).intValue());
+                                item.setCreatedAt(((Number) scheduleData.getOrDefault("createdAt", 0)).longValue());
+                                item.setUpdatedAt(((Number) scheduleData.getOrDefault("updatedAt", 0)).longValue());
+                                // For MERGE, try to avoid duplicates for schedules
+                                // Match by: title + day + startTime (precise duplicate detection)
+                                if (strategy == RestoreStrategy.MERGE) {
+                                    List<ScheduleItem> existingSchedules = dbHelper.getSchedulesForTrip(insertedTripId);
+                                    boolean found = false;
                                     for (ScheduleItem es : existingSchedules) {
-                                if ((es.getTitle() != null && es.getTitle().equals(item.getTitle()))
-                                        && (es.getStartTime() != null && es.getStartTime().equals(item.getStartTime()))) {
-                                    // candidate for update
-                                    item.setId(es.getId());
-                                    dbHelper.updateSchedule(item);
-                                    found = true;
-                                    break;
+                                        boolean titleMatches = (es.getTitle() != null && item.getTitle() != null
+                                                && es.getTitle().trim().equalsIgnoreCase(item.getTitle().trim()));
+                                        boolean dayMatches = (es.getDay() != null && item.getDay() != null
+                                                && es.getDay().equals(item.getDay()));
+                                        boolean startTimeMatches = (es.getStartTime() != null
+                                                && item.getStartTime() != null
+                                                && es.getStartTime().equals(item.getStartTime()));
+
+                                        if (titleMatches && dayMatches && startTimeMatches) {
+                                            // Found duplicate: update existing schedule with cloud data
+                                            item.setId(es.getId());
+                                            dbHelper.updateSchedule(item);
+                                            found = true;
+                                            Log.d(TAG, "MERGE: Updated schedule - " + item.getTitle());
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        dbHelper.addSchedule(item);
+                                        Log.d(TAG, "MERGE: Added new schedule - " + item.getTitle());
+                                    }
+                                } else {
+                                    dbHelper.addSchedule(item);
                                 }
                             }
-                            if (!found) {
-                                dbHelper.addSchedule(item);
-                            }
-                        } else {
-                            dbHelper.addSchedule(item);
-                        }
-                    }
-                }).addOnFailureListener(
-                        e -> Log.w(TAG, "Failed to restore schedules for trip: " + trip.getTripName(), e));
+                        }).addOnFailureListener(
+                                e -> Log.w(TAG, "Failed to restore schedules for trip: " + trip.getTripName(), e));
                 readTasks.add(sTask);
 
                 // expenses
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> eTask = doc.getReference().collection(EXPENSES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
-                    for (com.google.firebase.firestore.DocumentSnapshot expenseDoc : querySnapshot.getDocuments()) {
-                        Map<String, Object> expenseData = expenseDoc.getData();
-                        Expense expense = new Expense();
-                        expense.setTripId(insertedTripId);
-                        expense.setCategory((String) expenseData.getOrDefault("category", null));
-                        expense.setAmount(((Number) expenseData.getOrDefault("amount", 0)).doubleValue());
-                        expense.setCurrency((String) expenseData.getOrDefault("currency", null));
-                        expense.setNote((String) expenseData.getOrDefault("note", null));
-                        expense.setSpentAt(((Number) expenseData.getOrDefault("spentAt", 0)).intValue());
-                        expense.setImagePaths((String) expenseData.getOrDefault("imagePaths", null));
-                        if (strategy == RestoreStrategy.MERGE) {
-                            List<Expense> existingExpenses = dbHelper.getExpensesForTrip(insertedTripId);
-                            boolean found = false;
-                            for (Expense ee : existingExpenses) {
-                                if (ee.getAmount() == expense.getAmount() && ee.getSpentAt() == expense.getSpentAt()
-                                        && (ee.getCategory() != null && ee.getCategory().equals(expense.getCategory()))) {
-                                    expense.setExpenseId(ee.getExpenseId());
-                                    dbHelper.updateExpense(expense);
-                                    found = true;
-                                    break;
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> eTask = doc
+                        .getReference().collection(EXPENSES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                            for (com.google.firebase.firestore.DocumentSnapshot expenseDoc : querySnapshot
+                                    .getDocuments()) {
+                                Map<String, Object> expenseData = expenseDoc.getData();
+                                Expense expense = new Expense();
+                                expense.setTripId(insertedTripId);
+                                expense.setCategory((String) expenseData.getOrDefault("category", null));
+                                expense.setAmount(((Number) expenseData.getOrDefault("amount", 0)).doubleValue());
+                                expense.setCurrency((String) expenseData.getOrDefault("currency", null));
+                                expense.setNote((String) expenseData.getOrDefault("note", null));
+                                expense.setSpentAt(((Number) expenseData.getOrDefault("spentAt", 0)).intValue());
+                                expense.setImagePaths((String) expenseData.getOrDefault("imagePaths", null));
+                                // For MERGE, avoid duplicates for expenses
+                                // Match by: category + amount + spentAt + currency (precise duplicate
+                                // detection)
+                                if (strategy == RestoreStrategy.MERGE) {
+                                    List<Expense> existingExpenses = dbHelper.getExpensesForTrip(insertedTripId);
+                                    boolean found = false;
+                                    for (Expense ee : existingExpenses) {
+                                        boolean categoryMatches = (ee.getCategory() != null
+                                                && expense.getCategory() != null
+                                                && ee.getCategory().equals(expense.getCategory()));
+                                        boolean amountMatches = (Math.abs(ee.getAmount() - expense.getAmount()) < 0.01); // Float
+                                                                                                                         // comparison
+                                        boolean spentAtMatches = (ee.getSpentAt() == expense.getSpentAt());
+                                        boolean currencyMatches = (ee.getCurrency() != null
+                                                && expense.getCurrency() != null
+                                                && ee.getCurrency().equals(expense.getCurrency()));
+
+                                        if (categoryMatches && amountMatches && spentAtMatches && currencyMatches) {
+                                            // Found duplicate: update existing expense with cloud data
+                                            expense.setExpenseId(ee.getExpenseId());
+                                            dbHelper.updateExpense(expense);
+                                            found = true;
+                                            Log.d(TAG, "MERGE: Updated expense - " + expense.getCategory() + " $"
+                                                    + expense.getAmount());
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        dbHelper.addExpense(expense);
+                                        Log.d(TAG, "MERGE: Added new expense - " + expense.getCategory() + " $"
+                                                + expense.getAmount());
+                                    }
+                                } else {
+                                    dbHelper.addExpense(expense);
                                 }
                             }
-                            if (!found) {
-                                dbHelper.addExpense(expense);
-                            }
-                        } else {
-                            dbHelper.addExpense(expense);
-                        }
-                    }
-                }).addOnFailureListener(
-                        e -> Log.w(TAG, "Failed to restore expenses for trip: " + trip.getTripName(), e));
+                        }).addOnFailureListener(
+                                e -> Log.w(TAG, "Failed to restore expenses for trip: " + trip.getTripName(), e));
                 readTasks.add(eTask);
 
                 // captures
-                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> cTask = doc.getReference().collection(CAPTURES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
-                    for (com.google.firebase.firestore.DocumentSnapshot captureDoc : querySnapshot.getDocuments()) {
-                        Map<String, Object> captureData = captureDoc.getData();
-                        Capture capture = new Capture();
-                        capture.setTripId(insertedTripId);
-                        capture.setUserId(localUserId);
-                        capture.setMediaPath((String) captureData.getOrDefault("mediaPath", null));
-                        capture.setMediaType((String) captureData.getOrDefault("mediaType", null));
-                        capture.setDescription((String) captureData.getOrDefault("description", null));
-                        capture.setCapturedAt(((Number) captureData.getOrDefault("capturedAt", 0)).longValue());
-                        capture.setCreatedAt(((Number) captureData.getOrDefault("createdAt", 0)).longValue());
-                        capture.setUpdatedAt(((Number) captureData.getOrDefault("updatedAt", 0)).longValue());
-                        if (strategy == RestoreStrategy.MERGE) {
-                            List<Capture> existingCaptures = dbHelper.getCapturesForTrip(insertedTripId);
-                            boolean found = false;
-                            for (Capture ec : existingCaptures) {
-                                if (ec.getMediaPath() != null && ec.getMediaPath().equals(capture.getMediaPath())
-                                        && ec.getCapturedAt() == capture.getCapturedAt()) {
-                                    capture.setCaptureId(ec.getCaptureId());
-                                    dbHelper.updateCapture(capture);
-                                    found = true;
-                                    break;
+                com.google.android.gms.tasks.Task<com.google.firebase.firestore.QuerySnapshot> cTask = doc
+                        .getReference().collection(CAPTURES_COLLECTION).get().addOnSuccessListener(querySnapshot -> {
+                            for (com.google.firebase.firestore.DocumentSnapshot captureDoc : querySnapshot
+                                    .getDocuments()) {
+                                Map<String, Object> captureData = captureDoc.getData();
+                                Capture capture = new Capture();
+                                capture.setTripId(insertedTripId);
+                                capture.setUserId(localUserId);
+                                capture.setMediaPath((String) captureData.getOrDefault("mediaPath", null));
+                                capture.setMediaType((String) captureData.getOrDefault("mediaType", null));
+                                capture.setDescription((String) captureData.getOrDefault("description", null));
+                                capture.setCapturedAt(((Number) captureData.getOrDefault("capturedAt", 0)).longValue());
+                                capture.setCreatedAt(((Number) captureData.getOrDefault("createdAt", 0)).longValue());
+                                capture.setUpdatedAt(((Number) captureData.getOrDefault("updatedAt", 0)).longValue());
+                                // For MERGE, avoid duplicates for captures
+                                // Match by: mediaPath + capturedAt (precise duplicate detection)
+                                // Note: Images are not backed up to cloud yet, so mediaPath may reference local
+                                // files
+                                if (strategy == RestoreStrategy.MERGE) {
+                                    List<Capture> existingCaptures = dbHelper.getCapturesForTrip(insertedTripId);
+                                    boolean found = false;
+                                    for (Capture ec : existingCaptures) {
+                                        boolean mediaPathMatches = (ec.getMediaPath() != null
+                                                && capture.getMediaPath() != null
+                                                && ec.getMediaPath().equals(capture.getMediaPath()));
+                                        boolean capturedAtMatches = (ec.getCapturedAt() == capture.getCapturedAt());
+
+                                        if (mediaPathMatches && capturedAtMatches) {
+                                            // Found duplicate: update existing capture with cloud data
+                                            capture.setCaptureId(ec.getCaptureId());
+                                            dbHelper.updateCapture(capture);
+                                            found = true;
+                                            Log.d(TAG, "MERGE: Updated capture - " + capture.getMediaPath());
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        dbHelper.addCapture(capture);
+                                        Log.d(TAG, "MERGE: Added new capture - " + capture.getMediaPath());
+                                    }
+                                } else {
+                                    dbHelper.addCapture(capture);
                                 }
                             }
-                            if (!found) {
-                                dbHelper.addCapture(capture);
-                            }
-                        } else {
-                            dbHelper.addCapture(capture);
-                        }
-                    }
-                }).addOnFailureListener(
-                        e -> Log.w(TAG, "Failed to restore captures for trip: " + trip.getTripName(), e));
+                        }).addOnFailureListener(
+                                e -> Log.w(TAG, "Failed to restore captures for trip: " + trip.getTripName(), e));
                 readTasks.add(cTask);
 
             }

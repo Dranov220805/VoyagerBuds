@@ -18,13 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.models.GalleryItem;
-import com.example.voyagerbuds.utils.ImageUtils;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -35,8 +31,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<Object> items;
     private boolean isSelectionMode = false;
     private OnItemClickListener listener;
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public interface OnItemClickListener {
         void onItemClick(GalleryItem item, int position);
@@ -132,46 +126,24 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(GalleryItem item) {
             String path = item.getImagePath();
             imgGalleryItem.setTag(path);
-            imgGalleryItem.setImageResource(android.R.color.transparent);
 
-            executorService.execute(() -> {
-                Bitmap bitmap = null;
-                try {
-                    Uri uri;
-                    if (path.startsWith("content://") || path.startsWith("file://")) {
-                        uri = Uri.parse(path);
-                    } else {
-                        uri = Uri.fromFile(new File(path));
-                    }
+            // Use Glide for efficient loading with proper content URI support
+            Uri uri;
+            if (path.startsWith("content://") || path.startsWith("file://")) {
+                uri = Uri.parse(path);
+            } else {
+                uri = Uri.fromFile(new File(path));
+            }
 
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    InputStream input = context.getContentResolver().openInputStream(uri);
-                    BitmapFactory.decodeStream(input, null, options);
-                    if (input != null)
-                        input.close();
-
-                    options.inSampleSize = ImageUtils.calculateInSampleSize(options, 300, 300);
-                    options.inJustDecodeBounds = false;
-
-                    input = context.getContentResolver().openInputStream(uri);
-                    bitmap = BitmapFactory.decodeStream(input, null, options);
-                    if (input != null)
-                        input.close();
-
-                    bitmap = ImageUtils.rotateImageIfRequired(context, bitmap, uri);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                final Bitmap finalBitmap = bitmap;
-                mainHandler.post(() -> {
-                    if (imgGalleryItem.getTag().equals(path) && finalBitmap != null) {
-                        imgGalleryItem.setImageBitmap(finalBitmap);
-                    }
-                });
-            });
+            com.bumptech.glide.Glide.with(context)
+                    .load(uri)
+                    .thumbnail(0.1f)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_photo)
+                    .error(R.drawable.ic_photo)
+                    .skipMemoryCache(false)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                    .into(imgGalleryItem);
 
             if (isSelectionMode) {
                 if (item.isSelected()) {

@@ -1,8 +1,14 @@
 package com.example.voyagerbuds.fragments;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -189,23 +195,60 @@ public class CaptureFragment extends Fragment {
         if (imageCapture == null || getContext() == null)
             return;
 
-        File photoFile = createImageFile();
-        if (photoFile == null) {
-            if (getContext() != null) {
-                Toast.makeText(getContext(), getString(R.string.failed_create_photo_file), Toast.LENGTH_SHORT).show();
-            }
-            return;
-        }
+        // Create output options for shared storage
+        ImageCapture.OutputFileOptions outputOptions;
+        final File legacyPhotoFile; // Store reference for Android 8-9
 
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10+ use MediaStore
+            ContentValues contentValues = createMediaStoreEntry();
+            if (contentValues == null) {
+                Toast.makeText(getContext(), getString(R.string.failed_create_photo_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            outputOptions = new ImageCapture.OutputFileOptions.Builder(
+                    getContext().getContentResolver(),
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    contentValues).build();
+            legacyPhotoFile = null;
+        } else {
+            // Android 9 and below use File API
+            legacyPhotoFile = createImageFile();
+            if (legacyPhotoFile == null) {
+                Toast.makeText(getContext(), getString(R.string.failed_create_photo_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            outputOptions = new ImageCapture.OutputFileOptions.Builder(legacyPhotoFile).build();
+        }
 
         imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(getContext()),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        // Get the saved URI or file path
+                        String imagePath = null;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            Uri savedUri = outputFileResults.getSavedUri();
+                            if (savedUri != null) {
+                                imagePath = savedUri.toString();
+                            }
+                        } else {
+                            // For Android 8-9, use the file path we created
+                            if (legacyPhotoFile != null) {
+                                imagePath = legacyPhotoFile.getAbsolutePath();
+                                // Trigger media scan so gallery picks up the new image
+                                if (getContext() != null) {
+                                    MediaScannerConnection.scanFile(getContext(),
+                                            new String[] { imagePath },
+                                            new String[] { "image/jpeg" },
+                                            null);
+                                }
+                            }
+                        }
+
                         // Navigate to PostCaptureFragment
-                        if (isAdded()) {
-                            PostCaptureFragment fragment = PostCaptureFragment.newInstance(photoFile.getAbsolutePath());
+                        if (isAdded() && imagePath != null) {
+                            PostCaptureFragment fragment = PostCaptureFragment.newInstance(imagePath);
                             getParentFragmentManager().beginTransaction()
                                     .replace(R.id.content_container, fragment)
                                     .addToBackStack(null)
@@ -224,11 +267,32 @@ public class CaptureFragment extends Fragment {
                 });
     }
 
+    /**
+     * Creates MediaStore entry for Android 10+
+     */
+    private ContentValues createMediaStoreEntry() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String displayName = "IMG_" + timeStamp + ".jpg";
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/VoyagerBuds");
+        }
+        return contentValues;
+    }
+
+    /**
+     * Creates image file for Android 9 and below
+     */
     private File createImageFile() {
         if (getContext() == null)
             return null;
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        File storageDir = new File(getContext().getExternalFilesDir(null), PHOTO_DIR);
+        // Use public Pictures directory so gallery can access it
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "VoyagerBuds");
         if (!storageDir.exists())
             storageDir.mkdirs();
         return new File(storageDir, "IMG_" + timeStamp + ".jpg");
@@ -362,11 +426,18 @@ public class CaptureFragment extends Fragment {
     }
 
     private void loadLibraryContent() {
-        if (isAdded() && getChildFragmentManager().findFragmentById(R.id.drawer_content_container) == null) {
-            AlbumFragment albumFragment = AlbumFragment.newInstance();
-            getChildFragmentManager().beginTransaction()
-                    .replace(R.id.drawer_content_container, albumFragment)
-                    .commit();
+        if (isAdded()) {
+            Fragment existingFragment = getChildFragmentManager().findFragmentById(R.id.drawer_content_container);
+            if (existingFragment instanceof AlbumFragment) {
+                // Refresh existing fragment
+                ((AlbumFragment) existingFragment).refreshAlbum();
+            } else if (existingFragment == null) {
+                // Create new fragment
+                AlbumFragment albumFragment = AlbumFragment.newInstance();
+                getChildFragmentManager().beginTransaction()
+                        .replace(R.id.drawer_content_container, albumFragment)
+                        .commit();
+            }
         }
     }
 

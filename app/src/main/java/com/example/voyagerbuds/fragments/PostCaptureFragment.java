@@ -1,5 +1,7 @@
 package com.example.voyagerbuds.fragments;
 
+import android.content.ContentResolver;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -9,7 +11,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.text.InputType;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -124,30 +129,61 @@ public class PostCaptureFragment extends Fragment {
     }
 
     private void displayImage() {
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        // Handle rotation
+        Bitmap bitmap = null;
         try {
-            ExifInterface exif = new ExifInterface(imagePath);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-            Matrix matrix = new Matrix();
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    matrix.postRotate(90);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    matrix.postRotate(180);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    matrix.postRotate(270);
-                    break;
+            if (imagePath.startsWith("content://")) {
+                // Handle content URI (Android 10+)
+                Uri imageUri = Uri.parse(imagePath);
+                ContentResolver resolver = requireContext().getContentResolver();
+                ParcelFileDescriptor pfd = resolver.openFileDescriptor(imageUri, "r");
+                if (pfd != null) {
+                    bitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+                    pfd.close();
+                }
+            } else {
+                // Handle file path (Android 9-)
+                bitmap = BitmapFactory.decodeFile(imagePath);
             }
-            if (orientation != ExifInterface.ORIENTATION_NORMAL && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+            if (bitmap == null) {
+                return;
             }
+
+            // Handle rotation
+            ExifInterface exif = null;
+            if (imagePath.startsWith("content://")) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    exif = new ExifInterface(
+                            requireContext().getContentResolver().openInputStream(Uri.parse(imagePath)));
+                }
+            } else {
+                exif = new ExifInterface(imagePath);
+            }
+
+            if (exif != null) {
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_UNDEFINED);
+                Matrix matrix = new Matrix();
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matrix.postRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matrix.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matrix.postRotate(270);
+                        break;
+                }
+                if (orientation != ExifInterface.ORIENTATION_NORMAL
+                        && orientation != ExifInterface.ORIENTATION_UNDEFINED) {
+                    bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                }
+            }
+            imagePreview.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        imagePreview.setImageBitmap(bitmap);
     }
 
     private void saveAndPost() {
@@ -180,6 +216,23 @@ public class PostCaptureFragment extends Fragment {
         if (id > 0) {
             String tripName = (currentTrip != null) ? currentTrip.getTripName() : getString(R.string.unknown_trip);
             Toast.makeText(getContext(), getString(R.string.saved_to_trip, tripName), Toast.LENGTH_SHORT).show();
+
+            // Send broadcast to refresh TripGalleryFragment
+            Intent intent = new Intent(TripGalleryFragment.ACTION_GALLERY_REFRESH);
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(requireContext())
+                    .sendBroadcast(intent);
+
+            // Refresh AlbumFragment - it's in CaptureFragment's child fragment manager
+            // (drawer)
+            Fragment captureFragment = getParentFragmentManager().findFragmentById(R.id.content_container);
+            if (captureFragment instanceof CaptureFragment) {
+                Fragment albumFragment = captureFragment.getChildFragmentManager()
+                        .findFragmentById(R.id.drawer_content_container);
+                if (albumFragment instanceof AlbumFragment) {
+                    ((AlbumFragment) albumFragment).refreshAlbum();
+                }
+            }
+
             getParentFragmentManager().popBackStack(); // Go back to camera
         } else {
             Toast.makeText(getContext(), getString(R.string.failed_to_save), Toast.LENGTH_SHORT).show();
@@ -189,13 +242,37 @@ public class PostCaptureFragment extends Fragment {
     private String embedCaptionToImage(String caption) {
         try {
             // Load original bitmap
-            Bitmap originalBitmap = BitmapFactory.decodeFile(imagePath);
+            Bitmap originalBitmap = null;
+            if (imagePath.startsWith("content://")) {
+                // Handle content URI
+                Uri imageUri = Uri.parse(imagePath);
+                ContentResolver resolver = requireContext().getContentResolver();
+                ParcelFileDescriptor pfd = resolver.openFileDescriptor(imageUri, "r");
+                if (pfd != null) {
+                    originalBitmap = BitmapFactory.decodeFileDescriptor(pfd.getFileDescriptor());
+                    pfd.close();
+                }
+            } else {
+                originalBitmap = BitmapFactory.decodeFile(imagePath);
+            }
             if (originalBitmap == null)
                 return null;
 
             // Handle rotation
-            ExifInterface exif = new ExifInterface(imagePath);
-            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            ExifInterface exif = null;
+            if (imagePath.startsWith("content://")) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    exif = new ExifInterface(
+                            requireContext().getContentResolver().openInputStream(Uri.parse(imagePath)));
+                }
+            } else {
+                exif = new ExifInterface(imagePath);
+            }
+
+            int orientation = ExifInterface.ORIENTATION_UNDEFINED;
+            if (exif != null) {
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            }
             Matrix matrix = new Matrix();
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
@@ -283,12 +360,28 @@ public class PostCaptureFragment extends Fragment {
             textLayout.draw(canvas);
             canvas.restore();
 
-            // Save to new file
-            String newPath = imagePath.replace(".jpg", "_with_caption.jpg");
-            java.io.FileOutputStream out = new java.io.FileOutputStream(newPath);
-            mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
-            out.flush();
-            out.close();
+            // Save to new file or update existing
+            String newPath = null;
+            java.io.OutputStream out = null;
+
+            if (imagePath.startsWith("content://")) {
+                // Update the existing URI content
+                Uri imageUri = Uri.parse(imagePath);
+                out = requireContext().getContentResolver().openOutputStream(imageUri, "wt");
+                if (out != null) {
+                    mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
+                    out.flush();
+                    out.close();
+                    newPath = imagePath; // Keep the same URI
+                }
+            } else {
+                // For file path, create new file
+                newPath = imagePath.replace(".jpg", "_with_caption.jpg");
+                out = new java.io.FileOutputStream(newPath);
+                mutableBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
+                out.flush();
+                out.close();
+            }
 
             // Cleanup
             originalBitmap.recycle();

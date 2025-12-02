@@ -50,11 +50,18 @@ public class LoginActivity extends BaseActivity {
     private ActivityResultLauncher<Intent> googleSignInLauncher;
     private DatabaseHelper databaseHelper;
 
+    private boolean isRegisterMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Hide action bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         databaseHelper = new DatabaseHelper(this);
         mAuth = FirebaseAuth.getInstance();
@@ -88,10 +95,16 @@ public class LoginActivity extends BaseActivity {
                 });
 
         setupViews();
+        setupRegisterViews();
     }
 
     private void setupViews() {
         loadingContainer = findViewById(R.id.loading_container);
+
+        // Setup register view if it exists
+        if (binding.registerContainer != null) {
+            setupRegisterViews();
+        }
 
         binding.btnLogin.setOnClickListener(v -> {
             String email = binding.tilEmail.getEditText().getText().toString().trim();
@@ -110,9 +123,7 @@ public class LoginActivity extends BaseActivity {
         });
 
         binding.tvGoToRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            switchToRegisterMode();
         });
 
         binding.tvForgotPassword.setOnClickListener(v -> {
@@ -148,7 +159,10 @@ public class LoginActivity extends BaseActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
+                            // Save credentials for offline mode after successful login
                             SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(KEY_OFFLINE_EMAIL, email);
+                            editor.putString(KEY_OFFLINE_PASSWORD, password);
                             if (user.getEmail() != null) {
                                 editor.putString("user_email", user.getEmail());
                             }
@@ -338,11 +352,144 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+    private void switchToRegisterMode() {
+        isRegisterMode = true;
+        if (binding.loginContainer != null) {
+            binding.loginContainer.setVisibility(View.GONE);
+        }
+        if (binding.registerContainer != null) {
+            binding.registerContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void switchToLoginMode() {
+        isRegisterMode = false;
+        if (binding.registerContainer != null) {
+            binding.registerContainer.setVisibility(View.GONE);
+        }
+        if (binding.loginContainer != null) {
+            binding.loginContainer.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setupRegisterViews() {
+        // Register button
+        binding.btnCreateAccount.setOnClickListener(v -> handleRegistration());
+
+        // Google sign up
+        binding.btnGoogleSignup.setOnClickListener(v -> {
+            showLoading();
+            signInWithGoogle();
+        });
+
+        // Back to login
+        binding.tvGoToLogin.setOnClickListener(v -> switchToLoginMode());
+    }
+
+    private void handleRegistration() {
+        String fullName = binding.etFullName.getText().toString().trim();
+        String email = binding.etEmailRegister.getText().toString().trim();
+        String password = binding.etPasswordRegister.getText().toString().trim();
+        String confirmPassword = binding.etConfirmPassword.getText().toString().trim();
+
+        if (!validateRegistrationInput(fullName, email, password, confirmPassword)) {
+            return;
+        }
+
+        showLoading();
+
+        if (isOnline()) {
+            // Online registration
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        hideLoading();
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                saveUserInfo(user.getUid(), fullName, email, false);
+                                Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                                navigateToHome();
+                            }
+                        } else {
+                            Toast.makeText(this, "Registration failed: " +
+                                    (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
+        } else {
+            // Offline registration
+            String offlineUid = "offline_" + java.util.UUID.randomUUID().toString();
+            saveUserInfo(offlineUid, fullName, email, true);
+            hideLoading();
+            Toast.makeText(this, "Registered offline. You can sync when internet is available.",
+                    Toast.LENGTH_LONG).show();
+            navigateToHome();
+        }
+    }
+
+    private boolean validateRegistrationInput(String fullName, String email, String password, String confirmPassword) {
+        if (fullName.isEmpty()) {
+            binding.etFullName.setError("Full name is required");
+            binding.etFullName.requestFocus();
+            return false;
+        }
+
+        if (email.isEmpty()) {
+            binding.etEmail.setError("Email is required");
+            binding.etEmail.requestFocus();
+            return false;
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.etEmail.setError("Please enter a valid email");
+            binding.etEmail.requestFocus();
+            return false;
+        }
+
+        if (password.isEmpty()) {
+            binding.etPassword.setError("Password is required");
+            binding.etPassword.requestFocus();
+            return false;
+        }
+
+        if (password.length() < 6) {
+            binding.etPassword.setError("Password must be at least 6 characters");
+            binding.etPassword.requestFocus();
+            return false;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            binding.etConfirmPassword.setError("Passwords do not match");
+            binding.etConfirmPassword.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+    private void saveUserInfo(String uid, String fullName, String email, boolean isOffline) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("firebase_uid", uid);
+        editor.putString("user_name", fullName);
+        editor.putString("user_email", email);
+
+        if (isOffline) {
+            editor.putString(KEY_OFFLINE_UID, uid);
+            editor.putString(KEY_OFFLINE_EMAIL, email);
+            // Note: password is already saved in handleRegistration for offline mode
+            editor.putBoolean(KEY_IS_OFFLINE_USER, true);
+        } else {
+            editor.putBoolean(KEY_IS_OFFLINE_USER, false);
+        }
+
+        editor.apply();
+    }
+
     private void navigateToHome() {
         Toast.makeText(this, getString(R.string.toast_auth_successful), Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();
     }
 

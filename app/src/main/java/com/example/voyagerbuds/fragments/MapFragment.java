@@ -200,9 +200,6 @@ public class MapFragment extends Fragment {
                 hideLoading();
             }
         }, 800); // 800ms delay to let initial tiles load
-
-        // Don't automatically get location - let user click the button
-        // getCurrentLocation();
     }
 
     private void setupMapEventsOverlay() {

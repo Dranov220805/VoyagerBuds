@@ -140,9 +140,15 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
             return;
         }
 
+        android.util.Log.d("TripGalleryFragment", "Loading gallery for trip ID: " + tripId);
+
         List<ScheduleItem> schedules = databaseHelper.getSchedulesForTrip(tripId);
         List<com.example.voyagerbuds.models.Expense> expenses = databaseHelper.getExpensesForTrip(tripId);
         List<com.example.voyagerbuds.models.Capture> captures = databaseHelper.getCapturesForTripOrdered(tripId);
+
+        android.util.Log.d("TripGalleryFragment", "Found: " + schedules.size() + " schedules, " +
+                expenses.size() + " expenses, " + captures.size() + " captures");
+
         List<GalleryItem> allImages = new ArrayList<>();
 
         // Add images from schedules
@@ -212,10 +218,15 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
             galleryItems.add(item);
         }
 
+        android.util.Log.d("TripGalleryFragment", "Total gallery items (with headers): " + galleryItems.size());
+        android.util.Log.d("TripGalleryFragment", "Total images: " + allImages.size());
+
         if (galleryItems.isEmpty()) {
+            android.util.Log.d("TripGalleryFragment", "Showing empty state");
             tvEmptyState.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
+            android.util.Log.d("TripGalleryFragment", "Showing gallery with " + galleryItems.size() + " items");
             tvEmptyState.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
             adapter.updateItems(galleryItems);

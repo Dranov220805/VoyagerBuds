@@ -91,7 +91,7 @@ public class CaptureAdapter extends RecyclerView.Adapter<CaptureAdapter.CaptureV
         }
 
         void bind(Capture capture) {
-            File mediaFile = new File(capture.getMediaPath());
+            String mediaPath = capture.getMediaPath();
 
             // Use Glide for efficient image loading with caching and thumbnails
             RequestOptions options = new RequestOptions()
@@ -101,8 +101,17 @@ public class CaptureAdapter extends RecyclerView.Adapter<CaptureAdapter.CaptureV
                     .error(R.drawable.ic_image)
                     .override(300, 300); // Load smaller size for grid
 
+            // Handle both content URIs and file paths
+            Object loadSource;
+            if (mediaPath.startsWith("content://") || mediaPath.startsWith("file://")) {
+                loadSource = android.net.Uri.parse(mediaPath);
+            } else {
+                File mediaFile = new File(mediaPath);
+                loadSource = mediaFile.exists() ? mediaFile : R.drawable.ic_image;
+            }
+
             Glide.with(context)
-                    .load(mediaFile.exists() ? mediaFile : R.drawable.ic_image)
+                    .load(loadSource)
                     .apply(options)
                     .into(imageView);
 

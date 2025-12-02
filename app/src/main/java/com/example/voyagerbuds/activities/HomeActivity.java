@@ -13,7 +13,15 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.voyagerbuds.R;
-import com.example.voyagerbuds.fragments.*;
+import com.example.voyagerbuds.fragments.AddScheduleStepFragment;
+import com.example.voyagerbuds.fragments.CaptureFragment;
+import com.example.voyagerbuds.fragments.CreateTripFragment;
+import com.example.voyagerbuds.fragments.DashboardFragment;
+import com.example.voyagerbuds.fragments.HomeFragment;
+import com.example.voyagerbuds.fragments.MapFragment;
+import com.example.voyagerbuds.fragments.NavigationBarFragment;
+import com.example.voyagerbuds.fragments.ProfileFragment;
+import com.example.voyagerbuds.fragments.ScheduleFragment;
 import com.example.voyagerbuds.receivers.NotificationReceiver;
 import com.example.voyagerbuds.utils.LocaleHelper;
 

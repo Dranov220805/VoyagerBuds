@@ -93,9 +93,9 @@
     <string name="merge_description">\u2022 Hợp nhất: Cố gắng hợp nhất bản sao lưu vào dữ liệu cục bộ và tránh trùng lặp.</string>
     <string name="append_description">\u2022 Thêm vào: Giữ dữ liệu hiện có và thêm các bản ghi từ bản sao lưu.</string>
     <string name="confirm_merge_title">Xác nhận hợp nhất</string>
-    <string name="confirm_merge_message">Hành động này sẽ cố gắng hợp nhất bản sao lưu máy chủ vào dữ liệu cục bộ và có thể cập nhật hoặc thêm mục. Tiếp tục?</string>
+    <string name="confirm_merge_message">Hành động này sẽ hợp nhất bản sao lưu từ máy chủ vào dữ liệu cục bộ. Các mục trùng lặp sẽ bị bỏ qua, các mục hiện có sẽ được cập nhật, và các mục mới sẽ được thêm vào. Tiếp tục?</string>
     <string name="confirm_append_title">Xác nhận thêm vào</string>
-    <string name="confirm_append_message">Hành động này sẽ thêm các bản ghi bản sao lưu máy chủ vào dữ liệu cục bộ của bạn mà không xóa mục hiện có. Tiếp tục?</string>
+    <string name="confirm_append_message">Hành động này sẽ thêm tất cả các bản ghi bản sao lưu từ máy chủ vào dữ liệu cục bộ của bạn. Lưu ý: Điều này có thể tạo ra các bản sao trùng lặp nếu dữ liệu giống nhau đã tồn tại cục bộ. Tiếp tục?</string>
     <string name="firestore_test_title">Kiểm tra Firestore</string>
     <string name="firestore_test_copied">Đã sao chép chi tiết</string>
     <string name="firestore_test_failed_title">Kiểm tra Firestore thất bại</string>

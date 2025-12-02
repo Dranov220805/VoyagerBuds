@@ -93,9 +93,9 @@
     <string name="merge_description">\u2022 Merge: Attempt to merge backup into local data while avoiding duplicates.</string>
     <string name="append_description">\u2022 Append: Keep existing data and append backup entries.</string>
     <string name="confirm_merge_title">Confirm Merge</string>
-    <string name="confirm_merge_message">This will attempt to merge remote backup into your local data and may update or add entries. Continue?</string>
+    <string name="confirm_merge_message">This will merge remote backup into your local data. Duplicates will be skipped, existing matches will be updated, and new items will be added. Continue?</string>
     <string name="confirm_append_title">Confirm Append</string>
-    <string name="confirm_append_message">This will append remote backup entries to your local data without deleting existing entries. Continue?</string>
+    <string name="confirm_append_message">This will append all remote backup entries to your local data. Note: This may create duplicates if the same data exists locally. Continue?</string>
     <string name="firestore_test_title">Firestore Test</string>
     <string name="firestore_test_copied">Copied details</string>
     <string name="firestore_test_failed_title">Firestore Test Failed</string>
