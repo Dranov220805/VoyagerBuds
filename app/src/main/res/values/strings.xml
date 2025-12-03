@@ -627,7 +627,13 @@
     <string name="failed_capture_photo">Failed to capture photo</string>
     <string name="zoom_1x">1x</string>
     <string name="zoom_0_5x">0.5x</string>
-    <string name="zoom_2x">2x</string>
     <string name="select_trip">Select Trip</string>
     <string name="library">Library</string>
+
+    <string-array name="emergency_timeout_options">
+        <item>12 Hours</item>
+        <item>24 Hours</item>
+        <item>48 Hours</item>
+        <item>72 Hours</item>
+    </string-array>
 </resources>

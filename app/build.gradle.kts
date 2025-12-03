@@ -1,6 +1,15 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+}
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 android {
@@ -15,6 +24,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SMTP_USER", "\"${localProperties.getProperty("SMTP_USER")}\"")
+        buildConfigField("String", "SMTP_PASSWORD", "\"${localProperties.getProperty("SMTP_PASSWORD")}\"")
+        buildConfigField("String", "SMTP_FROM_EMAIL", "\"${localProperties.getProperty("SMTP_FROM_EMAIL")}\"")
+        buildConfigField("String", "SMTP_FROM_NAME", "\"${localProperties.getProperty("SMTP_FROM_NAME")}\"")
+        buildConfigField("String", "CURRENCY_API_KEY", "\"${localProperties.getProperty("CURRENCY_API_KEY")}\"")
     }
 
     buildTypes {
@@ -32,6 +47,13 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
+    }
+    packaging {
+        resources {
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/LICENSE.md"
+        }
     }
 }
 
@@ -77,6 +99,13 @@ dependencies {
 
     // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    // WorkManager
+    implementation("androidx.work:work-runtime:2.9.0")
+
+    // JavaMail for sending emails
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

@@ -42,42 +42,36 @@
             <!-- Total Trips Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/main_color_voyager"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/emoji_plane"
-                        android:textSize="32sp"/>
-
-                    <TextView
-                        android:id="@+id/tv_total_trips"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/example_dashboard_trips_count"
-                        android:textColor="@android:color/white"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
+                    android:padding="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/total_trips_label"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"/>
+                        android:textColor="@color/text_medium"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tv_total_trips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="25"
+                        android:textColor="@color/text_dark"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp"/>
 
                 </LinearLayout>
 
@@ -86,42 +80,51 @@
             <!-- Places Visited Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp"
-                    android:background="@color/orange_light"
-                    android:gravity="center">
+                    android:padding="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/emoji_pin"
-                        android:textSize="32sp"/>
+                        android:text="Unique Places"
+                        android:textColor="@color/text_medium"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
 
-                    <TextView
-                        android:id="@+id/tv_places_visited"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/example_places_visited_count"
-                        android:textColor="@android:color/white"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="4dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/places_visited_label"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"/>
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_location"
+                            app:tint="@color/text_dark"
+                            android:layout_marginEnd="4dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_places_visited"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="18"
+                            android:textColor="@color/text_dark"
+                            android:textSize="24sp"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -129,169 +132,53 @@
 
         </LinearLayout>
 
-        <!-- Expense Statistics -->
-        <androidx.cardview.widget.CardView
+        <!-- Most Visited Places Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Most Visited Places"
+            android:textColor="@color/text_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Most Visited Places List Container -->
+        <LinearLayout
+            android:id="@+id/layout_most_visited_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/card_background"
+            android:orientation="vertical"
             android:layout_marginBottom="16dp">
+            <!-- Items will be added dynamically -->
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+        <!-- Total Spent / Budget Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_weight="1"
+                android:text="Total Spent / Budget"
+                android:textColor="@color/text_dark"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+            <TextView
+                android:id="@+id/tv_total_expenses"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$6,500 / $12,450"
+                android:textColor="@color/main_color_voyager"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
-                        <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                            android:text="@string/total_expenses_label"
-                        android:textColor="@color/text_dark"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/tv_total_expenses"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/example_total_expenses_count"
-                        android:textColor="@color/main_color_voyager"
-                        android:textSize="20sp"
-                        android:textStyle="bold"/>
-
-                </LinearLayout>
-
-                <!-- Expense Categories -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Transport -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                            <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                                android:text="@string/transport_label"
-                            android:textColor="@color/text_medium"
-                            android:textSize="13sp"/>
-
-                        <ProgressBar
-                            android:id="@+id/pb_transport"
-                            android:layout_width="0dp"
-                            android:layout_height="8dp"
-                            android:layout_weight="1"
-                            android:max="100"
-                            android:progress="45"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:progressTint="@color/main_color_voyager"/>
-
-                        <TextView
-                            android:id="@+id/tv_transport_cost"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/example_transport_cost"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:layout_marginStart="12dp"/>
-
-                    </LinearLayout>
-
-                    <!-- Accommodation -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/hotel_label"
-                            android:textColor="@color/text_medium"
-                            android:textSize="13sp"/>
-
-                        <ProgressBar
-                            android:id="@+id/pb_accommodation"
-                            android:layout_width="0dp"
-                            android:layout_height="8dp"
-                            android:layout_weight="1"
-                            android:max="100"
-                            android:progress="35"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:progressTint="@color/orange_light"/>
-
-                        <TextView
-                            android:id="@+id/tv_accommodation_cost"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/example_hotel_cost"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:layout_marginStart="12dp"/>
-
-                    </LinearLayout>
-
-                    <!-- Food -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                            <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                                android:text="@string/food_label"
-                            android:textColor="@color/text_medium"
-                            android:textSize="13sp"/>
-
-                        <ProgressBar
-                            android:id="@+id/pb_food"
-                            android:layout_width="0dp"
-                            android:layout_height="8dp"
-                            android:layout_weight="1"
-                            android:max="100"
-                            android:progress="20"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:progressTint="@color/green_light"/>
-
-                        <TextView
-                            android:id="@+id/tv_food_cost"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/example_food_cost"
-                            android:textColor="@color/text_dark"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:layout_marginStart="12dp"/>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
         <!-- Emergency Alert Section -->
         <androidx.cardview.widget.CardView
@@ -335,12 +222,13 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tv_emergency_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/emergency_alert_description"
                     android:textColor="@color/text_medium"
                     android:textSize="13sp"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="16dp"/>
 
                 <TextView
                     android:id="@+id/tv_last_activity"
@@ -349,7 +237,7 @@
                     android:text="@string/last_activity"
                     android:textColor="@color/main_color_voyager"
                     android:textSize="12sp"
-                    android:textStyle="bold"/>
+                    android:layout_marginTop="4dp"/>
 
             </LinearLayout>
 
@@ -378,7 +266,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/see_all_groups"
                 android:textColor="@color/main_color_voyager"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
@@ -387,9 +276,10 @@
             android:id="@+id/group_trip_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
-            android:layout_marginBottom="12dp">
+            app:cardBackgroundColor="@color/teal_light_bg"
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -419,7 +309,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/example_group_members_days"
                         android:textColor="@color/text_medium"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:layout_marginTop="4dp"/>
 
                 </LinearLayout>
@@ -444,31 +334,29 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
                 <Button
                 android:id="@+id/btn_create_group"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="12dp"
                     android:text="@string/create_group_button"
                 android:textColor="@android:color/white"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textAllCaps="false"
                 android:background="@drawable/button_primary"/>
 
                 <Button
                 android:id="@+id/btn_join_group"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
                     android:text="@string/join_group_button"
                 android:textColor="@color/white"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textAllCaps="false"
-                android:background="@drawable/chip_bg_white"/>
+                android:background="@drawable/button_secondary"/>
 
         </LinearLayout>
 

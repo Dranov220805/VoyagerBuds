@@ -38,6 +38,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -60,6 +61,12 @@
         </activity>
 
         <receiver android:name=".receivers.NotificationReceiver" />
+        <receiver android:name=".receivers.UserActivityReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".activities.LoginActivity"

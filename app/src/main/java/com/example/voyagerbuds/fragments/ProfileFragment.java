@@ -78,6 +78,7 @@ public class ProfileFragment extends Fragment {
     LinearLayout btnBackupData = view.findViewById(R.id.btn_backup_data);
     LinearLayout btnRestoreData = view.findViewById(R.id.btn_restore_data);
     LinearLayout btnTestFirestore = view.findViewById(R.id.btn_test_firestore);
+    LinearLayout btnEmergency = view.findViewById(R.id.btn_emergency);
 
     // Setup Notifications Switch
     SharedPreferences prefs = requireContext().getSharedPreferences("VoyagerBudsPrefs", Context.MODE_PRIVATE);
@@ -88,6 +89,9 @@ public class ProfileFragment extends Fragment {
         (buttonView, isChecked) -> {
           prefs.edit().putBoolean("notifications_enabled", isChecked).apply();
         });
+
+    // Set up Emergency Contact Dialog
+    btnEmergency.setOnClickListener(v -> showEmergencyContactDialog());
 
     // Update current language display
     updateLanguageDisplay();
@@ -663,6 +667,57 @@ public class ProfileFragment extends Fragment {
         });
     builder.setNegativeButton(android.R.string.cancel, null);
     builder.create().show();
+  }
+
+  private void showEmergencyContactDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+    View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_emergency_contact, null);
+    builder.setView(dialogView);
+    AlertDialog dialog = builder.create();
+    dialog.getWindow()
+        .setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+    // Initialize views
+    android.widget.Spinner spinnerTimeout = dialogView.findViewById(R.id.spinner_timeout);
+    android.widget.EditText etEmergencyEmail = dialogView.findViewById(R.id.et_emergency_email);
+    Button btnSave = dialogView.findViewById(R.id.btn_save_emergency);
+    android.widget.ImageButton btnClose = dialogView.findViewById(R.id.btn_close_dialog);
+
+    // Close button listener
+    btnClose.setOnClickListener(v -> dialog.dismiss());
+
+    // Setup Spinner
+    android.widget.ArrayAdapter<CharSequence> adapter = android.widget.ArrayAdapter.createFromResource(requireContext(),
+        R.array.emergency_timeout_options, android.R.layout.simple_spinner_item);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    spinnerTimeout.setAdapter(adapter);
+
+    // Load saved settings
+    SharedPreferences prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+    int timeoutIndex = prefs.getInt("emergency_timeout_index", 1); // Default to 24h
+    String email = prefs.getString("emergency_contact_email", "");
+
+    if (timeoutIndex < adapter.getCount()) {
+      spinnerTimeout.setSelection(timeoutIndex);
+    }
+    etEmergencyEmail.setText(email);
+
+    // Save button listener
+    btnSave.setOnClickListener(v -> {
+      int selectedTimeoutIndex = spinnerTimeout.getSelectedItemPosition();
+      String newEmail = etEmergencyEmail.getText().toString().trim();
+
+      SharedPreferences.Editor editor = prefs.edit();
+      editor.putInt("emergency_timeout_index", selectedTimeoutIndex);
+      editor.putString("emergency_contact_email", newEmail);
+      editor.apply();
+
+      android.widget.Toast.makeText(requireContext(), "Emergency settings saved", android.widget.Toast.LENGTH_SHORT)
+          .show();
+      dialog.dismiss();
+    });
+
+    dialog.show();
   }
 
   @Override
