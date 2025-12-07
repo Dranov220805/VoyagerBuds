@@ -111,7 +111,7 @@ public class PermissionActivity extends BaseActivity {
     }
 
     private void showPermissionRationaleDialog(List<String> deniedPermissions) {
-        StringBuilder message = new StringBuilder("VoyagerBuds needs the following permissions to work properly:\n\n");
+        StringBuilder message = new StringBuilder(getString(R.string.permission_rationale_header) + "\n\n");
 
         for (String permission : deniedPermissions) {
             message.append("• ").append(PermissionUtils.getPermissionName(permission))
@@ -120,37 +120,35 @@ public class PermissionActivity extends BaseActivity {
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("Permissions Required")
-                .setMessage(message.toString())
-                .setPositiveButton("Grant Permissions", (dialog, which) -> PermissionUtils.requestPermissions(
+            .setTitle(R.string.permissions_required_title)
+            .setMessage(message.toString())
+            .setPositiveButton(R.string.grant_permissions, (dialog, which) -> PermissionUtils.requestPermissions(
                         this,
                         deniedPermissions.toArray(new String[0]),
                         PermissionUtils.PERMISSION_REQUEST_CODE))
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
                 .setCancelable(false)
                 .show();
     }
 
     private void showSkipDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Skip Permissions?")
-                .setMessage(
-                        "Some features may not work properly without these permissions. You can grant them later in Settings.\n\nAre you sure you want to skip?")
-                .setPositiveButton("Skip Anyway", (dialog, which) -> {
+                .setTitle(R.string.skip_permissions_title)
+                .setMessage(getString(R.string.skip_permissions_message))
+                .setPositiveButton(R.string.skip_anyway, (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
-                .setNegativeButton("Go Back", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.go_back, (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
     private void showSettingsDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Permissions Required")
-                .setMessage(
-                        "Some permissions have been permanently denied. Please enable them in Settings to use all features of the app.")
-                .setPositiveButton("Open Settings", (dialog, which) -> openAppSettings())
-                .setNegativeButton("Cancel", (dialog, which) -> {
+                .setTitle(R.string.permissions_required_title)
+                .setMessage(getString(R.string.permissions_denied_settings_message))
+                .setPositiveButton(R.string.open_settings, (dialog, which) -> openAppSettings())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })

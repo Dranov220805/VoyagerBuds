@@ -481,6 +481,7 @@
     <string name="permissions_required_title">Permissions Required</string>
     <string name="grant_permissions">Grant Permissions</string>
     <string name="some_permissions_denied_message">Some permissions were denied. You can continue but some features may be limited.</string>
+    <string name="permission_rationale_header">VoyagerBuds needs the following permissions to work properly:</string>
     <string name="skip_permissions_title">Skip Permissions?</string>
     <string name="skip_permissions_message">Some features may not work properly without these permissions. You can grant them later in Settings. Are you sure you want to skip?</string>
     <string name="skip_anyway">Skip Anyway</string>

@@ -488,6 +488,7 @@
     <string name="go_back">Quay lại</string>
     <string name="open_settings">Mở Cài đặt</string>
     <string name="permissions_denied_settings_message">Một số quyền đã bị từ chối vĩnh viễn. Vui lòng bật chúng trong Cài đặt để dùng đầy đủ tính năng.</string>
+    <string name="permission_rationale_header">VoyagerBuds yêu cầu các quyền sau để hoạt động bình thường:</string>
     <string name="label_date">Ngày</string>
     <string name="tap_to_view_details">Nhấn để xem chi tiết</string>
     <string name="step_6_of_6">Bước 6 trên 6</string>
