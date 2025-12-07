@@ -214,10 +214,7 @@
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switch_emergency_alert"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        app:thumbTint="@android:color/white"
-                        app:trackTint="@color/main_color_voyager"/>
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 
