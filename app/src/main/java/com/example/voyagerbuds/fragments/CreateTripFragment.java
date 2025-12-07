@@ -42,7 +42,6 @@ public class CreateTripFragment extends Fragment {
     private String endDate;
     private String destination;
     private String notes;
-    private String friends;
     private String budget;
     private String budgetCurrency;
 
@@ -131,11 +130,9 @@ public class CreateTripFragment extends Fragment {
         TripDestinationFragment fragment = new TripDestinationFragment();
         fragment.setListener(new TripDestinationFragment.OnTripDestinationEnteredListener() {
             @Override
-            public void onTripDestinationEntered(String dest, String tripNotes, String friendList,
-                    String budgetAmount, String currency) {
+            public void onTripDestinationEntered(String dest, String tripNotes, String budgetAmount, String currency) {
                 destination = dest;
                 notes = tripNotes;
-                friends = friendList;
                 budget = budgetAmount;
                 budgetCurrency = currency;
                 saveTrip();
@@ -148,7 +145,7 @@ public class CreateTripFragment extends Fragment {
         });
 
         if (destination != null) {
-            fragment.setDestination(destination, notes, friends, budget, budgetCurrency);
+            fragment.setDestination(destination, notes, budget, budgetCurrency);
         }
 
         replaceChildFragment(fragment, isBack);
@@ -211,11 +208,6 @@ public class CreateTripFragment extends Fragment {
                 // Set coordinates
                 trip.setMapLatitude(finalLat);
                 trip.setMapLongitude(finalLon);
-
-                if (friends != null && !friends.isEmpty()) {
-                    trip.setParticipants(friends);
-                    trip.setIsGroupTrip(1);
-                }
 
                 if (budget != null && !budget.isEmpty()) {
                     try {

@@ -157,13 +157,13 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageButton
-                android:id="@+id/btn_my_location"
+                android:id="@+id/btn_pick_location"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:src="@android:drawable/ic_menu_mylocation"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/ic_location"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/get_my_location"
+                android:contentDescription="@string/pick_location"
                 app:tint="@color/teal_primary" />
         </LinearLayout>
 
@@ -181,24 +181,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:minLines="2" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Participants -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hint_participants"
-            android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_schedule_participants"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                    android:drawableStart="@drawable/ic_person"
-                    app:drawableTint="@color/text_dark"
-                android:drawablePadding="8dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Notify Before -->

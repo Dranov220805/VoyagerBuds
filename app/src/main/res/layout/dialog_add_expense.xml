@@ -45,7 +45,7 @@
                 android:id="@+id/tv_dialog_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Expense"
+                android:text="@string/add_expense"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_dark"
@@ -55,7 +55,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Expense Name"
+                android:hint="@string/expense_name_hint"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -80,7 +80,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Amount"
+                    android:hint="@string/amount"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -88,7 +88,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
-                        android:drawableStart="@drawable/ic_money"
+                        android:drawableStart="@drawable/ic_amount"
                         android:drawablePadding="8dp"
                         app:drawableTint="@color/text_dark" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -114,7 +114,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Date"
+                android:hint="@string/label_date"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -134,7 +134,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description (Text)"
+                android:hint="@string/expense_description_hint"
                 android:layout_marginBottom="16dp"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -159,7 +159,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Images"
+                    android:text="@string/images_label"
                     android:textStyle="bold"
                     android:textColor="@color/text_dark" />
 
@@ -167,21 +167,22 @@
                     android:id="@+id/btn_add_expense_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Add Image"
+                    android:text="@string/add_image"
                     style="@style/Widget.MaterialComponents.Button.TextButton" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_expense_images"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
                 android:layout_marginBottom="24dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save_expense"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Save Expense"
+                android:text="@string/save_expense"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:cornerRadius="12dp" />

@@ -149,6 +149,118 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
+                    <!-- Budget Summary Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_budget_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="@color/divider_light"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/trip_budget_tracker"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_dark"
+                                android:layout_marginBottom="12dp"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <!-- Budget -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="@string/budget_label"
+                                        android:textSize="14sp"
+                                        android:textColor="@color/text_medium"/>
+                                    <TextView
+                                        android:id="@+id/tv_total_budget"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="-"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/text_dark"
+                                        android:textSize="16sp"/>
+                                </LinearLayout>
+
+                                <!-- Spent -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="@string/spent_label"
+                                        android:textSize="14sp"
+                                        android:textColor="@color/text_medium"/>
+                                    <TextView
+                                        android:id="@+id/tv_total_spent"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="-"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/error"
+                                        android:textSize="16sp"/>
+                                </LinearLayout>
+
+                                <!-- Remaining -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="@string/remaining_label"
+                                        android:textSize="14sp"
+                                        android:textColor="@color/text_medium"/>
+                                    <TextView
+                                        android:id="@+id/tv_remaining_budget"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="-"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/success"
+                                        android:textSize="16sp"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <ProgressBar
+                                android:id="@+id/progress_budget"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="8dp"
+                                android:layout_marginTop="12dp"
+                                android:progressDrawable="@drawable/bg_progress_rounded"
+                                android:progress="0"/>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
                     <!-- Date Selector -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_view_expense_dates"
@@ -179,7 +291,7 @@
                         android:id="@+id/tv_empty_expenses"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No expenses for this day"
+                        android:text="@string/no_expenses_for_day"
                         android:gravity="center"
                         android:padding="32dp"
                         android:visibility="gone"/>

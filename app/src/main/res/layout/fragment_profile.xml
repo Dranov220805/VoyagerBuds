@@ -128,44 +128,44 @@
                             android:layout_height="wrap_content" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
 
                     <!-- Privacy & Security -->
-                    <LinearLayout
-                        android:id="@+id/btn_privacy"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground">
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/btn_privacy"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:padding="16dp"-->
+<!--                        android:background="?attr/selectableItemBackground">-->
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="@color/text_medium"/>
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_lock"-->
+<!--                            app:tint="@color/text_medium"/>-->
 
-                        <TextView
-                            android:id="@+id/tv_privacy"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/privacy_security"
-                            android:textColor="@color/text_dark"
-                            android:textSize="16sp"
-                            android:layout_marginStart="16dp"/>
+<!--                        <TextView-->
+<!--                            android:id="@+id/tv_privacy"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:text="@string/privacy_security"-->
+<!--                            android:textColor="@color/text_dark"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:layout_marginStart="16dp"/>-->
 
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_medium"/>
-                    </LinearLayout>
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_forward"-->
+<!--                            app:tint="@color/text_medium"/>-->
+<!--                    </LinearLayout>-->
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -235,17 +235,17 @@
                         </LinearLayout>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_forward"
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
 
                     <!-- Language -->
                     <LinearLayout
@@ -289,9 +289,9 @@
                         </LinearLayout>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_forward"
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
 
@@ -348,56 +348,56 @@
                             android:layout_marginStart="16dp"/>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_medium"/>
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
-
-                    <!-- Help & Support -->
-                    <LinearLayout
-                        android:id="@+id/btn_help"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_help_support"
-                            app:tint="@color/text_medium"/>
-
-                        <TextView
-                            android:id="@+id/tv_help"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/help_support"
-                            android:textColor="@color/text_dark"
-                            android:textSize="16sp"
-                            android:layout_marginStart="16dp"/>
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
+                            android:src="@drawable/ic_forward"
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
+
+                    <!-- Help & Support -->
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/btn_help"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:padding="16dp"-->
+<!--                        android:background="?attr/selectableItemBackground">-->
+
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_help_support"-->
+<!--                            app:tint="@color/text_medium"/>-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/tv_help"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:text="@string/help_support"-->
+<!--                            android:textColor="@color/text_dark"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:layout_marginStart="16dp"/>-->
+
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_forward"-->
+<!--                            app:tint="@color/text_medium"/>-->
+<!--                    </LinearLayout>-->
+
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
 
                     <!-- Backup Data -->
                     <LinearLayout
@@ -426,17 +426,17 @@
                             android:layout_marginStart="16dp"/>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_forward"
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
 
                     <!-- Restore Data -->
                     <LinearLayout
@@ -465,50 +465,50 @@
                             android:layout_marginStart="16dp"/>
 
                         <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_medium"/>
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider"
-                        android:layout_marginStart="56dp"/>
-
-                    <!-- Test Firestore Connection -->
-                    <LinearLayout
-                        android:id="@+id/btn_test_firestore"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:padding="16dp"
-                        android:background="?attr/selectableItemBackground">
-
-                        <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_dialog_map"
-                            app:tint="@color/text_medium"/>
-
-                        <TextView
-                            android:id="@+id/tv_test_firestore"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Test Firestore Connection"
-                            android:textColor="@color/text_dark"
-                            android:textSize="16sp"
-                            android:layout_marginStart="16dp"/>
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_arrow_forward"
+                            android:src="@drawable/ic_forward"
                             app:tint="@color/text_medium"/>
                     </LinearLayout>
+
+<!--                    <View-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="1dp"-->
+<!--                        android:background="@color/divider"-->
+<!--                        android:layout_marginStart="56dp"/>-->
+
+                    <!-- Test Firestore Connection -->
+<!--                    <LinearLayout-->
+<!--                        android:id="@+id/btn_test_firestore"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:orientation="horizontal"-->
+<!--                        android:gravity="center_vertical"-->
+<!--                        android:padding="16dp"-->
+<!--                        android:background="?attr/selectableItemBackground">-->
+
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_dialog_map"-->
+<!--                            app:tint="@color/text_medium"/>-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/tv_test_firestore"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_weight="1"-->
+<!--                            android:text="Test Firestore Connection"-->
+<!--                            android:textColor="@color/text_dark"-->
+<!--                            android:textSize="16sp"-->
+<!--                            android:layout_marginStart="16dp"/>-->
+
+<!--                        <ImageView-->
+<!--                            android:layout_width="24dp"-->
+<!--                            android:layout_height="24dp"-->
+<!--                            android:src="@drawable/ic_forward"-->
+<!--                            app:tint="@color/text_medium"/>-->
+<!--                    </LinearLayout>-->
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

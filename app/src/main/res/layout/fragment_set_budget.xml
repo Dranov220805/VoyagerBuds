@@ -99,7 +99,7 @@
                     <ImageView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:src="@drawable/ic_money"
+                        android:src="@drawable/ic_amount"
                         android:background="@drawable/button_outline"
                         android:padding="12dp"
                         app:tint="@color/teal_primary"

@@ -632,8 +632,6 @@ public class ScheduleFragment extends Fragment {
         TextInputLayout layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
         EditText etNotes = dialogView.findViewById(R.id.et_detail_notes);
         TextInputLayout layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
-        TextInputLayout layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
-        EditText etParticipants = dialogView.findViewById(R.id.et_detail_participants);
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_detail_images);
         View btnDelete = dialogView.findViewById(R.id.btn_detail_delete);
         View btnEdit = dialogView.findViewById(R.id.btn_detail_edit);
@@ -667,13 +665,6 @@ public class ScheduleFragment extends Fragment {
             layoutNotes.setVisibility(View.VISIBLE);
         } else {
             layoutNotes.setVisibility(View.GONE);
-        }
-
-        if (item.getParticipants() != null && !item.getParticipants().isEmpty()) {
-            etParticipants.setText(item.getParticipants());
-            layoutParticipants.setVisibility(View.VISIBLE);
-        } else {
-            layoutParticipants.setVisibility(View.GONE);
         }
 
         /*
@@ -786,6 +777,35 @@ public class ScheduleFragment extends Fragment {
         String locationName = item.getLocation();
         String title = item.getTitle();
 
+        // Check if we have stored coordinates first
+        if (item.getLatitude() != null && item.getLongitude() != null) {
+            // Use stored coordinates directly
+            Bundle args = new Bundle();
+            args.putDouble("pin_lat", item.getLatitude());
+            args.putDouble("pin_lng", item.getLongitude());
+            args.putString("pin_title", title);
+            args.putString("pin_snippet", locationName);
+
+            String time = item.getDay();
+            if (item.getStartTime() != null && !item.getStartTime().isEmpty()) {
+                time += " • " + item.getStartTime();
+                if (item.getEndTime() != null && !item.getEndTime().isEmpty()) {
+                    time += " - " + item.getEndTime();
+                }
+            }
+            args.putString("pin_time", time);
+
+            MapFragment mapFragment = new MapFragment();
+            mapFragment.setArguments(args);
+
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.content_container, mapFragment)
+                    .addToBackStack(null)
+                    .commit();
+            return;
+        }
+
+        // Fallback: try to geocode the location name if no coordinates stored
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
@@ -815,16 +835,6 @@ public class ScheduleFragment extends Fragment {
                     }
                 }
                 args.putString("pin_time", time);
-
-                /*
-                 * if (item.getExpenseAmount() > 0) {
-                 * String currency = item.getExpenseCurrency() != null ?
-                 * item.getExpenseCurrency() : "USD";
-                 * String budget = String.format(Locale.getDefault(), "%.2f %s",
-                 * item.getExpenseAmount(), currency);
-                 * args.putString("pin_budget", budget);
-                 * }
-                 */
 
                 mapFragment.setArguments(args);
 

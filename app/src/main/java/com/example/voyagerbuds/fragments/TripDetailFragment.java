@@ -18,6 +18,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -62,8 +64,6 @@ import com.example.voyagerbuds.utils.ImageRandomizer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -96,6 +96,7 @@ import java.util.Map;
 import com.example.voyagerbuds.adapters.ExpenseAdapter;
 import com.example.voyagerbuds.adapters.ExpenseDateAdapter;
 import com.example.voyagerbuds.models.Expense;
+import com.example.voyagerbuds.utils.CurrencyHelper;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Calendar;
@@ -106,16 +107,19 @@ public class TripDetailFragment extends Fragment {
     private static final String ARG_TRIP_ID = "trip_id";
     private static final String FLEXIBLE_DAY_KEY = "__flexible__";
     private static final SimpleDateFormat DB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private long tripId;
     private DatabaseHelper databaseHelper;
     private Trip trip;
-    private FusedLocationProviderClient fusedLocationClient;
     private EditText etLocationRef; // Reference to update location from callback
+    private Double selectedLatitude; // Store selected location coordinates
+    private Double selectedLongitude;
+    private Handler locationSearchHandler;
+    private Runnable locationSearchRunnable;
 
     private ActivityResultLauncher<String> pickImageLauncher;
     private ActivityResultLauncher<Uri> takePhotoLauncher;
+    private ActivityResultLauncher<Intent> locationPickerLauncher;
     private Uri photoUri;
     private List<String> tempImagePaths;
     private ScheduleImageAdapter tempImageAdapter;
@@ -129,6 +133,12 @@ public class TripDetailFragment extends Fragment {
     private View layoutNotes;
     private View rootView; // Store root view for gallery refresh
 
+    // Budget fields
+    private TextView tvTotalBudget;
+    private TextView tvTotalSpent;
+    private TextView tvRemainingBudget;
+    private android.widget.ProgressBar progressBudget;
+
     // Expense fields
     private RecyclerView rvExpenseDates;
     private RecyclerView rvExpenses;
@@ -141,6 +151,7 @@ public class TripDetailFragment extends Fragment {
     private Date selectedExpenseDate;
     private Date previousExpenseDate;
     private int lastTabPosition = 0;
+    private RecyclerView currentDialogRvImages; // Reference to currently open dialog's image recycler
 
     private java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors
             .newSingleThreadExecutor();
@@ -161,7 +172,22 @@ public class TripDetailFragment extends Fragment {
             tripId = getArguments().getLong(ARG_TRIP_ID);
         }
         databaseHelper = new DatabaseHelper(getContext());
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
+
+        // Initialize location picker launcher
+        locationPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        selectedLatitude = data.getDoubleExtra("latitude", 0);
+                        selectedLongitude = data.getDoubleExtra("longitude", 0);
+                        String address = data.getStringExtra("address");
+
+                        if (etLocationRef != null && address != null) {
+                            etLocationRef.setText(address);
+                        }
+                    }
+                });
 
         pickImageLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri != null) {
@@ -175,6 +201,10 @@ public class TripDetailFragment extends Fragment {
                     tempImagePaths.add(uri.toString());
                     if (tempImageAdapter != null)
                         tempImageAdapter.notifyItemInserted(tempImagePaths.size() - 1);
+
+                    if (currentDialogRvImages != null && currentDialogRvImages.getVisibility() == View.GONE) {
+                        currentDialogRvImages.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -185,6 +215,10 @@ public class TripDetailFragment extends Fragment {
                     tempImagePaths.add(photoUri.toString());
                     if (tempImageAdapter != null)
                         tempImageAdapter.notifyItemInserted(tempImagePaths.size() - 1);
+
+                    if (currentDialogRvImages != null && currentDialogRvImages.getVisibility() == View.GONE) {
+                        currentDialogRvImages.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -209,6 +243,12 @@ public class TripDetailFragment extends Fragment {
         layoutSchedule = view.findViewById(R.id.layout_schedule);
         layoutExpenses = view.findViewById(R.id.layout_expenses);
         layoutNotes = view.findViewById(R.id.layout_notes);
+
+        // Budget Views
+        tvTotalBudget = view.findViewById(R.id.tv_total_budget);
+        tvTotalSpent = view.findViewById(R.id.tv_total_spent);
+        tvRemainingBudget = view.findViewById(R.id.tv_remaining_budget);
+        progressBudget = view.findViewById(R.id.progress_budget);
 
         rvExpenseDates = view.findViewById(R.id.recycler_view_expense_dates);
         rvExpenses = view.findViewById(R.id.recycler_view_expenses);
@@ -591,10 +631,12 @@ public class TripDetailFragment extends Fragment {
         EditText etTitle = dialogView.findViewById(R.id.et_schedule_title);
         EditText etNotes = dialogView.findViewById(R.id.et_schedule_notes);
         EditText etLocation = dialogView.findViewById(R.id.et_schedule_location);
-        ImageButton btnMyLocation = dialogView.findViewById(R.id.btn_my_location);
+        ImageButton btnPickLocation = dialogView.findViewById(R.id.btn_pick_location);
+
+        // Setup location search autocomplete
+        setupLocationSearch(etLocation, bottomSheetDialog);
 
         // New fields
-        EditText etParticipants = dialogView.findViewById(R.id.et_schedule_participants);
         EditText etNotifyBefore = dialogView.findViewById(R.id.et_schedule_notify_before);
         Button btnAddImage = dialogView.findViewById(R.id.btn_add_image);
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_schedule_images);
@@ -614,6 +656,28 @@ public class TripDetailFragment extends Fragment {
         tempImageAdapter.setOnImageRotationListener(this::rotateImage);
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvImages.setAdapter(tempImageAdapter);
+
+        if (editing != null) {
+            etDay.setText(editing.getDay());
+            etStartTime.setText(editing.getStartTime());
+            etEndTime.setText(editing.getEndTime());
+            etTitle.setText(editing.getTitle());
+            etNotes.setText(editing.getNotes());
+            etLocation.setText(editing.getLocation());
+
+            // Load stored coordinates if available
+            selectedLatitude = editing.getLatitude();
+            selectedLongitude = editing.getLongitude();
+
+            if (editing.getNotifyBeforeMinutes() > 0) {
+                etNotifyBefore.setText(formatNotificationTime(editing.getNotifyBeforeMinutes()));
+            }
+            tvDialogTitle.setText(R.string.schedule_edit_title);
+        } else {
+            tvDialogTitle.setText(R.string.schedule_add_event);
+            selectedLatitude = null;
+            selectedLongitude = null;
+        }
 
         // Track changes in all input fields
         TextWatcher changeWatcher = new TextWatcher() {
@@ -636,34 +700,24 @@ public class TripDetailFragment extends Fragment {
         etTitle.addTextChangedListener(changeWatcher);
         etNotes.addTextChangedListener(changeWatcher);
         etLocation.addTextChangedListener(changeWatcher);
-        etParticipants.addTextChangedListener(changeWatcher);
         etNotifyBefore.addTextChangedListener(changeWatcher);
 
-        btnAddImage.setOnClickListener(v -> {
-            hasUnsavedChanges[0] = true;
-            showImageSourceDialog();
-        });
-
-        if (editing != null) {
-            etDay.setText(editing.getDay());
-            etStartTime.setText(editing.getStartTime());
-            etEndTime.setText(editing.getEndTime());
-            etTitle.setText(editing.getTitle());
-            etNotes.setText(editing.getNotes());
-            etLocation.setText(editing.getLocation());
-            etParticipants.setText(editing.getParticipants());
-            if (editing.getNotifyBeforeMinutes() > 0) {
-                etNotifyBefore.setText(formatNotificationTime(editing.getNotifyBeforeMinutes()));
-            }
-            tvDialogTitle.setText(R.string.schedule_edit_title);
-        } else {
-            tvDialogTitle.setText(R.string.schedule_add_event);
-        }
-
-        btnMyLocation.setOnClickListener(v -> {
+        btnPickLocation.setOnClickListener(v -> {
             etLocationRef = etLocation;
-            getLocationAndSetAddress();
+            Intent intent = new Intent(requireContext(),
+                    com.example.voyagerbuds.activities.LocationPickerActivity.class);
+
+            // Pass current location if available
+            if (selectedLatitude != null && selectedLongitude != null) {
+                intent.putExtra("latitude", selectedLatitude);
+                intent.putExtra("longitude", selectedLongitude);
+            }
+
+            locationPickerLauncher.launch(intent);
         });
+
+        // Setup location search autocomplete
+        setupLocationSearch(etLocation, bottomSheetDialog);
 
         etDay.setOnClickListener(v -> {
             // Use Material Date Picker with trip date constraints
@@ -701,7 +755,6 @@ public class TripDetailFragment extends Fragment {
             String title = etTitle.getText().toString().trim();
             String notes = etNotes.getText().toString().trim();
             String location = etLocation.getText().toString().trim();
-            String participants = etParticipants.getText().toString().trim();
             String notifyBeforeStr = etNotifyBefore.getText().toString().trim();
 
             int notifyBeforeMinutes = 0;
@@ -729,7 +782,8 @@ public class TripDetailFragment extends Fragment {
                 newItem.setTitle(title);
                 newItem.setNotes(notes);
                 newItem.setLocation(location);
-                newItem.setParticipants(participants);
+                newItem.setLatitude(selectedLatitude);
+                newItem.setLongitude(selectedLongitude);
                 newItem.setImagePaths(serializeImagePaths(tempImagePaths));
                 newItem.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 newItem.setCreatedAt(System.currentTimeMillis());
@@ -769,7 +823,8 @@ public class TripDetailFragment extends Fragment {
                 editing.setTitle(title);
                 editing.setNotes(notes);
                 editing.setLocation(location);
-                editing.setParticipants(participants);
+                editing.setLatitude(selectedLatitude);
+                editing.setLongitude(selectedLongitude);
                 editing.setImagePaths(serializeImagePaths(tempImagePaths));
                 editing.setNotifyBeforeMinutes(notifyBeforeMinutes);
                 editing.setUpdatedAt(System.currentTimeMillis());
@@ -1058,67 +1113,142 @@ public class TripDetailFragment extends Fragment {
         }
     }
 
-    private void getLocationAndSetAddress() {
-        if (ContextCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
-                    LOCATION_PERMISSION_REQUEST_CODE);
-        } else {
-            fetchLocation();
-        }
-    }
+    private void setupLocationSearch(EditText etLocation, BottomSheetDialog dialog) {
+        locationSearchHandler = new Handler(Looper.getMainLooper());
 
-    private void fetchLocation() {
-        if (ActivityCompat.checkSelfPermission(requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(requireContext(),
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        Toast.makeText(getContext(), R.string.getting_location, Toast.LENGTH_SHORT).show();
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(requireActivity(), location -> {
-                    if (location != null) {
-                        getAddressFromLocation(location);
-                    } else {
-                        Toast.makeText(getContext(), R.string.location_unavailable, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    @SuppressLint("StringFormatInvalid")
-    private void getAddressFromLocation(Location location) {
-        Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String addressText = address.getAddressLine(0);
-                if (etLocationRef != null) {
-                    etLocationRef.setText(addressText);
-                }
-                Toast.makeText(getContext(), String.format(getString(R.string.location_found), addressText),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), R.string.geocoding_error, Toast.LENGTH_SHORT).show();
+        etLocation.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), R.string.geocoding_error, Toast.LENGTH_SHORT).show();
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (locationSearchRunnable != null) {
+                    locationSearchHandler.removeCallbacks(locationSearchRunnable);
+                }
+
+                String query = s.toString().trim();
+                if (query.length() >= 3) {
+                    locationSearchRunnable = () -> searchLocationForSuggestions(query, etLocation);
+                    locationSearchHandler.postDelayed(locationSearchRunnable, 500);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void searchLocationForSuggestions(String query, EditText etLocation) {
+        if (!isAdded())
+            return;
+
+        new Thread(() -> {
+            try {
+                Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocationName(query, 5);
+
+                // If not found and doesn't contain "Vietnam", try appending it
+                if ((addresses == null || addresses.isEmpty()) && !query.toLowerCase().contains("vietnam")) {
+                    addresses = geocoder.getFromLocationName(query + ", Vietnam", 5);
+                }
+
+                if (addresses != null && !addresses.isEmpty()) {
+                    List<String> suggestions = new ArrayList<>();
+                    List<Address> finalAddresses = new ArrayList<>();
+
+                    for (Address address : addresses) {
+                        String displayName = formatAddressForDisplay(address);
+                        if (displayName != null && !displayName.isEmpty()) {
+                            suggestions.add(displayName);
+                            finalAddresses.add(address);
+                        }
+                    }
+
+                    if (isAdded()) {
+                        requireActivity().runOnUiThread(() -> {
+                            if (suggestions.isEmpty())
+                                return;
+
+                            // Create a popup menu to show suggestions
+                            androidx.appcompat.widget.PopupMenu popup = new androidx.appcompat.widget.PopupMenu(
+                                    requireContext(), etLocation);
+
+                            for (int i = 0; i < Math.min(suggestions.size(), 5); i++) {
+                                popup.getMenu().add(0, i, i, suggestions.get(i));
+                            }
+
+                            popup.setOnMenuItemClickListener(item -> {
+                                int index = item.getItemId();
+                                if (index < finalAddresses.size()) {
+                                    Address selectedAddress = finalAddresses.get(index);
+                                    String displayText = formatAddressForDisplay(selectedAddress);
+                                    etLocation.setText(displayText);
+                                    etLocation.setSelection(displayText.length());
+
+                                    // Store coordinates
+                                    selectedLatitude = selectedAddress.getLatitude();
+                                    selectedLongitude = selectedAddress.getLongitude();
+
+                                    android.util.Log.d("TripDetail", "Selected location: " + displayText +
+                                            " (" + selectedLatitude + ", " + selectedLongitude + ")");
+                                }
+                                return true;
+                            });
+
+                            popup.show();
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e("TripDetail", "Error searching location", e);
+            }
+        }).start();
+    }
+
+    private String formatAddressForDisplay(Address address) {
+        StringBuilder displayText = new StringBuilder();
+
+        // Try to get a readable name from the address
+        if (address.getFeatureName() != null && !address.getFeatureName().matches("\\d+\\.\\d+")) {
+            displayText.append(address.getFeatureName());
         }
+
+        if (address.getSubLocality() != null) {
+            if (displayText.length() > 0)
+                displayText.append(", ");
+            displayText.append(address.getSubLocality());
+        } else if (address.getThoroughfare() != null) {
+            if (displayText.length() > 0)
+                displayText.append(", ");
+            displayText.append(address.getThoroughfare());
+        }
+
+        if (address.getLocality() != null) {
+            if (displayText.length() > 0)
+                displayText.append(", ");
+            displayText.append(address.getLocality());
+        }
+
+        if (address.getAdminArea() != null) {
+            if (displayText.length() > 0)
+                displayText.append(", ");
+            displayText.append(address.getAdminArea());
+        }
+
+        if (address.getCountryName() != null && displayText.length() > 0) {
+            displayText.append(", ").append(address.getCountryName());
+        }
+
+        return displayText.toString().trim();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                fetchLocation();
-            } else {
-                Toast.makeText(getContext(), R.string.location_permission_denied, Toast.LENGTH_SHORT).show();
-            }
-        } else if (requestCode == 2002) {
+        if (requestCode == 2002) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 photoUri = createImageFile();
                 if (photoUri != null) {
@@ -1219,8 +1349,6 @@ public class TripDetailFragment extends Fragment {
         TextInputLayout layoutLocation = dialogView.findViewById(R.id.layout_detail_location_input);
         EditText etNotes = dialogView.findViewById(R.id.et_detail_notes);
         TextInputLayout layoutNotes = dialogView.findViewById(R.id.layout_detail_notes_input);
-        TextInputLayout layoutParticipants = dialogView.findViewById(R.id.layout_detail_participants_input);
-        EditText etParticipants = dialogView.findViewById(R.id.et_detail_participants);
         TextInputLayout layoutNotify = dialogView.findViewById(R.id.layout_detail_notify_input);
         EditText etNotify = dialogView.findViewById(R.id.et_detail_notify);
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_detail_images);
@@ -1244,6 +1372,7 @@ public class TripDetailFragment extends Fragment {
             etLocation.setText(item.getLocation());
             layoutLocation.setVisibility(View.VISIBLE);
             etLocation.setOnClickListener(v -> {
+                bottomSheetDialog.dismiss(); // Auto close the drawer
                 navigateToMapWithPin(item);
             });
         } else {
@@ -1255,13 +1384,6 @@ public class TripDetailFragment extends Fragment {
             layoutNotes.setVisibility(View.VISIBLE);
         } else {
             layoutNotes.setVisibility(View.GONE);
-        }
-
-        if (item.getParticipants() != null && !item.getParticipants().isEmpty()) {
-            etParticipants.setText(item.getParticipants());
-            layoutParticipants.setVisibility(View.VISIBLE);
-        } else {
-            layoutParticipants.setVisibility(View.GONE);
         }
 
         /*
@@ -1336,7 +1458,33 @@ public class TripDetailFragment extends Fragment {
         String locationName = item.getLocation();
         String title = item.getTitle();
 
-        // Geocode the location name to get coordinates
+        // Check if we have stored coordinates
+        if (item.getLatitude() != null && item.getLongitude() != null) {
+            // Use stored coordinates directly
+            Bundle args = new Bundle();
+            args.putDouble("pin_lat", item.getLatitude());
+            args.putDouble("pin_lng", item.getLongitude());
+            args.putString("pin_title", title);
+            args.putString("pin_snippet", locationName);
+            args.putString("pin_time", item.getDay() + " • " + item.getStartTime());
+
+            MapFragment mapFragment = new MapFragment();
+            mapFragment.setArguments(args);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .setCustomAnimations(
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left,
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right)
+                    .replace(R.id.content_container, mapFragment)
+                    .addToBackStack(null)
+                    .commit();
+            return;
+        }
+
+        // Fallback: Geocode the location name to get coordinates
         Geocoder geocoder = new Geocoder(requireContext(), Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
@@ -1606,16 +1754,40 @@ public class TripDetailFragment extends Fragment {
         if (tripDates.isEmpty())
             return;
 
-        selectedExpenseDate = tripDates.get(0);
+        // Auto-select current date if within trip dates, otherwise first date
+        Date today = new Date();
+        Calendar calToday = Calendar.getInstance();
+        calToday.setTime(today);
+
+        selectedExpenseDate = tripDates.get(0); // Default to first date
+        int selectedDatePosition = 0; // Track position for UI update
+        for (int i = 0; i < tripDates.size(); i++) {
+            Date tripDate = tripDates.get(i);
+            Calendar calTrip = Calendar.getInstance();
+            calTrip.setTime(tripDate);
+            if (calTrip.get(Calendar.YEAR) == calToday.get(Calendar.YEAR) &&
+                    calTrip.get(Calendar.DAY_OF_YEAR) == calToday.get(Calendar.DAY_OF_YEAR)) {
+                selectedExpenseDate = tripDate;
+                selectedDatePosition = i;
+                break;
+            }
+        }
 
         // Setup Date Adapter
-        rvExpenseDates.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        LinearLayoutManager dateLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,
+                false);
+        rvExpenseDates.setLayoutManager(dateLayoutManager);
+        final int finalSelectedPosition = selectedDatePosition;
         expenseDateAdapter = new ExpenseDateAdapter(getContext(), tripDates, (date, position) -> {
             previousExpenseDate = selectedExpenseDate;
             selectedExpenseDate = date;
             updateExpenseList();
         });
         rvExpenseDates.setAdapter(expenseDateAdapter);
+
+        // Update UI to show selected date and scroll to it
+        expenseDateAdapter.setSelectedPosition(selectedDatePosition);
+        rvExpenseDates.post(() -> dateLayoutManager.scrollToPositionWithOffset(finalSelectedPosition, 0));
 
         // Setup Expense Adapter
         rvExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -1632,8 +1804,66 @@ public class TripDetailFragment extends Fragment {
     private void loadExpenses() {
         executorService.execute(() -> {
             allExpenses = databaseHelper.getExpensesForTrip((int) tripId);
-            mainHandler.post(this::updateExpenseList);
+
+            // Calculate totals
+            double totalSpent = 0;
+            for (Expense e : allExpenses) {
+                totalSpent += e.getAmount();
+            }
+
+            double finalTotalSpent = totalSpent;
+            mainHandler.post(() -> {
+                updateExpenseList();
+                updateBudgetUI(finalTotalSpent);
+            });
         });
+    }
+
+    private void updateBudgetUI(double totalSpent) {
+        if (trip == null || tvTotalBudget == null)
+            return;
+
+        double budget = trip.getBudget();
+        String currency = trip.getBudgetCurrency();
+        if (currency == null || currency.isEmpty())
+            currency = "USD"; // Default
+
+        if (budget > 0) {
+            // Display amounts based on language preference
+            tvTotalBudget.setText(CurrencyHelper.formatAmountByLanguage(requireContext(), budget, currency));
+            tvTotalSpent.setText(CurrencyHelper.formatAmountByLanguage(requireContext(), totalSpent, currency));
+
+            double remaining = budget - totalSpent;
+            tvRemainingBudget.setText(CurrencyHelper.formatAmountByLanguage(requireContext(), remaining, currency));
+
+            if (remaining < 0) {
+                tvRemainingBudget.setTextColor(ContextCompat.getColor(requireContext(), R.color.error));
+            } else {
+                tvRemainingBudget.setTextColor(ContextCompat.getColor(requireContext(), R.color.success));
+            }
+
+            int progress = (int) ((totalSpent / budget) * 100);
+            if (progress > 100)
+                progress = 100;
+            progressBudget.setProgress(progress);
+
+            // Set progress color based on percentage
+            if (progress >= 100) {
+                progressBudget.setProgressTintList(android.content.res.ColorStateList
+                        .valueOf(ContextCompat.getColor(requireContext(), R.color.error)));
+            } else if (progress >= 80) {
+                progressBudget.setProgressTintList(android.content.res.ColorStateList
+                        .valueOf(ContextCompat.getColor(requireContext(), R.color.warning)));
+            } else {
+                progressBudget.setProgressTintList(android.content.res.ColorStateList
+                        .valueOf(ContextCompat.getColor(requireContext(), R.color.success)));
+            }
+        } else {
+            tvTotalBudget.setText(R.string.no_budget_set);
+            tvTotalSpent.setText(CurrencyHelper.formatAmountByLanguage(requireContext(), totalSpent, currency));
+            tvRemainingBudget.setText("-");
+            progressBudget.setProgress(0);
+        }
     }
 
     private void updateExpenseList() {
@@ -1706,7 +1936,7 @@ public class TripDetailFragment extends Fragment {
         View btnCloseSheet = dialogView.findViewById(R.id.btn_close_sheet);
 
         etCategory.setText(expense.getCategory());
-        etAmount.setText(String.format(Locale.getDefault(), "%.2f", expense.getAmount()));
+        etAmount.setText(String.format(Locale.getDefault(), "%.0f", expense.getAmount()));
         etCurrency.setText(expense.getCurrency());
 
         // Format date
@@ -1841,8 +2071,10 @@ public class TripDetailFragment extends Fragment {
         RecyclerView rvImages = dialogView.findViewById(R.id.rv_expense_images);
         Button btnSave = dialogView.findViewById(R.id.btn_save_expense);
 
+        currentDialogRvImages = rvImages;
+
         // Setup Currency Spinner
-        String[] currencies = new String[] { "USD", "VND" };
+        String[] currencies = new String[] { "USD", "VNĐ" };
         ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, currencies);
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1875,40 +2107,14 @@ public class TripDetailFragment extends Fragment {
             tempImagePaths.remove(position);
             tempImageAdapter.notifyItemRemoved(position);
             hasUnsavedChanges[0] = true;
+            if (tempImagePaths.isEmpty()) {
+                rvImages.setVisibility(View.GONE);
+            }
         });
         tempImageAdapter.setOnImageRotationListener(this::rotateImage);
         rvImages.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvImages.setAdapter(tempImageAdapter);
-
-        // Track changes in all input fields
-        TextWatcher changeWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                hasUnsavedChanges[0] = true;
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        };
-        etName.addTextChangedListener(changeWatcher);
-        etAmount.addTextChangedListener(changeWatcher);
-        etDate.addTextChangedListener(changeWatcher);
-        etNote.addTextChangedListener(changeWatcher);
-        spinnerCurrency.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                hasUnsavedChanges[0] = true;
-            }
-
-            @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {
-            }
-        });
+        rvImages.setVisibility(tempImagePaths.isEmpty() ? View.GONE : View.VISIBLE);
 
         btnAddImage.setOnClickListener(v -> {
             hasUnsavedChanges[0] = true;
@@ -1921,11 +2127,11 @@ public class TripDetailFragment extends Fragment {
         if (editing != null) {
             tvDialogTitle.setText(R.string.edit_expense);
             etName.setText(editing.getCategory());
-            etAmount.setText(String.format(Locale.getDefault(), "%.2f", editing.getAmount()));
+            etAmount.setText(String.format(Locale.getDefault(), "%.0f", editing.getAmount()));
 
             // Set currency
             String currency = editing.getCurrency();
-            if ("VND".equals(currency)) {
+            if ("VNĐ".equals(currency)) {
                 spinnerCurrency.setSelection(1);
             } else {
                 spinnerCurrency.setSelection(0);
@@ -1954,20 +2160,73 @@ public class TripDetailFragment extends Fragment {
             tvDialogTitle.setText(R.string.add_expense);
 
             // Auto-select currency based on language
-            String language = Locale.getDefault().getLanguage();
+            String language = com.example.voyagerbuds.utils.LocaleHelper.getLanguage(requireContext());
             if ("vi".equals(language)) {
-                spinnerCurrency.setSelection(1); // VND
+                spinnerCurrency.setSelection(1); // VNĐ
             } else {
                 spinnerCurrency.setSelection(0); // USD
             }
 
-            // Default Date
-            if (selectedExpenseDate != null) {
+            // Default Date - use current system date
+            Date today = new Date();
+
+            // Check if today is within trip dates
+            boolean isTodayInTrip = false;
+            if (trip != null) {
+                try {
+                    SimpleDateFormat tripSdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date startDate = tripSdf.parse(trip.getStartDate());
+                    Date endDate = tripSdf.parse(trip.getEndDate());
+                    if (startDate != null && endDate != null &&
+                            !today.before(startDate) && !today.after(endDate)) {
+                        isTodayInTrip = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (isTodayInTrip) {
+                etDate.setText(sdf.format(today));
+            } else if (selectedExpenseDate != null) {
                 etDate.setText(sdf.format(selectedExpenseDate));
             } else {
                 etDate.setText(sdf.format(new Date()));
             }
         }
+
+        // Track changes in all input fields
+        TextWatcher changeWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                hasUnsavedChanges[0] = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        etName.addTextChangedListener(changeWatcher);
+        etAmount.addTextChangedListener(changeWatcher);
+        etDate.addTextChangedListener(changeWatcher);
+        etNote.addTextChangedListener(changeWatcher);
+        spinnerCurrency.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                // Only mark as changed if it's a user interaction (approximate check)
+                if (view != null) {
+                    hasUnsavedChanges[0] = true;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
 
         etDate.setOnClickListener(v -> {
             Calendar cal = Calendar.getInstance();
@@ -1979,12 +2238,31 @@ public class TripDetailFragment extends Fragment {
             int year = cal.get(Calendar.YEAR);
             int month = cal.get(Calendar.MONTH);
             int day = cal.get(Calendar.DAY_OF_MONTH);
+
             DatePickerDialog dp = new DatePickerDialog(requireContext(), android.R.style.Theme_DeviceDefault_Dialog,
                     (view1, y, m, d) -> {
                         Calendar picked = Calendar.getInstance();
                         picked.set(y, m, d);
                         etDate.setText(sdf.format(picked.getTime()));
                     }, year, month, day);
+
+            // Set min and max date based on trip dates
+            if (trip != null) {
+                try {
+                    SimpleDateFormat tripSdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date startDate = tripSdf.parse(trip.getStartDate());
+                    Date endDate = tripSdf.parse(trip.getEndDate());
+                    if (startDate != null) {
+                        dp.getDatePicker().setMinDate(startDate.getTime());
+                    }
+                    if (endDate != null) {
+                        dp.getDatePicker().setMaxDate(endDate.getTime());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             dp.show();
         });
 
@@ -2130,7 +2408,7 @@ public class TripDetailFragment extends Fragment {
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.discard_expense_title)
                 .setMessage(R.string.discard_expense_message)
-                .setPositiveButton(R.string.discard, (dialog, which) -> {
+                .setPositiveButton(R.string.confirm, (dialog, which) -> {
                     onConfirm.run();
                 })
                 .setNegativeButton(R.string.cancel, (dialog, which) -> {

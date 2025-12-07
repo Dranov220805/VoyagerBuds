@@ -47,7 +47,7 @@ public class EditTripFragment extends Fragment {
     private Trip trip;
     private DatabaseHelper databaseHelper;
 
-    private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etParticipants, etNotes;
+    private TextInputEditText etTripName, etStartDate, etEndDate, etDestination, etBudget, etNotes;
     private Button btnSave, btnCancel;
     private Spinner spinnerBudgetCurrency;
     private android.widget.ImageView imgTripPhoto;
@@ -101,7 +101,6 @@ public class EditTripFragment extends Fragment {
         etEndDate = view.findViewById(R.id.et_end_date);
         etDestination = view.findViewById(R.id.et_destination);
         etBudget = view.findViewById(R.id.et_budget);
-        etParticipants = view.findViewById(R.id.et_participants);
         etNotes = view.findViewById(R.id.et_notes);
         btnSave = view.findViewById(R.id.btn_save);
         btnCancel = view.findViewById(R.id.btn_cancel);
@@ -110,8 +109,8 @@ public class EditTripFragment extends Fragment {
         btnChangePhoto = view.findViewById(R.id.btn_change_photo);
         btnResetPhoto = view.findViewById(R.id.btn_reset_photo);
 
-        // Setup currency spinner with USD and VND only
-        String[] currencies = new String[] { "USD", "VND" };
+        // Setup currency spinner with USD and VNĐ only
+        String[] currencies = new String[] { "USD", "VNĐ" };
         ArrayAdapter<String> currencyAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, currencies);
         currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -152,7 +151,6 @@ public class EditTripFragment extends Fragment {
             etEndDate.setText(trip.getEndDate());
             etDestination.setText(trip.getDestination());
             etBudget.setText(String.valueOf(trip.getBudget()));
-            etParticipants.setText(trip.getParticipants());
             etNotes.setText(trip.getNotes());
 
             // Load currency
@@ -238,7 +236,6 @@ public class EditTripFragment extends Fragment {
         String end = etEndDate.getText().toString().trim();
         String dest = etDestination.getText().toString().trim();
         String budgetStr = etBudget.getText().toString().trim();
-        String participants = etParticipants.getText().toString().trim();
         String notes = etNotes.getText().toString().trim();
 
         // Validation
@@ -282,8 +279,6 @@ public class EditTripFragment extends Fragment {
         trip.setEndDate(end);
         trip.setDestination(dest);
         trip.setNotes(notes);
-        trip.setParticipants(participants);
-        trip.setIsGroupTrip(!TextUtils.isEmpty(participants) ? 1 : 0);
 
         try {
             trip.setBudget(Double.parseDouble(budgetStr));
@@ -363,8 +358,8 @@ public class EditTripFragment extends Fragment {
     private void detectDefaultCurrency() {
         String language = com.example.voyagerbuds.utils.LocaleHelper.getLanguage(requireContext());
         if ("vi".equals(language)) {
-            budgetCurrency = "VND";
-            spinnerBudgetCurrency.setSelection(1); // VND
+            budgetCurrency = "VNĐ";
+            spinnerBudgetCurrency.setSelection(1); // VNĐ
         } else {
             budgetCurrency = "USD";
             spinnerBudgetCurrency.setSelection(0); // USD
@@ -376,7 +371,7 @@ public class EditTripFragment extends Fragment {
      */
     private void updateCurrencySpinner() {
         if (spinnerBudgetCurrency != null && budgetCurrency != null) {
-            if ("VND".equals(budgetCurrency)) {
+            if ("VND".equals(budgetCurrency) || "VNĐ".equals(budgetCurrency)) {
                 spinnerBudgetCurrency.setSelection(1);
             } else {
                 spinnerBudgetCurrency.setSelection(0);

@@ -33,8 +33,7 @@ import java.util.Map;
  * Current approach:
  * - Store trips under collection: users/{uid}/trips/{tripDoc}
  * - Child collections: schedules, expenses, captures
- * - We do not upload media binary files here — only metadata. Option to add
- * Storage later.
+ * - Images are converted to Base64 strings for storage
  */
 public class FirebaseBackupManager {
     private static final String TAG = "FirebaseBackupManager";
@@ -43,6 +42,9 @@ public class FirebaseBackupManager {
     private static final String SCHEDULE_COLLECTION = "schedules";
     private static final String EXPENSES_COLLECTION = "expenses";
     private static final String CAPTURES_COLLECTION = "captures";
+
+    // Maximum image size for Base64 encoding (1MB to stay within Firestore limits)
+    private static final int MAX_IMAGE_SIZE_BYTES = 1024 * 1024;
 
     public interface Callback {
         void onSuccess();
@@ -635,17 +637,24 @@ public class FirebaseBackupManager {
         for (Trip trip : trips) {
             Map<String, Object> tripMap = new HashMap<>();
             tripMap.put("tripId", trip.getTripId());
+            tripMap.put("userId", trip.getUserId());
             tripMap.put("tripName", trip.getTripName());
             tripMap.put("startDate", trip.getStartDate());
             tripMap.put("endDate", trip.getEndDate());
             tripMap.put("destination", trip.getDestination());
             tripMap.put("notes", trip.getNotes());
-            tripMap.put("photoUrl", trip.getPhotoUrl());
+            // Convert photo to Base64 for storage
+            String photoBase64 = imageToBase64(trip.getPhotoUrl());
+            if (photoBase64 != null) {
+                tripMap.put("photoBase64", photoBase64);
+            }
             tripMap.put("createdAt", trip.getCreatedAt());
             tripMap.put("updatedAt", trip.getUpdatedAt());
             tripMap.put("isGroupTrip", trip.getIsGroupTrip());
             tripMap.put("mapLatitude", trip.getMapLatitude());
             tripMap.put("mapLongitude", trip.getMapLongitude());
+            tripMap.put("syncStatus", trip.getSyncStatus());
+            tripMap.put("firebaseId", trip.getFirebaseId());
             tripMap.put("budget", trip.getBudget());
             tripMap.put("budgetCurrency", trip.getBudgetCurrency());
             tripMap.put("participants", trip.getParticipants());
@@ -661,14 +670,22 @@ public class FirebaseBackupManager {
             List<ScheduleItem> schedules = dbHelper.getSchedulesForTrip(trip.getTripId());
             for (ScheduleItem schedule : schedules) {
                 Map<String, Object> scheduleMap = new HashMap<>();
+                scheduleMap.put("id", schedule.getId());
+                scheduleMap.put("tripId", schedule.getTripId());
                 scheduleMap.put("day", schedule.getDay());
                 scheduleMap.put("startTime", schedule.getStartTime());
                 scheduleMap.put("endTime", schedule.getEndTime());
                 scheduleMap.put("title", schedule.getTitle());
                 scheduleMap.put("notes", schedule.getNotes());
                 scheduleMap.put("location", schedule.getLocation());
+                scheduleMap.put("latitude", schedule.getLatitude());
+                scheduleMap.put("longitude", schedule.getLongitude());
                 scheduleMap.put("participants", schedule.getParticipants());
-                scheduleMap.put("imagePaths", schedule.getImagePaths());
+                // Convert images to Base64 for storage
+                String imagesBase64 = imagePathsToBase64Json(schedule.getImagePaths());
+                if (imagesBase64 != null) {
+                    scheduleMap.put("imagesBase64", imagesBase64);
+                }
                 scheduleMap.put("notifyBeforeMinutes", schedule.getNotifyBeforeMinutes());
                 scheduleMap.put("createdAt", schedule.getCreatedAt());
                 scheduleMap.put("updatedAt", schedule.getUpdatedAt());
@@ -686,12 +703,18 @@ public class FirebaseBackupManager {
             List<Expense> expenses = dbHelper.getExpensesForTrip(trip.getTripId());
             for (Expense expense : expenses) {
                 Map<String, Object> expenseMap = new HashMap<>();
+                expenseMap.put("expenseId", expense.getExpenseId());
+                expenseMap.put("tripId", expense.getTripId());
                 expenseMap.put("category", expense.getCategory());
                 expenseMap.put("amount", expense.getAmount());
                 expenseMap.put("currency", expense.getCurrency());
                 expenseMap.put("note", expense.getNote());
                 expenseMap.put("spentAt", expense.getSpentAt());
-                expenseMap.put("imagePaths", expense.getImagePaths());
+                // Convert images to Base64 for storage
+                String imagesBase64 = imagePathsToBase64Json(expense.getImagePaths());
+                if (imagesBase64 != null) {
+                    expenseMap.put("imagesBase64", imagesBase64);
+                }
                 com.google.firebase.firestore.DocumentReference expenseRef = tripDocRef.collection(EXPENSES_COLLECTION)
                         .document(String.valueOf(expense.getExpenseId()));
                 Task<?> expenseTask = expenseRef
@@ -708,7 +731,16 @@ public class FirebaseBackupManager {
             List<Capture> captures = dbHelper.getCapturesForTrip(trip.getTripId());
             for (Capture capture : captures) {
                 Map<String, Object> captureMap = new HashMap<>();
-                captureMap.put("mediaPath", capture.getMediaPath());
+                captureMap.put("captureId", capture.getCaptureId());
+                captureMap.put("userId", capture.getUserId());
+                captureMap.put("tripId", capture.getTripId());
+                // Convert media to Base64 for storage (images only, skip videos)
+                if ("photo".equalsIgnoreCase(capture.getMediaType())) {
+                    String mediaBase64 = imageToBase64(capture.getMediaPath());
+                    if (mediaBase64 != null) {
+                        captureMap.put("mediaBase64", mediaBase64);
+                    }
+                }
                 captureMap.put("mediaType", capture.getMediaType());
                 captureMap.put("description", capture.getDescription());
                 captureMap.put("capturedAt", capture.getCapturedAt());
@@ -729,5 +761,94 @@ public class FirebaseBackupManager {
             }
         }
         return tasks;
+    }
+
+    /**
+     * Convert image file to Base64 string
+     * 
+     * @param imagePath Path to the image file
+     * @return Base64 encoded string, or null if file doesn't exist or is too large
+     */
+    private static String imageToBase64(String imagePath) {
+        if (imagePath == null || imagePath.isEmpty()) {
+            return null;
+        }
+
+        try {
+            java.io.File imageFile = new java.io.File(imagePath);
+            if (!imageFile.exists() || imageFile.length() > MAX_IMAGE_SIZE_BYTES) {
+                Log.w(TAG, "Image file doesn't exist or is too large: " + imagePath);
+                return null;
+            }
+
+            java.io.FileInputStream fis = new java.io.FileInputStream(imageFile);
+            byte[] imageBytes = new byte[(int) imageFile.length()];
+            fis.read(imageBytes);
+            fis.close();
+
+            return android.util.Base64.encodeToString(imageBytes, android.util.Base64.DEFAULT);
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting image to Base64: " + imagePath, e);
+            return null;
+        }
+    }
+
+    /**
+     * Convert JSON array of image paths to JSON array of Base64 strings
+     * 
+     * @param imagePathsJson JSON string like "[\"path1\",\"path2\"]"
+     * @return JSON string with Base64 encoded images
+     */
+    private static String imagePathsToBase64Json(String imagePathsJson) {
+        if (imagePathsJson == null || imagePathsJson.isEmpty()) {
+            return null;
+        }
+
+        try {
+            org.json.JSONArray pathsArray = new org.json.JSONArray(imagePathsJson);
+            org.json.JSONArray base64Array = new org.json.JSONArray();
+
+            for (int i = 0; i < pathsArray.length(); i++) {
+                String path = pathsArray.getString(i);
+                String base64 = imageToBase64(path);
+                if (base64 != null) {
+                    base64Array.put(base64);
+                }
+            }
+
+            return base64Array.length() > 0 ? base64Array.toString() : null;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting image paths to Base64", e);
+            return null;
+        }
+    }
+
+    /**
+     * Convert Base64 string back to image file
+     * 
+     * @param base64String Base64 encoded image
+     * @param outputPath   Path where to save the decoded image
+     * @return true if successful
+     */
+    private static boolean base64ToImage(String base64String, String outputPath) {
+        if (base64String == null || base64String.isEmpty() || outputPath == null) {
+            return false;
+        }
+
+        try {
+            byte[] imageBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT);
+
+            java.io.File outputFile = new java.io.File(outputPath);
+            outputFile.getParentFile().mkdirs();
+
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(outputFile);
+            fos.write(imageBytes);
+            fos.close();
+
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error converting Base64 to image: " + outputPath, e);
+            return false;
+        }
     }
 }

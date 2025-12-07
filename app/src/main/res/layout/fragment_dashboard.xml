@@ -47,7 +47,7 @@
                 android:layout_marginEnd="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardBackgroundColor="@color/card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                 android:layout_marginStart="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardBackgroundColor="@color/card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -96,7 +96,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Unique Places"
+                        android:text="@string/unique_places"
                         android:textColor="@color/text_medium"
                         android:textSize="14sp"
                         android:textStyle="bold"/>
@@ -136,7 +136,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Most Visited Places"
+            android:text="@string/most_visited_places"
             android:textColor="@color/text_dark"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -164,7 +164,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Total Spent / Budget"
+                android:text="@string/total_spent_budget"
                 android:textColor="@color/text_dark"
                 android:textSize="16sp"
                 android:textStyle="bold"/>
@@ -242,123 +242,6 @@
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
-
-        <!-- Group Trips Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/group_trips"
-                android:textColor="@color/text_dark"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
-
-                <TextView
-                android:id="@+id/tv_see_all_groups"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/see_all_groups"
-                android:textColor="@color/main_color_voyager"
-                android:textSize="14sp"
-                android:textStyle="bold"/>
-
-        </LinearLayout>
-
-        <!-- Group Trip Cards -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/group_trip_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/teal_light_bg"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_group_trip_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/example_group_title"
-                        android:textColor="@color/text_dark"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/tv_group_trip_members"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/example_group_members_days"
-                        android:textColor="@color/text_medium"
-                        android:textSize="14sp"
-                        android:layout_marginTop="4dp"/>
-
-                </LinearLayout>
-
-                    <Button
-                    android:id="@+id/btn_view_group"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                        android:text="@string/view_label"
-                    android:textColor="@android:color/white"
-                    android:textSize="13sp"
-                    android:textAllCaps="false"
-                    android:background="@drawable/button_primary"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"/>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- Create/Join Group Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-                <Button
-                android:id="@+id/btn_create_group"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="12dp"
-                    android:text="@string/create_group_button"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textAllCaps="false"
-                android:background="@drawable/button_primary"/>
-
-                <Button
-                android:id="@+id/btn_join_group"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                    android:text="@string/join_group_button"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                android:background="@drawable/button_secondary"/>
-
-        </LinearLayout>
 
     </LinearLayout>
 

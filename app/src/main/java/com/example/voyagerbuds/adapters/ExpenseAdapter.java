@@ -25,7 +25,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     public interface OnExpenseClickListener {
         void onExpenseClick(Expense expense);
     }
-    //test
+
+    // test
     public ExpenseAdapter(Context context, List<Expense> expenses, OnExpenseClickListener listener) {
         this.context = context;
         this.expenses = expenses;
@@ -66,14 +67,21 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         holder.tvExpenseNote.setText(noteDisplay);
 
         // Format amount
-        String amountText = String.format("%s %.2f", expense.getCurrency(), Math.abs(expense.getAmount()));
-        if (expense.getAmount() < 0) {
-            holder.tvExpenseAmount.setText("- " + amountText);
-            holder.tvExpenseAmount.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
-        } else {
-            holder.tvExpenseAmount.setText("+ " + amountText);
-            holder.tvExpenseAmount.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
+        java.text.NumberFormat numberFormat = java.text.NumberFormat.getNumberInstance();
+        numberFormat.setMaximumFractionDigits(0);
+        numberFormat.setMinimumFractionDigits(0);
+
+        String currencySymbol = expense.getCurrency();
+        if ("VND".equals(currencySymbol)) {
+            currencySymbol = "VNĐ";
         }
+
+        String formattedAmount = numberFormat.format(Math.abs(expense.getAmount()));
+        String amountText = "-" + formattedAmount + " " + currencySymbol;
+
+        // All expenses are shown in red with minus sign
+        holder.tvExpenseAmount.setText(amountText);
+        holder.tvExpenseAmount.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
 
         // Set icon based on category (simplified logic for now)
         int iconRes = getIconForCategory(expense.getCategory());
@@ -88,7 +96,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
 
     private int getIconForCategory(String category) {
         if (category == null)
-            return R.drawable.ic_money;
+            return R.drawable.ic_amount;
         switch (category.toLowerCase()) {
             case "food":
             case "dining":
@@ -102,7 +110,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
             case "shopping":
                 return R.drawable.ic_wallet;
             default:
-                return R.drawable.ic_money;
+                return R.drawable.ic_amount;
         }
     }
 

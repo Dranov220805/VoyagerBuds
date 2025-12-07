@@ -58,6 +58,13 @@ public class LoginActivity extends BaseActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Set status bar color to white
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(0xFFFFFFFF);
+            getWindow().getDecorView().setSystemUiVisibility(
+                    android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+
         // Hide action bar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();

@@ -31,6 +31,26 @@
     <string name="preferences">Tùy chọn</string>
     <string name="support">Hỗ trợ</string>
     <string name="emergency_contacts">Liên hệ khẩn cấp</string>
+    <string name="inactivity_timeout">Thời gian không hoạt động</string>
+    <string name="emergency_contact_list">Danh sách liên hệ</string>
+    <string name="add_contact">Thêm liên hệ</string>
+    <string name="add_emergency_contact">Thêm liên hệ khẩn cấp</string>
+    <string name="edit_emergency_contact">Chỉnh sửa liên hệ khẩn cấp</string>
+    <string name="no_emergency_contacts">Chưa có liên hệ khẩn cấp nào</string>
+    <string name="contact_name">Tên liên hệ</string>
+    <string name="relationship">Mối quan hệ</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="enter_name">Nhập tên</string>
+    <string name="enter_relationship">Ví dụ: Mẹ, Ba, Anh/Chị</string>
+    <string name="enter_email">Nhập địa chỉ email</string>
+    <string name="enter_phone">Nhập số điện thoại</string>
+    <string name="save_settings">LƯU CÀI ĐẶT</string>
+    <string name="delete_contact_confirm">Bạn có chắc chắn muốn xóa liên hệ này không?</string>
+    <string name="contact_saved">Liên hệ đã được lưu</string>
+    <string name="contact_deleted">Liên hệ đã bị xóa</string>
+    <string name="fill_all_fields">Vui lòng điền tất cả các trường bắt buộc</string>
+    <string name="close">Đóng</string>
+    <string name="settings_saved">Cài đặt đã được lưu</string>
     <string name="theme_subtitle">Sáng / Tối</string>
     <string name="language_subtitle">Tiếng Anh / Tiếng Việt</string>
     <string name="edit_profile">Chỉnh sửa hồ sơ</string>
@@ -45,9 +65,15 @@
     <string name="restore_data">Khôi phục dữ liệu</string>
     <string name="backup_login_prompt">Vui lòng đăng nhập để sao lưu dữ liệu</string>
     <string name="backing_up_title">Đang sao lưu</string>
-    <string name="backing_up_message">Vui lòng đợi trong khi chúng tôi tải dữ liệu lên Firebase...</string>
+    <string name="backing_up_message">Vui lòng chờ trong khi chúng tôi tải dữ liệu lên Firebase...</string>
     <string name="backup_completed">Sao lưu hoàn tất</string>
     <string name="backup_failed_title">Sao lưu thất bại</string>
+    <string name="backup_cloud_check_title">Tìm thấy bản sao lưu trên đám mây</string>
+    <string name="backup_cloud_check_message">Bạn đã có dữ liệu sao lưu trên đám mây:\n\n%s\n\nBạn có muốn ghi đè nó với dữ liệu cục bộ hiện tại không?</string>
+    <string name="backup_cloud_check_message_detailed">Bạn đã có dữ liệu sao lưu trên đám mây:\n\n%1$s\n\nBạn có muốn ghi đè nó với dữ liệu cục bộ hiện tại không?\n\nCác chuyến đi của bạn:\n\n%2$s</string>
+    <string name="backup_no_cloud_data_title">Tạo bản sao lưu</string>
+    <string name="backup_no_cloud_data_message">Không tìm thấy bản sao lưu trên đám mây.\n\nCác chuyến đi của bạn:\n\n%s\n\nTiếp tục sao lưu?</string>
+    <string name="action_cancel">Hủy</string>
     <string name="copy_details">Sao chép chi tiết</string>
     <string name="copied_to_clipboard">Đã sao chép vào clipboard</string>
     <string name="restore_login_prompt">Vui lòng đăng nhập để khôi phục dữ liệu</string>
@@ -109,6 +135,16 @@
     <string name="light_mode">Chế độ sáng</string>
     <string name="dark_mode">Chế độ tối</string>
     <string name="theme">Giao diện</string>
+    
+    <!-- Network and Account Type Messages -->
+    <string name="no_network_connection">Không có kết nối internet</string>
+    <string name="no_network_backup_message">Tính năng sao lưu và khôi phục yêu cầu kết nối internet. Vui lòng kiểm tra cài đặt mạng và thử lại.</string>
+    <string name="no_network_restore_message">Tính năng khôi phục yêu cầu kết nối internet. Vui lòng kiểm tra cài đặt mạng và thử lại.</string>
+    <string name="local_account_title">Phát hiện tài khoản cục bộ</string>
+    <string name="local_account_backup_message">Bạn đang sử dụng tài khoản cục bộ. Để sử dụng tính năng sao lưu và khôi phục, bạn cần kết nối với tài khoản Firebase.\n\nBạn có muốn đăng nhập bằng Google để bật sao lưu đám mây không?</string>
+    <string name="local_account_restore_message">Bạn đang sử dụng tài khoản cục bộ. Để khôi phục dữ liệu từ đám mây, bạn cần kết nối với tài khoản Firebase.\n\nBạn có muốn đăng nhập bằng Google không?</string>
+    <string name="maybe_later">Để sau</string>
+    <string name="checking_connection">Đang kiểm tra kết nối...</string>
 
     <!-- Trip Management -->
     <string name="my_trips">Chuyến đi của tôi</string>
@@ -146,7 +182,7 @@
     <string name="error_destination_required">Vui lòng nhập điểm đến</string>
     <string name="error_end_before_start">Ngày kết thúc không thể trước ngày bắt đầu</string>
     <string name="hint_budget">Ngân sách</string>
-    <string name="default_currency">VND</string>
+    <string name="default_currency">VNĐ</string>
 
     <!-- Schedule -->
     <string name="schedule_timeline_title">Dòng thời gian chuyến đi</string>
@@ -493,7 +529,12 @@
     <string name="example_food_cost">$2,450</string>
     <string name="emergency_alert">Cảnh báo khẩn cấp</string>
     <string name="emergency_alert_description">Tự động gửi cảnh báo đến người thân nếu bạn không hoạt động 24h</string>
-    <string name="last_activity">Hoạt động gần nhất: 2 giờ trước</string>
+    <string name="last_activity">Hoạt động gần nhất: %s</string>
+    <string name="visit_singular">lượt</string>
+    <string name="visit_plural">lượt</string>
+    <string name="no_expenses_for_day">Không có chi phí cho ngày này</string>
+    <string name="emergency_alerts_disabled">Cảnh báo khẩn cấp hiện đang tắt.</string>
+    <string name="emergency_alert_timeout">Tự động gửi cảnh báo đến người thân nếu không hoạt động trong %s</string>
     <string name="group_trips">Chuyến đi nhóm</string>
     <string name="see_all_groups">Xem tất cả</string>
     <string name="example_group_title">Hành trình Châu Âu</string>
@@ -543,6 +584,13 @@
     <string name="get_my_location">lấy địa điểm của tôi</string>
     <string name="location_found">Đã tìm thấy địa điểm</string>
     <string name="geocoding_error">Lỗi địa điểm</string>
+    <string name="pick_location">Chọn vị trí</string>
+    <string name="search_location">Tìm kiếm vị trí</string>
+    <string name="tap_map_to_select_location">Kéo bản đồ để chọn vị trí</string>
+    <string name="confirm_location">Xác nhận vị trí</string>
+    <string name="my_location">Vị trí của tôi</string>
+    <string name="location_not_available">Không có vị trí</string>
+    <string name="error_getting_location">Lỗi lấy vị trí</string>
     <string name="add_image">Thêm ảnh</string>
     <string name="hint_expense_amount">Chi phí</string>
 
@@ -622,4 +670,29 @@
     <string name="zoom_0_5x">0.5x</string>
     <string name="select_trip">Chọn chuyến đi</string>
     <string name="library">Thư viện</string>
+    <string name="error_name_required">Vui lòng nhập tên</string>
+    <string name="error_amount_required">Vui lòng nhập số tiền</string>
+    <string name="error_invalid_amount">Định dạng số tiền không hợp lệ</string>
+    <string name="error_saving_expense">Lỗi khi lưu chi phí: %1$s</string>
+    <string name="error_updating_expense">Lỗi khi cập nhật chi phí: %1$s</string>
+    <string name="error_trip_data_not_loaded">Dữ liệu chuyến đi chưa được tải</string>
+    <string name="error_loading_trip_dates">Lỗi khi tải ngày của chuyến đi</string>
+    <string name="error_rotate_image">Không thể xoay hình ảnh</string>
+    <string-array name="emergency_timeout_options">
+        <item>12 Giờ</item>
+        <item>24 Giờ</item>
+        <item>48 Giờ</item>
+        <item>72 Giờ</item>
+    </string-array>
+    <string name="expense_name_hint">Tên khoản chi</string>
+    <string name="expense_description_hint">Mô tả ngắn gọn</string>
+    <string name="images_label">Hình ảnh</string>
+    <string name="save_expense">Lưu khoản chi</string>
+    <string name="budget_label">Ngân sách</string>
+    <string name="spent_label">Đã chi</string>
+    <string name="remaining_label">Còn lại</string>
+    <string name="no_budget_set">Chưa đặt ngân sách</string>
+    <string name="unique_places">Địa điểm đặc biệt</string>
+    <string name="most_visited_places">Ghé thăm nhiều nhất</string>
+    <string name="total_spent_budget">Đã chi tiêu / Tổng chi phí</string>
 </resources>

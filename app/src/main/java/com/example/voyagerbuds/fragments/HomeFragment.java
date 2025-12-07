@@ -582,31 +582,26 @@ public class HomeFragment extends Fragment
                     .getTotalExpensesByCurrency(trip.getTripId());
 
             if (totalsByCurrency.isEmpty()) {
-                tvHeroTripExpenses.setText(CurrencyHelper.formatCurrency(requireContext(), 0.0));
-            } else if (totalsByCurrency.size() == 1) {
-                // Single currency - display normally
-                java.util.Map.Entry<String, Double> entry = totalsByCurrency.entrySet().iterator().next();
-                tvHeroTripExpenses.setText(String.format(java.util.Locale.getDefault(),
-                        "%s %.2f", entry.getKey(), entry.getValue()));
+                // Use trip's currency for zero display
+                String currency = trip.getBudgetCurrency();
+                if (currency == null || currency.isEmpty())
+                    currency = "USD";
+                tvHeroTripExpenses.setText(CurrencyHelper.formatAmountByLanguage(requireContext(), 0.0, currency));
             } else {
-                // Multiple currencies - show all
-                StringBuilder sb = new StringBuilder();
-                java.util.List<String> currencies = new java.util.ArrayList<>(totalsByCurrency.keySet());
-                java.util.Collections.sort(currencies);
+                // Sum expenses in their stored currency (assuming single currency per trip)
+                double totalAmount = 0;
+                String currency = trip.getBudgetCurrency();
+                if (currency == null || currency.isEmpty())
+                    currency = "USD";
 
-                for (int i = 0; i < currencies.size(); i++) {
-                    String currency = currencies.get(i);
-                    Double amount = totalsByCurrency.get(currency);
-                    sb.append(String.format(java.util.Locale.getDefault(), "%s %.2f", currency, amount));
-                    if (i < currencies.size() - 1) {
-                        sb.append(" + ");
-                    }
+                for (java.util.Map.Entry<String, Double> entry : totalsByCurrency.entrySet()) {
+                    totalAmount += entry.getValue();
                 }
-                tvHeroTripExpenses.setText(sb.toString());
-            }
-        }
 
-        // Format and display dates
+                tvHeroTripExpenses
+                        .setText(CurrencyHelper.formatAmountByLanguage(requireContext(), totalAmount, currency));
+            }
+        } // Format and display dates
         String dateDisplay = formatTripDatesSimple(trip.getStartDate(), trip.getEndDate());
         if (tvHeroTripDates != null) {
             tvHeroTripDates.setText(dateDisplay);

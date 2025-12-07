@@ -83,15 +83,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             holder.layoutLocation.setVisibility(View.GONE);
         }
 
-        // Set participants (show only if not empty)
-        String participants = it.getParticipants();
-        if (participants != null && !participants.trim().isEmpty()) {
-            holder.tvParticipants.setText(participants);
-            holder.layoutParticipants.setVisibility(View.VISIBLE);
-        } else {
-            holder.layoutParticipants.setVisibility(View.GONE);
-        }
-
         // Position event based on start time
         if (!start.isEmpty()) {
             int topMargin = calculateTimePosition(start);
@@ -151,8 +142,8 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTime, tvTitle, tvNotes, tvIcon, tvLocation, tvParticipants;
-        View layoutLocation, layoutParticipants;
+        TextView tvTime, tvTitle, tvNotes, tvIcon, tvLocation;
+        View layoutLocation;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -161,9 +152,7 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
             tvNotes = itemView.findViewById(R.id.tv_schedule_notes);
             tvIcon = itemView.findViewById(R.id.tv_schedule_icon);
             tvLocation = itemView.findViewById(R.id.tv_schedule_location);
-            tvParticipants = itemView.findViewById(R.id.tv_schedule_participants);
             layoutLocation = itemView.findViewById(R.id.layout_location);
-            layoutParticipants = itemView.findViewById(R.id.layout_participants);
         }
     }
 }

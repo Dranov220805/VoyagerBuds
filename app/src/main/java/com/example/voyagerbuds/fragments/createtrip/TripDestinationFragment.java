@@ -42,14 +42,13 @@ import org.json.JSONObject;
 public class TripDestinationFragment extends Fragment {
 
     private MaterialAutoCompleteTextView etDestination;
-    private EditText etNotes, etFriends, etBudget;
+    private EditText etNotes, etBudget;
     private Spinner spinnerBudgetCurrency;
     private Button btnFinish, btnBack;
     private OnTripDestinationEnteredListener listener;
 
     private String initialDestination;
     private String initialNotes;
-    private String initialFriends;
     private String initialBudget;
     private String initialCurrency;
 
@@ -60,7 +59,7 @@ public class TripDestinationFragment extends Fragment {
     private static final long DEBOUNCE_DELAY = 500; // 500ms delay
 
     public interface OnTripDestinationEnteredListener {
-        void onTripDestinationEntered(String destination, String notes, String friends, String budget, String currency);
+        void onTripDestinationEntered(String destination, String notes, String budget, String currency);
 
         void onBack();
     }
@@ -77,7 +76,6 @@ public class TripDestinationFragment extends Fragment {
 
         etDestination = view.findViewById(R.id.et_destination);
         etNotes = view.findViewById(R.id.et_notes);
-        etFriends = view.findViewById(R.id.et_invite_friends);
         etBudget = view.findViewById(R.id.et_budget);
         spinnerBudgetCurrency = view.findViewById(R.id.spinner_budget_currency);
         btnFinish = view.findViewById(R.id.btn_finish);
@@ -129,13 +127,12 @@ public class TripDestinationFragment extends Fragment {
         btnFinish.setOnClickListener(v -> {
             String destination = etDestination.getText().toString().trim();
             String notes = etNotes.getText().toString().trim();
-            String friends = etFriends.getText().toString().trim();
             String budget = etBudget.getText().toString().trim();
             String currency = spinnerBudgetCurrency.getSelectedItem().toString();
 
             if (validateInput(destination)) {
                 if (listener != null) {
-                    listener.onTripDestinationEntered(destination, notes, friends, budget, currency);
+                    listener.onTripDestinationEntered(destination, notes, budget, currency);
                 }
             }
         });
@@ -159,8 +156,6 @@ public class TripDestinationFragment extends Fragment {
             etDestination.setText(initialDestination);
         if (initialNotes != null)
             etNotes.setText(initialNotes);
-        if (initialFriends != null)
-            etFriends.setText(initialFriends);
         if (initialBudget != null)
             etBudget.setText(initialBudget);
 
@@ -176,10 +171,9 @@ public class TripDestinationFragment extends Fragment {
         return true;
     }
 
-    public void setDestination(String destination, String notes, String friends, String budget, String currency) {
+    public void setDestination(String destination, String notes, String budget, String currency) {
         this.initialDestination = destination;
         this.initialNotes = notes;
-        this.initialFriends = friends;
         this.initialBudget = budget;
         this.initialCurrency = currency;
 
@@ -187,8 +181,6 @@ public class TripDestinationFragment extends Fragment {
             etDestination.setText(destination);
         if (etNotes != null)
             etNotes.setText(notes);
-        if (etFriends != null)
-            etFriends.setText(friends);
         if (etBudget != null)
             etBudget.setText(budget);
         if (spinnerBudgetCurrency != null && currency != null) {

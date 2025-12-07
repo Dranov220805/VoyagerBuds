@@ -24,6 +24,8 @@ public class ScheduleDao {
     private static final String COLUMN_SCHEDULE_TITLE = "title";
     private static final String COLUMN_SCHEDULE_NOTES = "notes";
     private static final String COLUMN_SCHEDULE_LOCATION = "location";
+    private static final String COLUMN_SCHEDULE_LATITUDE = "latitude";
+    private static final String COLUMN_SCHEDULE_LONGITUDE = "longitude";
     private static final String COLUMN_SCHEDULE_PARTICIPANTS = "participants";
     private static final String COLUMN_SCHEDULE_IMAGES = "image_paths";
     private static final String COLUMN_SCHEDULE_NOTIFY_BEFORE = "notify_before_minutes";
@@ -68,6 +70,12 @@ public class ScheduleDao {
         values.put(COLUMN_SCHEDULE_TITLE, item.getTitle());
         values.put(COLUMN_SCHEDULE_NOTES, item.getNotes());
         values.put(COLUMN_SCHEDULE_LOCATION, item.getLocation());
+        if (item.getLatitude() != null) {
+            values.put(COLUMN_SCHEDULE_LATITUDE, item.getLatitude());
+        }
+        if (item.getLongitude() != null) {
+            values.put(COLUMN_SCHEDULE_LONGITUDE, item.getLongitude());
+        }
         values.put(COLUMN_SCHEDULE_PARTICIPANTS, item.getParticipants());
         values.put(COLUMN_SCHEDULE_IMAGES, item.getImagePaths());
         values.put(COLUMN_SCHEDULE_NOTIFY_BEFORE, item.getNotifyBeforeMinutes());
@@ -189,6 +197,16 @@ public class ScheduleDao {
         int notifyBeforeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_NOTIFY_BEFORE);
         if (notifyBeforeIndex != -1) {
             item.setNotifyBeforeMinutes(cursor.getInt(notifyBeforeIndex));
+        }
+
+        int latitudeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LATITUDE);
+        if (latitudeIndex != -1 && !cursor.isNull(latitudeIndex)) {
+            item.setLatitude(cursor.getDouble(latitudeIndex));
+        }
+
+        int longitudeIndex = cursor.getColumnIndex(COLUMN_SCHEDULE_LONGITUDE);
+        if (longitudeIndex != -1 && !cursor.isNull(longitudeIndex)) {
+            item.setLongitude(cursor.getDouble(longitudeIndex));
         }
 
         item.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SCHEDULE_CREATED_AT)));

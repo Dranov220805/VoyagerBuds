@@ -29,7 +29,7 @@ android {
         buildConfigField("String", "SMTP_PASSWORD", "\"${localProperties.getProperty("SMTP_PASSWORD")}\"")
         buildConfigField("String", "SMTP_FROM_EMAIL", "\"${localProperties.getProperty("SMTP_FROM_EMAIL")}\"")
         buildConfigField("String", "SMTP_FROM_NAME", "\"${localProperties.getProperty("SMTP_FROM_NAME")}\"")
-        buildConfigField("String", "CURRENCY_API_KEY", "\"${localProperties.getProperty("CURRENCY_API_KEY")}\"")
+        // CURRENCY_API_KEY removed - now using free exchange-api (no key required)
     }
 
     buildTypes {
@@ -66,6 +66,7 @@ dependencies {
 
     // OSMDroid for map
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
     // Google Play Services for location
     implementation("com.google.android.gms:play-services-location:21.0.1")

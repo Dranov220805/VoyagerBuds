@@ -28,7 +28,7 @@ public class EmergencyCheckWorker extends Worker {
     private static final String KEY_LAST_ACTIVITY = "last_activity_time";
     private static final String KEY_ALERT_ENABLED = "emergency_alert_enabled";
     private static final String KEY_TIMEOUT_INDEX = "emergency_timeout_index";
-    private static final String KEY_CONTACT_EMAIL = "emergency_contact_email";
+    private static final String KEY_EMERGENCY_CONTACTS = "emergency_contacts";
     private static final String KEY_LAST_ALERT_SENT = "last_alert_sent_time";
 
     public EmergencyCheckWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -48,10 +48,24 @@ public class EmergencyCheckWorker extends Worker {
 
         long lastActivityTime = prefs.getLong(KEY_LAST_ACTIVITY, System.currentTimeMillis());
         int timeoutIndex = prefs.getInt(KEY_TIMEOUT_INDEX, 1); // Default 24h
-        String contactEmail = prefs.getString(KEY_CONTACT_EMAIL, "");
+        String contactsJson = prefs.getString(KEY_EMERGENCY_CONTACTS, "[]");
 
-        if (contactEmail.isEmpty()) {
-            Log.w(TAG, "No emergency contact email configured.");
+        java.util.List<String> contactEmails = new java.util.ArrayList<>();
+        try {
+            org.json.JSONArray jsonArray = new org.json.JSONArray(contactsJson);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                org.json.JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String email = jsonObject.getString("email");
+                if (email != null && !email.isEmpty()) {
+                    contactEmails.add(email);
+                }
+            }
+        } catch (org.json.JSONException e) {
+            Log.e(TAG, "Error parsing emergency contacts", e);
+        }
+
+        if (contactEmails.isEmpty()) {
+            Log.w(TAG, "No emergency contacts configured.");
             return Result.success();
         }
 
@@ -95,20 +109,27 @@ public class EmergencyCheckWorker extends Worker {
                 locationString = "Location permission not granted.";
             }
 
-            // Send Email
+            // Send Email to all contacts
             String subject = "EMERGENCY ALERT: VoyagerBuds User Inactivity";
             String body = "This is an automated alert from VoyagerBuds.\n\n" +
                     "The user has been inactive for more than " + (timeoutMillis / (3600 * 1000)) + " hours.\n\n" +
                     "Last Known Location:\n" + locationString + "\n\n" +
                     "Please contact the user immediately.";
 
-            try {
-                EmailSender.sendEmailSync(contactEmail, subject, body);
-                Log.i(TAG, "Emergency email sent successfully.");
-                // Update last alert time only on success
+            boolean allSent = true;
+            for (String email : contactEmails) {
+                try {
+                    EmailSender.sendEmailSync(email, subject, body);
+                    Log.i(TAG, "Emergency email sent to: " + email);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error sending emergency email to: " + email, e);
+                    allSent = false;
+                }
+            }
+
+            // Update last alert time if at least one email was sent
+            if (allSent || contactEmails.size() > 0) {
                 prefs.edit().putLong(KEY_LAST_ALERT_SENT, currentTime).apply();
-            } catch (Exception e) {
-                Log.e(TAG, "Error sending emergency email", e);
             }
         }
 

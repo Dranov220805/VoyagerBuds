@@ -108,9 +108,14 @@ public class MapFragment extends Fragment {
     }
 
     private void addTemporaryPin(double lat, double lng, String title, String snippet, String time, String budget) {
-        // Wait for map to be ready
+        // Wait for map to be ready and fully initialized
         mapView.post(() -> {
             GeoPoint point = new GeoPoint(lat, lng);
+
+            // Center and zoom to the pin location immediately
+            mapView.getController().setCenter(point);
+            mapView.getController().setZoom(16.0);
+
             Marker marker = new Marker(mapView);
             marker.setPosition(point);
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
@@ -118,21 +123,19 @@ public class MapFragment extends Fragment {
             marker.setTitle(title);
             marker.setSnippet(snippet != null ? snippet : "Temporary Pin");
             marker.setSubDescription(time); // Use subDescription for time
-            // We can use related object to store budget or other data if needed,
-            // but for now let's just pass it to the info window via a custom property or
-            // just handle it in the info window class if we pass it in constructor.
-            // Actually, Marker doesn't have a generic tag field easily accessible in
-            // InfoWindow without casting or subclassing.
-            // But we can set the related object.
             marker.setRelatedObject(budget);
 
             // Set custom info window
             marker.setInfoWindow(new SimpleInfoWindow(R.layout.info_window_simple, mapView));
 
             mapView.getOverlays().add(marker);
-            mapView.getController().setCenter(point);
-            mapView.getController().setZoom(15.0);
-            marker.showInfoWindow();
+
+            // Post another delayed action to ensure centering after marker is added
+            mapView.postDelayed(() -> {
+                mapView.getController().animateTo(point);
+                marker.showInfoWindow();
+                mapView.invalidate();
+            }, 300);
         });
     }
 

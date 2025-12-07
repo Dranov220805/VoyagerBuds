@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "VoyagerBuds.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
 
     // Trips table
     private static final String TABLE_TRIPS = "Trips";
@@ -82,6 +82,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_SCHEDULE_NOTES = "notes";
     // private static final String COLUMN_SCHEDULE_ICON = "icon"; // Removed
     private static final String COLUMN_SCHEDULE_LOCATION = "location";
+    private static final String COLUMN_SCHEDULE_LATITUDE = "latitude";
+    private static final String COLUMN_SCHEDULE_LONGITUDE = "longitude";
     private static final String COLUMN_SCHEDULE_PARTICIPANTS = "participants";
     // private static final String COLUMN_SCHEDULE_EXPENSE_AMOUNT =
     // "expense_amount"; // Removed
@@ -145,6 +147,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_SCHEDULE_NOTES + " TEXT,"
                 // + COLUMN_SCHEDULE_ICON + " TEXT," // Removed
                 + COLUMN_SCHEDULE_LOCATION + " TEXT,"
+                + COLUMN_SCHEDULE_LATITUDE + " REAL,"
+                + COLUMN_SCHEDULE_LONGITUDE + " REAL,"
                 + COLUMN_SCHEDULE_PARTICIPANTS + " TEXT,"
                 // + COLUMN_SCHEDULE_EXPENSE_AMOUNT + " REAL," // Removed
                 // + COLUMN_SCHEDULE_EXPENSE_CURRENCY + " TEXT," // Removed
@@ -254,6 +258,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + TABLE_TRIPS + "(" + COLUMN_TRIP_ID + ")"
                     + ")";
             db.execSQL(CREATE_CAPTURES_TABLE);
+        }
+        if (oldVersion < 12) {
+            // Add latitude and longitude columns to Schedules table
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_LATITUDE + " REAL");
+            db.execSQL("ALTER TABLE " + TABLE_SCHEDULES + " ADD COLUMN " + COLUMN_SCHEDULE_LONGITUDE + " REAL");
         }
     }
 

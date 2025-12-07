@@ -13,6 +13,8 @@ public class ScheduleItem implements Serializable {
     private String notes;
     // private String icon; // Removed as per requirement
     private String location; // location string
+    private Double latitude; // location latitude coordinate
+    private Double longitude; // location longitude coordinate
     private String participants; // comma-separated participant names
     private String imagePaths; // JSON or comma-separated paths
     private int notifyBeforeMinutes; // 0 means no notification
@@ -84,6 +86,22 @@ public class ScheduleItem implements Serializable {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public String getParticipants() {

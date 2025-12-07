@@ -174,10 +174,10 @@ public class TripDao {
      */
     public List<Trip> getTripsByDateRangeExcluding(int userId, String startDate, String endDate, int excludeTripId) {
         List<Trip> tripList = new ArrayList<>();
+        // Inline excludeTripId to avoid potential binding type issues
         String selection = COLUMN_USER_ID + " = ? AND " + COLUMN_START_DATE + " <= ? AND " + COLUMN_END_DATE
-                + " >= ? AND " + COLUMN_TRIP_ID + " != ?";
-        String[] selectionArgs = new String[] { String.valueOf(userId), endDate, startDate,
-                String.valueOf(excludeTripId) };
+                + " >= ? AND " + COLUMN_TRIP_ID + " != " + excludeTripId;
+        String[] selectionArgs = new String[] { String.valueOf(userId), endDate, startDate };
 
         Cursor cursor = database.query(TABLE_TRIPS, null, selection, selectionArgs, null, null, null);
 
@@ -258,4 +258,3 @@ public class TripDao {
         return hash.toString();
     }
 }
-

@@ -31,6 +31,26 @@
     <string name="preferences">Preferences</string>
     <string name="support">Support</string>
     <string name="emergency_contacts">Emergency Contacts</string>
+    <string name="inactivity_timeout">Inactivity Timeout</string>
+    <string name="emergency_contact_list">Contact List</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="add_emergency_contact">Add Emergency Contact</string>
+    <string name="edit_emergency_contact">Edit Emergency Contact</string>
+    <string name="no_emergency_contacts">No emergency contacts added yet</string>
+    <string name="contact_name">Contact Name</string>
+    <string name="relationship">Relationship</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="enter_name">Enter name</string>
+    <string name="enter_relationship">e.g., Mother, Father, Sibling</string>
+    <string name="enter_email">Enter email address</string>
+    <string name="enter_phone">Enter phone number</string>
+    <string name="save_settings">SAVE SETTINGS</string>
+    <string name="delete_contact_confirm">Are you sure you want to delete this contact?</string>
+    <string name="contact_saved">Contact saved successfully</string>
+    <string name="contact_deleted">Contact deleted</string>
+    <string name="fill_all_fields">Please fill in all required fields</string>
+    <string name="close">Close</string>
+    <string name="settings_saved">Settings saved successfully</string>
     <string name="theme_subtitle">Light / Dark</string>
     <string name="language_subtitle">English / Vietnamese</string>
     <string name="edit_profile">Edit Profile</string>
@@ -48,6 +68,12 @@
     <string name="backing_up_message">Please wait while we upload data to Firebase...</string>
     <string name="backup_completed">Backup completed successfully</string>
     <string name="backup_failed_title">Backup Failed</string>
+    <string name="backup_cloud_check_title">Cloud Backup Found</string>
+    <string name="backup_cloud_check_message">You already have backup data on the cloud:\n\n%s\n\nDo you want to overwrite it with your current local data?</string>
+    <string name="backup_cloud_check_message_detailed">You already have backup data on the cloud:\n\n%1$s\n\nDo you want to overwrite it with your current local data?\n\nYour local trips:\n\n%2$s</string>
+    <string name="backup_no_cloud_data_title">Create Backup</string>
+    <string name="backup_no_cloud_data_message">No existing backup found on the cloud.\n\nYour local trips:\n\n%s\n\nProceed with backup?</string>
+    <string name="action_cancel">Cancel</string>
     <string name="copy_details">Copy details</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="restore_login_prompt">Please log in to restore data</string>
@@ -109,6 +135,16 @@
     <string name="light_mode">Light Mode</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="theme">Theme</string>
+    
+    <!-- Network and Account Type Messages -->
+    <string name="no_network_connection">No internet connection</string>
+    <string name="no_network_backup_message">Backup and restore features require an internet connection. Please check your network settings and try again.</string>
+    <string name="no_network_restore_message">Restore feature requires an internet connection. Please check your network settings and try again.</string>
+    <string name="local_account_title">Local Account Detected</string>
+    <string name="local_account_backup_message">You are using a local account. To use backup and restore features, you need to connect to a Firebase account.\n\nWould you like to sign in with Google to enable cloud backup?</string>
+    <string name="local_account_restore_message">You are using a local account. To restore data from cloud, you need to connect to a Firebase account.\n\nWould you like to sign in with Google?</string>
+    <string name="maybe_later">Maybe Later</string>
+    <string name="checking_connection">Checking connection...</string>
 
     <!-- Trip Management -->
     <string name="my_trips">My Trips</string>
@@ -491,7 +527,12 @@
     <string name="example_food_cost">$2,450</string>
     <string name="emergency_alert">Emergency Alert</string>
     <string name="emergency_alert_description">Auto-send alert to relatives if inactive for 24h</string>
-    <string name="last_activity">Last Activity: 2 hours ago</string>
+    <string name="last_activity">Last Activity: %s</string>
+    <string name="visit_singular">visit</string>
+    <string name="visit_plural">visits</string>
+    <string name="no_expenses_for_day">No expenses for this day</string>
+    <string name="emergency_alerts_disabled">Emergency alerts are currently disabled.</string>
+    <string name="emergency_alert_timeout">Auto-send alert to relatives if inactive for %s</string>
     <string name="group_trips">Group Trips</string>
     <string name="see_all_groups">See All</string>
     <string name="example_group_title">Europe Adventure</string>
@@ -538,6 +579,13 @@
     <string name="get_my_location">Get my location</string>
     <string name="location_found">Location found</string>
     <string name="geocoding_error">Geocoding error</string>
+    <string name="pick_location">Pick Location</string>
+    <string name="search_location">Search location</string>
+    <string name="tap_map_to_select_location">Drag map to select location</string>
+    <string name="confirm_location">Confirm Location</string>
+    <string name="my_location">My Location</string>
+    <string name="location_not_available">Location not available</string>
+    <string name="error_getting_location">Error getting location</string>
     <string name="add_image">Add image</string>
     <string name="hint_expense_amount">Expense ammount</string>
     <string name="schedule_image_desc">Schedule Image</string>
@@ -636,4 +684,23 @@
         <item>48 Hours</item>
         <item>72 Hours</item>
     </string-array>
+    <string name="error_name_required">Name is required</string>
+    <string name="error_amount_required">Amount is required</string>
+    <string name="error_invalid_amount">Invalid amount format</string>
+    <string name="error_saving_expense">Error saving expense: %1$s</string>
+    <string name="error_updating_expense">Error updating expense: %1$s</string>
+    <string name="error_trip_data_not_loaded">Trip data not loaded</string>
+    <string name="error_loading_trip_dates">Error loading trip dates</string>
+    <string name="error_rotate_image">Failed to rotate image</string>
+    <string name="expense_name_hint">Expense Name</string>
+    <string name="expense_description_hint">Description (Text)</string>
+    <string name="images_label">Images</string>
+    <string name="save_expense">Save Expense</string>
+    <string name="budget_label">Budget</string>
+    <string name="spent_label">Spent</string>
+    <string name="remaining_label">Remaining</string>
+    <string name="no_budget_set">No budget set</string>
+    <string name="unique_places">Unique Places</string>
+    <string name="most_visited_places">Most Visited Places</string>
+    <string name="total_spent_budget">Total Spent / Budget</string>
 </resources>

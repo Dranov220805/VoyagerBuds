@@ -79,6 +79,11 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             android:exported="false" />
+        <activity
+            android:name=".activities.LocationPickerActivity"
+            android:theme="@style/Theme.VoyagerBuds.NoActionBar"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

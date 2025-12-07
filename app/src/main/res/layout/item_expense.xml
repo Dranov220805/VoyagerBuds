@@ -19,7 +19,7 @@
             android:id="@+id/iv_category_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/ic_money"
+            android:src="@drawable/ic_amount"
             android:background="@drawable/circle_bg_light"
             android:padding="8dp"
             app:tint="@color/main_color_voyager"/>
