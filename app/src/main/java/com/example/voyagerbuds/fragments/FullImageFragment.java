@@ -183,6 +183,8 @@ public class FullImageFragment extends Fragment {
             updateOverlay(newPos);
         }
 
-        Toast.makeText(requireContext(), getString(R.string.photo_deleted), Toast.LENGTH_SHORT).show();
+        if (getContext() != null && isAdded()) {
+            Toast.makeText(getContext(), getString(R.string.photo_deleted), Toast.LENGTH_SHORT).show();
+        }
     }
 }

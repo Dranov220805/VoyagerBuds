@@ -360,7 +360,7 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
             List<String> pathsToRemove = entry.getValue();
 
             ScheduleItem schedule = databaseHelper.getScheduleById(scheduleId);
-            if (schedule != null) {
+            if (schedule != null && schedule.getImagePaths() != null && !schedule.getImagePaths().isEmpty()) {
                 try {
                     JSONArray currentArray = new JSONArray(schedule.getImagePaths());
                     JSONArray newArray = new JSONArray();
@@ -383,7 +383,7 @@ public class TripGalleryFragment extends Fragment implements GalleryAdapter.OnIt
             List<String> pathsToRemove = entry.getValue();
 
             Expense expense = databaseHelper.getExpenseById(expenseId);
-            if (expense != null) {
+            if (expense != null && expense.getImagePaths() != null && !expense.getImagePaths().isEmpty()) {
                 try {
                     JSONArray currentArray = new JSONArray(expense.getImagePaths());
                     JSONArray newArray = new JSONArray();

@@ -128,30 +128,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
+        android:gravity="center"
         android:layout_marginTop="14dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_overwrite"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:text="@string/action_overwrite" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_merge"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/action_merge" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_append"
-            style="@style/Widget.MaterialComponents.Button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/action_append" />
 
     </LinearLayout>

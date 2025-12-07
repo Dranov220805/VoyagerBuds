@@ -66,18 +66,10 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         }
         holder.tvExpenseNote.setText(noteDisplay);
 
-        // Format amount
-        java.text.NumberFormat numberFormat = java.text.NumberFormat.getNumberInstance();
-        numberFormat.setMaximumFractionDigits(0);
-        numberFormat.setMinimumFractionDigits(0);
-
-        String currencySymbol = expense.getCurrency();
-        if ("VND".equals(currencySymbol)) {
-            currencySymbol = "VNĐ";
-        }
-
-        String formattedAmount = numberFormat.format(Math.abs(expense.getAmount()));
-        String amountText = "-" + formattedAmount + " " + currencySymbol;
+        // Format amount using CurrencyHelper for proper localization
+        String formattedAmount = com.example.voyagerbuds.utils.CurrencyHelper.formatAmountByLanguage(
+                context, Math.abs(expense.getAmount()), expense.getCurrency());
+        String amountText = "-" + formattedAmount;
 
         // All expenses are shown in red with minus sign
         holder.tvExpenseAmount.setText(amountText);

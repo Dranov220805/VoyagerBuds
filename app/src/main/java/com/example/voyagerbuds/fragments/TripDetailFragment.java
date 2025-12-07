@@ -1936,8 +1936,20 @@ public class TripDetailFragment extends Fragment {
         View btnCloseSheet = dialogView.findViewById(R.id.btn_close_sheet);
 
         etCategory.setText(expense.getCategory());
-        etAmount.setText(String.format(Locale.getDefault(), "%.0f", expense.getAmount()));
-        etCurrency.setText(expense.getCurrency());
+        // Localize amount and currency
+        String formattedAmount = com.example.voyagerbuds.utils.CurrencyHelper.formatAmountByLanguage(getContext(),
+                expense.getAmount(), expense.getCurrency());
+        etAmount.setText(formattedAmount);
+        // Optionally, show currency name localized (if you want to show just the
+        // currency code, keep as is)
+        String currencyDisplay = expense.getCurrency();
+        if (currencyDisplay != null && currencyDisplay.equalsIgnoreCase("USD")) {
+            currencyDisplay = getString(R.string.currency_usd);
+        } else if (currencyDisplay != null
+                && (currencyDisplay.equalsIgnoreCase("VND") || currencyDisplay.equalsIgnoreCase("VNĐ"))) {
+            currencyDisplay = "VNĐ";
+        }
+        etCurrency.setText(currencyDisplay);
 
         // Format date
         if (expense.getSpentAt() > 0) {

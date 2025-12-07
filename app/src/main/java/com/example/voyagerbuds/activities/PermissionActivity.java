@@ -14,6 +14,10 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.voyagerbuds.R;
 import com.example.voyagerbuds.utils.PermissionUtils;
@@ -119,41 +123,70 @@ public class PermissionActivity extends BaseActivity {
                     .append("\n\n");
         }
 
-        new AlertDialog.Builder(this)
-            .setTitle(R.string.permissions_required_title)
-            .setMessage(message.toString())
-            .setPositiveButton(R.string.grant_permissions, (dialog, which) -> PermissionUtils.requestPermissions(
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.permissions_required_title)
+                .setMessage(message.toString())
+                .setPositiveButton(R.string.grant_permissions, (d, which) -> PermissionUtils.requestPermissions(
                         this,
                         deniedPermissions.toArray(new String[0]),
                         PermissionUtils.PERMISSION_REQUEST_CODE))
-                .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
                 .setCancelable(false)
-                .show();
+                .create();
+
+        centerDialogTitle(dialog);
+        dialog.show();
     }
 
     private void showSkipDialog() {
-        new AlertDialog.Builder(this)
+        AlertDialog skipDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.skip_permissions_title)
                 .setMessage(getString(R.string.skip_permissions_message))
-                .setPositiveButton(R.string.skip_anyway, (dialog, which) -> {
+                .setPositiveButton(R.string.skip_anyway, (d, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
-                .setNegativeButton(R.string.go_back, (dialog, which) -> dialog.dismiss())
-                .show();
+                .setNegativeButton(R.string.go_back, (d, which) -> d.dismiss())
+                .create();
+
+        centerDialogTitle(skipDialog);
+        skipDialog.show();
     }
 
     private void showSettingsDialog() {
-        new AlertDialog.Builder(this)
+        AlertDialog settingsDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.permissions_required_title)
                 .setMessage(getString(R.string.permissions_denied_settings_message))
-                .setPositiveButton(R.string.open_settings, (dialog, which) -> openAppSettings())
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                .setPositiveButton(R.string.open_settings, (d, which) -> openAppSettings())
+                .setNegativeButton(R.string.cancel, (d, which) -> {
                     savePermissionsRequested();
                     proceedToNextActivity();
                 })
                 .setCancelable(false)
-                .show();
+                .create();
+
+        centerDialogTitle(settingsDialog);
+        settingsDialog.show();
+    }
+
+    private void centerDialogTitle(AlertDialog dialog) {
+        if (dialog == null)
+            return;
+        try {
+            TextView title = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+            if (title != null) {
+                title.setGravity(Gravity.CENTER);
+                title.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                ViewGroup.LayoutParams params = title.getLayoutParams();
+                if (params != null) {
+                    params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+                    title.setLayoutParams(params);
+                }
+            }
+        } catch (Exception e) {
+            // Fallback silently; not critical
+            e.printStackTrace();
+        }
     }
 
     private void openAppSettings() {
@@ -196,7 +229,7 @@ public class PermissionActivity extends BaseActivity {
     }
 
     private void onAllPermissionsGranted() {
-        Toast.makeText(this, "All permissions granted! Thank you.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.permission_all_granted_thanks), Toast.LENGTH_SHORT).show();
         savePermissionsRequested();
         proceedToNextActivity();
     }

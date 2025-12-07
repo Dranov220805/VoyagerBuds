@@ -26,13 +26,14 @@
         <!-- Title -->
         <TextView
             android:id="@+id/title_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/permission_welcome_title"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:textAlignment="center" />
 
         <!-- Subtitle -->
         <TextView

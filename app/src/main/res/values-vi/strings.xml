@@ -71,8 +71,8 @@
     <string name="backup_cloud_check_title">Tìm thấy bản sao lưu trên đám mây</string>
     <string name="backup_cloud_check_message">Bạn đã có dữ liệu sao lưu trên đám mây:\n\n%s\n\nBạn có muốn ghi đè nó với dữ liệu cục bộ hiện tại không?</string>
     <string name="backup_cloud_check_message_detailed">Bạn đã có dữ liệu sao lưu trên đám mây:\n\n%1$s\n\nBạn có muốn ghi đè nó với dữ liệu cục bộ hiện tại không?\n\nCác chuyến đi của bạn:\n\n%2$s</string>
-    <string name="backup_no_cloud_data_title">Tạo bản sao lưu</string>
-    <string name="backup_no_cloud_data_message">Không tìm thấy bản sao lưu trên đám mây.\n\nCác chuyến đi của bạn:\n\n%s\n\nTiếp tục sao lưu?</string>
+    <string name="backup_no_cloud_data_title">Tạo sao lưu</string>
+    <string name="backup_no_cloud_data_message">Không tìm thấy dữ liệu sao lưu trên đám mây.\n\nCác chuyến đi của bạn:\n\n%s\n\nTiến hành sao lưu?</string>
     <string name="action_cancel">Hủy</string>
     <string name="copy_details">Sao chép chi tiết</string>
     <string name="copied_to_clipboard">Đã sao chép vào clipboard</string>
